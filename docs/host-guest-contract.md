@@ -4,7 +4,7 @@ The Mac app (`macos/`) and the Ubuntu guest tools (`guest/`) meet only at the in
 
 ## Virtual devices
 
-- `virtio-serial-pci` with these `virtserialport` names. On the Mac, each port is a QEMU UNIX socket served by an `omarchy-vm-helper` bridge from Try Omarchy v1.3.0. The wire protocol on each port is exactly the one that bridge speaks; see `NativeClipboardBridge.swift`, `NativeAudioBridge.swift` and `NativeTimeZoneBridge.swift` in `../ubuntu-qemu-prototype/try-omarchy-src/macos/Sources/OmarchyVMHelper/`.
+- `virtio-serial-pci` with these `virtserialport` names. On the Mac, each port is a QEMU UNIX socket served by an `omarchy-vm-helper` bridge from Try Omarchy v1.3.0. The wire protocol on each port is exactly the one that bridge speaks; see `NativeClipboardBridge.swift`, `NativeAudioBridge.swift` and `NativeTimeZoneBridge.swift` in `.deps/try-omarchy/macos/Sources/OmarchyVMHelper/`.
   - `dev.linuxvm.clipboard`: helper `--bridge-native-clipboard`.
   - `dev.linuxvm.audio`: helper `--bridge-native-audio` (QEMU runs with `OMARCHY_SDL_AUDIO_CONTROL_DIRECTORY`).
   - `dev.linuxvm.timezone`: helper `--bridge-native-timezone`.

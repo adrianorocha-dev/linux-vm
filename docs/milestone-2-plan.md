@@ -39,13 +39,13 @@ Everything else is measured with it.
 
 ### 4. Host lifecycle
 
-- **Mac sleep:** pause the VM when the Mac sleeps and resume it afterwards, as Try Omarchy's `VMHostSleepController` does, then correct the guest clock.
+- **Mac sleep:** pause running VMs when the Mac sleeps and resume them when it wakes, as Try Omarchy's `VMHostSleepController` does. Then correct the guest clock. This is on by default, with a per-VM setting to turn it off.
 - **Storage:** stop cleanly when the storage volume disappears.
-- **Login:** start chosen VMs at login. This is optional and needs a decision.
+- **Login:** VMs do not start at login. This was decided on 2 November 2026.
 
 ### 5. Guest integration that survives updates
 
-- **GNOME versions:** the extension declares `shell-version: ["50"]`, so a GNOME 51 upgrade would disable it. Choose a version policy and a way to ship updates, such as an apt repository or an update on the Guest Tools disc.
+- **GNOME versions:** the extension declares `shell-version: ["50"]`, so a GNOME 51 upgrade would disable it. Choose a version policy. Updates ship only on the Guest Tools disc for now; there is no apt repository. The app should say when a VM's installed package is older than the disc's.
 - **Package updates:** version every package change, and make each app version work with older and newer packages.
 
 ### 6. Carried over from Milestone 1
@@ -72,8 +72,11 @@ Everything else is measured with it.
 - A fresh VM installs and passes the checks without manual steps, and survives repeated starts, shutdowns, reboots and Mac sleep.
 - A guest update, including a GNOME update, does not silently remove the integration.
 
-## Open decisions
+## Decisions
 
-- **Project location:** the repository lives in a T3 scratch folder. A permanent location would be safer.
-- **Guest package updates:** an apt repository, or updates only through the Guest Tools disc.
-- **Start at login:** whether VMs should start at login, and whether pausing on Mac sleep should be configurable.
+Made on 2 November 2026:
+
+- **Project location:** the repository lives at `~/ccsandbox/linux-vm`.
+- **Guest package updates:** only through the Guest Tools disc, for now.
+- **Start at login:** VMs do not start at login.
+- **Mac sleep:** VMs pause while the Mac sleeps.
