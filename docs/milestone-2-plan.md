@@ -66,7 +66,7 @@ Everything else is measured with it.
 GPT-6.1-Sol built three modules against the updated [contract](host-guest-contract.md); Claude reviewed, fixed and integrated them, added the app UI and verified them on fresh VMs installed by the harness.
 
 - **Test harness** ([scripts/harness](../scripts/harness/README.md)). `fresh-install` installs Ubuntu unattended, with automatic GNOME login and the guest tools, in about 13½ minutes (4 GB, 4 CPUs). It refuses to run beside another VM, removes only VMs it created, and cleans up on Ctrl-C. Guest-side tools capture Mutter's monitor state and EDID, a PNG through the screenshot portal, libinput and evdev recordings with an analyzer, and frame timing. QMP multi-touch events reach the virtual touchpad, so scroll and pinch can be replayed without a person.
-- **Mac sleep.** The supervisor pauses a running VM when the Mac sleeps, unless its new "Pause while the Mac sleeps" setting is off, and resumes only a pause it made. After every wake it prompts Linux, which steps its clock forward from the RTC when it is more than 5 seconds behind. The shutdown deadline no longer counts Mac sleep. Verified with simulated sleep (`LINUXVM_DEBUG_SLEEP_SIGNALS`): after 40 seconds paused, the guest clock was within 0.1 s of the Mac's a second after wake, and with the setting off the VM kept running and still got its wake. A real Mac sleep is not yet verified.
+- **Mac sleep.** The supervisor pauses a running VM when the Mac sleeps, unless its new "Pause while the Mac sleeps" setting is off, and resumes only a pause it made. After every wake it prompts Linux, which steps its clock forward from the RTC when it is more than 5 seconds behind. The shutdown deadline no longer counts Mac sleep. Verified with simulated sleep (`LINUXVM_DEBUG_SLEEP_SIGNALS`): after 40 seconds paused, the guest clock was within 0.1 s of the Mac's a second after wake, and with the setting off the VM kept running and still got its wake. A real Mac sleep is verified too (see below).
 - **Guest status.** Guest tools 0.2.0 report their version, Ubuntu and GNOME versions and the clipboard extension's state on `dev.linuxvm.status`. The supervisor keeps the last report in `guest.json`; the app's new Guest Tools section and `linuxvmctl status` show it and say when the disc is newer. Verified live, including the extension being turned off and on.
 - **Upgrade.** A fresh VM with guest tools 0.1.0 sent no report, and the app worked without one. `./install.sh` from the new disc upgraded it to 0.2.0: the system units started at once, and after the next login the extension was active again and a 0.2.0 report arrived. Until that login the clipboard is off, as the installer says. Removing and purging the package left no units or state behind.
 - **GNOME version policy.** The extension lists only tested GNOME versions. After an untested GNOME upgrade the report says `outdated` and the app says so; updates ship on the disc.
@@ -84,12 +84,19 @@ First presentation measurements (harness run `20261102-124520`, an 800×600 GTK 
 
 The guest paces frames better when it is busy than when it is idle. Slow vCPU wakeups or macOS scheduling QEMU's threads on efficiency cores are the first suspects.
 
+### At the Mac (2 November 2026)
+
+The user's "Ubuntu" VM was upgraded from guest tools 0.1.0 to 0.2.0 with `./install.sh`; after the next login it reported 0.2.0, GNOME 50.1 and an active extension.
+
+- **Clipboard.** Text crossed both ways, Mac → guest and guest → Mac.
+- **Real Mac sleep.** The Mac slept from 17:04 to 18:06 UTC. The supervisor paused QEMU at 17:04:00, five seconds before macOS logged the sleep. Power Nap was on, and the VM stayed paused through about 20 dark wakes, one of them 20 minutes long, and resumed at 18:06:30, a second after the full wake. At 18:06:31 the guest stepped its clock forward by about 62 minutes and restarted chrony, which picked an NTP source at 18:06:38. Evidence: the VM's `logs/supervisor.log`, `pmset -g log`, and the guest journal for `linuxvm-clock-recovery` and `chrony`.
+
 ### Next
 
-- With the user at the Mac: a real sleep and wake; guest → Mac clipboard; scrolling, pinch, swipe and cursor compared with Try Omarchy and macOS; window resizes, full-screen transitions and an external display; starting a VM from the app.
+- With the user at the Mac: scrolling, pinch, swipe and cursor compared with Try Omarchy and macOS; window resizes, full-screen transitions and an external display; starting a VM from the app.
 - Presentation: explain the idle pacing (full screen against window, idle against load, QEMU thread QoS) before tuning anything.
 - Trackpad lifecycle checks with QMP replay: stuck contacts across pause, resume and focus loss.
-- Storage that disappears; Power Nap wakes, which may resume a VM while the screen stays off.
+- Storage that disappears.
 - VirGL's `GL_ARB_draw_instanced` and the helper's "Omarchy" log lines.
 
 ## How the work is split
