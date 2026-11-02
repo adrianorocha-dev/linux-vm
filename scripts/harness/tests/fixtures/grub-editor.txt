@@ -1,0 +1,128 @@
+[2J[01;01H[0m[37m[40m[02;30HGNU GRUB  version 2.14
+
+
+[1m[37m[40m[04;02H/----------------------------------------------------------------------------\[05;02H|[05;79H|[06;02H|[06;79H|[07;02H|[07;79H|[08;02H|[08;79H|[09;02H|[09;79H|[10;02H|[10;79H|[11;02H|[11;79H|[12;02H|[12;79H|[13;02H|[13;79H|[14;02H|[14;79H|[15;02H|[15;79H|[16;02H|[16;79H|[17;02H|[17;79H|[18;02H|[18;79H|[19;02H|[19;79H|[20;02H|[20;79H|[21;02H|[21;79H|[22;02H|[22;79H|[23;02H|[23;79H|[24;02H|[24;79H|[25;02H|[25;79H|[26;02H|[26;79H|[27;02H|[27;79H|[28;02H|[28;79H|[29;02H|[29;79H|[30;02H|[30;79H|[31;02H|[31;79H|[32;02H|[32;79H|[33;02H|[33;79H|[34;02H|[34;79H|[35;02H|[35;79H|[36;02H|[36;79H|[37;02H|[37;79H|[38;02H|[38;79H|[39;02H|[39;79H|[40;02H|[40;79H|[41;02H|[41;79H|[42;02H|[42;79H|[43;02H\----------------------------------------------------------------------------/[44;02H[45;02H[0m[37m[40m     Minimum Emacs-like screen editing is supported. TAB lists           
+
+      completions. Press Ctrl-x or F10 to boot, Ctrl-c or F2 for a        
+
+      command-line or ESC to discard edits and return to the GRUB menu.   [05;03Hsetparams 'Try or Install Ubuntu'                                           [06;03H                                                                            [07;03H    set gfxpayload=keep                                                     [08;03H    linux  /casper/vmlinuz $cmdline  --- quiet splash console=tty0          [09;03H    initrd /casper/initrd                                                   [10;03H                                                                            [11;03H                                                                            [12;03H                                                                            [13;03H                                                                            [14;03H                                                                            [15;03H                                                                            [16;03H                                                                            [17;03H                                                                            [18;03H                                                                            [19;03H                                                                            [20;03H                                                                            [21;03H                                                                            [22;03H                                                                            [23;03H                                                                            [24;03H                                                                            [25;03H                                                                            [26;03H                                                                            [27;03H                                                                            [28;03H                                                                            [29;03H                                                                            [30;03H                                                                            [31;03H                                                                            [32;03H                                                                            [33;03H                                                                            [34;03H                                                                            [35;03H                                                                            [36;03H                                                                            [37;03H                                                                            [38;03H                                                                            [39;03H                                                                            [40;03H                                                                            [41;03H                                                                            [42;03H                                                                            [05;80H [42;80H [05;03H[06;03H[07;03H[08;03H[08;69H[08;03H    linux  /casper/vmlinuz $cmdline  --- quiet splash console=tty0          [08;70H[08;03H    linux  /casper/vmlinuz $cmdline  --- quiet splash console=tty0 a        [08;71H[08;03H    linux  /casper/vmlinuz $cmdline  --- quiet splash console=tty0 au       [08;72H[08;03H    linux  /casper/vmlinuz $cmdline  --- quiet splash console=tty0 aut      [08;73H[08;03H    linux  /casper/vmlinuz $cmdline  --- quiet splash console=tty0 auto     [08;74H[08;03H    linux  /casper/vmlinuz $cmdline  --- quiet splash console=tty0 autoi    [08;75H[08;03H    linux  /casper/vmlinuz $cmdline  --- quiet splash console=tty0 autoin   [08;76H[08;03H    linux  /casper/vmlinuz $cmdline  --- quiet splash console=tty0 autoins  [08;77H[08;03H    linux  /casper/vmlinuz $cmdline  --- quiet splash console=tty0 autoinst [08;78H[08;03H    linux  /casper/vmlinuz $cmdline  --- quiet splash console=tty0 autoinst\
+
+[09;03Ha                                                                           [10;03H    initrd /casper/initrd                                                   [11;03H                                                                            [12;03H                                                                            [13;03H                                                                            [14;03H                                                                            [15;03H                                                                            [16;03H                                                                            [17;03H                                                                            [18;03H                                                                            [19;03H                                                                            [20;03H                                                                            [21;03H                                                                            [22;03H                                                                            [23;03H                                                                            [24;03H                                                                            [25;03H                                                                            [26;03H                                                                            [27;03H                                                                            [28;03H                                                                            [29;03H                                                                            [30;03H                                                                            [31;03H                                                                            [32;03H                                                                            [33;03H                                                                            [34;03H                                                                            [35;03H                                                                            [36;03H                                                                            [37;03H                                                                            [38;03H                                                                            [39;03H                                                                            [40;03H                                                                            [41;03H                                                                            [42;03H                                                                            [42;80H [09;04H[08;03H    linux  /casper/vmlinuz $cmdline  --- quiet splash console=tty0 autoinst\
+
+[09;03Hal                                                                          [09;05H[08;03H    linux  /casper/vmlinuz $cmdline  --- quiet splash console=tty0 autoinst\
+
+[09;03Hall                                                                         [09;06H[08;03H    linux  /casper/vmlinuz $cmdline  --- quiet splash console=tty0 autoinst\
+
+[09;03Hall                                                                         [09;07H[08;03H    linux  /casper/vmlinuz $cmdline  --- quiet splash console=tty0 autoinst\
+
+[09;03Hall d                                                                       [09;08H[08;03H    linux  /casper/vmlinuz $cmdline  --- quiet splash console=tty0 autoinst\
+
+[09;03Hall ds                                                                      [09;09H[08;03H    linux  /casper/vmlinuz $cmdline  --- quiet splash console=tty0 autoinst\
+
+[09;03Hall ds=                                                                     [09;10H[08;03H    linux  /casper/vmlinuz $cmdline  --- quiet splash console=tty0 autoinst\
+
+[09;03Hall ds=n                                                                    [09;11H[08;03H    linux  /casper/vmlinuz $cmdline  --- quiet splash console=tty0 autoinst\
+
+[09;03Hall ds=no                                                                   [09;12H[08;03H    linux  /casper/vmlinuz $cmdline  --- quiet splash console=tty0 autoinst\
+
+[09;03Hall ds=noc                                                                  [09;13H[08;03H    linux  /casper/vmlinuz $cmdline  --- quiet splash console=tty0 autoinst\
+
+[09;03Hall ds=nocl                                                                 [09;14H[08;03H    linux  /casper/vmlinuz $cmdline  --- quiet splash console=tty0 autoinst\
+
+[09;03Hall ds=noclo                                                                [09;15H[08;03H    linux  /casper/vmlinuz $cmdline  --- quiet splash console=tty0 autoinst\
+
+[09;03Hall ds=noclou                                                               [09;16H[08;03H    linux  /casper/vmlinuz $cmdline  --- quiet splash console=tty0 autoinst\
+
+[09;03Hall ds=nocloud                                                              [09;17H[08;03H    linux  /casper/vmlinuz $cmdline  --- quiet splash console=tty0 autoinst\
+
+[09;03Hall ds=nocloud-                                                             [09;18H[08;03H    linux  /casper/vmlinuz $cmdline  --- quiet splash console=tty0 autoinst\
+
+[09;03Hall ds=nocloud-n                                                            [09;19H[08;03H    linux  /casper/vmlinuz $cmdline  --- quiet splash console=tty0 autoinst\
+
+[09;03Hall ds=nocloud-ne                                                           [09;20H[08;03H    linux  /casper/vmlinuz $cmdline  --- quiet splash console=tty0 autoinst\
+
+[09;03Hall ds=nocloud-net                                                          [09;21H[08;03H    linux  /casper/vmlinuz $cmdline  --- quiet splash console=tty0 autoinst\
+
+[09;03Hall ds=nocloud-net\                                                         [09;22H[08;03H    linux  /casper/vmlinuz $cmdline  --- quiet splash console=tty0 autoinst\
+
+[09;03Hall ds=nocloud-net\;                                                        [09;23H[08;03H    linux  /casper/vmlinuz $cmdline  --- quiet splash console=tty0 autoinst\
+
+[09;03Hall ds=nocloud-net\;s                                                       [09;24H[08;03H    linux  /casper/vmlinuz $cmdline  --- quiet splash console=tty0 autoinst\
+
+[09;03Hall ds=nocloud-net\;s=                                                      [09;25H[08;03H    linux  /casper/vmlinuz $cmdline  --- quiet splash console=tty0 autoinst\
+
+[09;03Hall ds=nocloud-net\;s=h                                                     [09;26H[08;03H    linux  /casper/vmlinuz $cmdline  --- quiet splash console=tty0 autoinst\
+
+[09;03Hall ds=nocloud-net\;s=ht                                                    [09;27H[08;03H    linux  /casper/vmlinuz $cmdline  --- quiet splash console=tty0 autoinst\
+
+[09;03Hall ds=nocloud-net\;s=htt                                                   [09;28H[08;03H    linux  /casper/vmlinuz $cmdline  --- quiet splash console=tty0 autoinst\
+
+[09;03Hall ds=nocloud-net\;s=http                                                  [09;29H[08;03H    linux  /casper/vmlinuz $cmdline  --- quiet splash console=tty0 autoinst\
+
+[09;03Hall ds=nocloud-net\;s=http:                                                 [09;30H[08;03H    linux  /casper/vmlinuz $cmdline  --- quiet splash console=tty0 autoinst\
+
+[09;03Hall ds=nocloud-net\;s=http:/                                                [09;31H[08;03H    linux  /casper/vmlinuz $cmdline  --- quiet splash console=tty0 autoinst\
+
+[09;03Hall ds=nocloud-net\;s=http://                                               [09;32H[08;03H    linux  /casper/vmlinuz $cmdline  --- quiet splash console=tty0 autoinst\
+
+[09;03Hall ds=nocloud-net\;s=http://1                                              [09;33H[08;03H    linux  /casper/vmlinuz $cmdline  --- quiet splash console=tty0 autoinst\
+
+[09;03Hall ds=nocloud-net\;s=http://10                                             [09;34H[08;03H    linux  /casper/vmlinuz $cmdline  --- quiet splash console=tty0 autoinst\
+
+[09;03Hall ds=nocloud-net\;s=http://10.                                            [09;35H[08;03H    linux  /casper/vmlinuz $cmdline  --- quiet splash console=tty0 autoinst\
+
+[09;03Hall ds=nocloud-net\;s=http://10.0                                           [09;36H[08;03H    linux  /casper/vmlinuz $cmdline  --- quiet splash console=tty0 autoinst\
+
+[09;03Hall ds=nocloud-net\;s=http://10.0.                                          [09;37H[08;03H    linux  /casper/vmlinuz $cmdline  --- quiet splash console=tty0 autoinst\
+
+[09;03Hall ds=nocloud-net\;s=http://10.0.2                                         [09;38H[08;03H    linux  /casper/vmlinuz $cmdline  --- quiet splash console=tty0 autoinst\
+
+[09;03Hall ds=nocloud-net\;s=http://10.0.2.                                        [09;39H[08;03H    linux  /casper/vmlinuz $cmdline  --- quiet splash console=tty0 autoinst\
+
+[09;03Hall ds=nocloud-net\;s=http://10.0.2.2                                       [09;40H[08;03H    linux  /casper/vmlinuz $cmdline  --- quiet splash console=tty0 autoinst\
+
+[09;03Hall ds=nocloud-net\;s=http://10.0.2.2:                                      [09;41H[08;03H    linux  /casper/vmlinuz $cmdline  --- quiet splash console=tty0 autoinst\
+
+[09;03Hall ds=nocloud-net\;s=http://10.0.2.2:6                                     [09;42H[08;03H    linux  /casper/vmlinuz $cmdline  --- quiet splash console=tty0 autoinst\
+
+[09;03Hall ds=nocloud-net\;s=http://10.0.2.2:60                                    [09;43H[08;03H    linux  /casper/vmlinuz $cmdline  --- quiet splash console=tty0 autoinst\
+
+[09;03Hall ds=nocloud-net\;s=http://10.0.2.2:609                                   [09;44H[08;03H    linux  /casper/vmlinuz $cmdline  --- quiet splash console=tty0 autoinst\
+
+[09;03Hall ds=nocloud-net\;s=http://10.0.2.2:6091                                  [09;45H[08;03H    linux  /casper/vmlinuz $cmdline  --- quiet splash console=tty0 autoinst\
+
+[09;03Hall ds=nocloud-net\;s=http://10.0.2.2:60917                                 [09;46H[08;03H    linux  /casper/vmlinuz $cmdline  --- quiet splash console=tty0 autoinst\
+
+[09;03Hall ds=nocloud-net\;s=http://10.0.2.2:60917/                                [09;47H[08;03H    linux  /casper/vmlinuz $cmdline  --- quiet splash console=tty0 autoinst\
+
+[09;03Hall ds=nocloud-net\;s=http://10.0.2.2:60917/                                [09;48H[08;03H    linux  /casper/vmlinuz $cmdline  --- quiet splash console=tty0 autoinst\
+
+[09;03Hall ds=nocloud-net\;s=http://10.0.2.2:60917/ c                              [09;49H[08;03H    linux  /casper/vmlinuz $cmdline  --- quiet splash console=tty0 autoinst\
+
+[09;03Hall ds=nocloud-net\;s=http://10.0.2.2:60917/ co                             [09;50H[08;03H    linux  /casper/vmlinuz $cmdline  --- quiet splash console=tty0 autoinst\
+
+[09;03Hall ds=nocloud-net\;s=http://10.0.2.2:60917/ con                            [09;51H[08;03H    linux  /casper/vmlinuz $cmdline  --- quiet splash console=tty0 autoinst\
+
+[09;03Hall ds=nocloud-net\;s=http://10.0.2.2:60917/ cons                           [09;52H[08;03H    linux  /casper/vmlinuz $cmdline  --- quiet splash console=tty0 autoinst\
+
+[09;03Hall ds=nocloud-net\;s=http://10.0.2.2:60917/ conso                          [09;53H[08;03H    linux  /casper/vmlinuz $cmdline  --- quiet splash console=tty0 autoinst\
+
+[09;03Hall ds=nocloud-net\;s=http://10.0.2.2:60917/ consol                         [09;54H[08;03H    linux  /casper/vmlinuz $cmdline  --- quiet splash console=tty0 autoinst\
+
+[09;03Hall ds=nocloud-net\;s=http://10.0.2.2:60917/ console                        [09;55H[08;03H    linux  /casper/vmlinuz $cmdline  --- quiet splash console=tty0 autoinst\
+
+[09;03Hall ds=nocloud-net\;s=http://10.0.2.2:60917/ console=                       [09;56H[08;03H    linux  /casper/vmlinuz $cmdline  --- quiet splash console=tty0 autoinst\
+
+[09;03Hall ds=nocloud-net\;s=http://10.0.2.2:60917/ console=t                      [09;57H[08;03H    linux  /casper/vmlinuz $cmdline  --- quiet splash console=tty0 autoinst\
+
+[09;03Hall ds=nocloud-net\;s=http://10.0.2.2:60917/ console=tt                     [09;58H[08;03H    linux  /casper/vmlinuz $cmdline  --- quiet splash console=tty0 autoinst\
+
+[09;03Hall ds=nocloud-net\;s=http://10.0.2.2:60917/ console=tty                    [09;59H[08;03H    linux  /casper/vmlinuz $cmdline  --- quiet splash console=tty0 autoinst\
+
+[09;03Hall ds=nocloud-net\;s=http://10.0.2.2:60917/ console=ttyA                   [09;60H[08;03H    linux  /casper/vmlinuz $cmdline  --- quiet splash console=tty0 autoinst\
+
+[09;03Hall ds=nocloud-net\;s=http://10.0.2.2:60917/ console=ttyAM                  [09;61H[08;03H    linux  /casper/vmlinuz $cmdline  --- quiet splash console=tty0 autoinst\
+
+[09;03Hall ds=nocloud-net\;s=http://10.0.2.2:60917/ console=ttyAMA                 [09;62H[08;03H    linux  /casper/vmlinuz $cmdline  --- quiet splash console=tty0 autoinst\
+
+[09;03Hall ds=nocloud-net\;s=http://10.0.2.2:60917/ console=ttyAMA0                [09;63H

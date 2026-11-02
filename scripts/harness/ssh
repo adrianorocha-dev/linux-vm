@@ -1,0 +1,9 @@
+#!/opt/homebrew/bin/python3.14
+import os
+import shlex
+import sys
+from common import Guest
+if len(sys.argv) < 2:
+    sys.exit('usage: scripts/harness/ssh RUN_DIR [COMMAND ...]')
+guest = Guest.from_run(sys.argv[1])
+os.execvp('ssh', guest.argv() + ([shlex.join(sys.argv[2:])] if len(sys.argv) > 2 else []))

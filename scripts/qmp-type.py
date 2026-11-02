@@ -31,8 +31,9 @@ def control_socket(vm_id):
         return json.load(handle)['controlSocket']
 
 
-def qmp(path):
+def qmp(path, timeout=10):
     connection = socket.socket(socket.AF_UNIX)
+    connection.settimeout(timeout)
     connection.connect(path)
     stream = connection.makefile('rw')
     stream.readline()
@@ -41,13 +42,21 @@ def qmp(path):
         stream.write(json.dumps({'execute': command, 'arguments': arguments}) + '\n')
         stream.flush()
         while True:
-            reply = json.loads(stream.readline())
+            line = stream.readline()
+            if not line:
+                raise ConnectionError(f'QMP disconnected during {command}')
+            reply = json.loads(line)
             if 'return' in reply or 'error' in reply:
                 if 'error' in reply:
                     raise SystemExit(f"{command}: {reply['error']['desc']}")
                 return reply['return']
 
+    def close():
+        stream.close()
+        connection.close()
+
     execute('qmp_capabilities')
+    execute.close = close
     return execute
 
 
@@ -70,9 +79,12 @@ def main():
     vm_id, mode, *rest = sys.argv[1:]
     execute = qmp(control_socket(vm_id))
     sequences = [chord(name) for name in rest] if mode == 'keys' else [character(c) for c in ' '.join(rest)]
-    for keys in sequences:
-        execute('send-key', keys=keys, **{'hold-time': 40})
-        time.sleep(0.06)
+    try:
+        for keys in sequences:
+            execute('send-key', keys=keys, **{'hold-time': 40})
+            time.sleep(0.06)
+    finally:
+        execute.close()
 
 
 if __name__ == '__main__':
