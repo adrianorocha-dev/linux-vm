@@ -8,6 +8,7 @@ nonisolated(unsafe) private var sleepSignal: Int32 = 0
 /// own process (`linuxvmctl run`), so a VM outlives the app that started it.
 public final class Supervisor: @unchecked Sendable {
     public static let shutdownGrace: TimeInterval = 90
+    public static let storageDisconnectedStatus: Int32 = 74
     static let bridgeRestartLimit = 5
 
     private let library: VMLibrary
@@ -23,7 +24,7 @@ public final class Supervisor: @unchecked Sendable {
 
     private func say(_ message: String) {
         let line = "[\(ISO8601DateFormatter().string(from: Date()))] \(message)\n"
-        FileHandle.standardError.write(Data(line.utf8))
+        try? FileHandle.standardError.write(contentsOf: Data(line.utf8))
     }
 
     public func run() throws -> Int32 {
@@ -52,6 +53,12 @@ public final class Supervisor: @unchecked Sendable {
             say("The shared folder is gone; starting without it: \(folder)")
             configuration.sharedFolder = nil
         }
+
+        let storageVolumes = try DiskArbitrationStorageVolumes()
+        guard let machineStorage = storageVolumes.watch(path: library.directory(for: id).path) else {
+            throw LibraryError.failed("Cannot identify the drive holding Linux VM “\(configuration.name)”.")
+        }
+        let sharedStorage = configuration.sharedFolder.flatMap { storageVolumes.watch(path: $0) }
 
         var template = Array("/tmp/linuxvm.XXXXXX".utf8CString)
         guard let created = mkdtemp(&template) else { throw LibraryError.failed("Cannot create a run directory.") }
@@ -93,12 +100,22 @@ public final class Supervisor: @unchecked Sendable {
 
         say("Starting “\(configuration.name)”: \(configuration.cpuCount) CPUs, \(configuration.memoryMiB) MiB")
         try qemu.run()
+        defer {
+            if qemu.isRunning { kill(qemu.processIdentifier, SIGKILL); qemu.waitUntilExit() }
+        }
         var state = RunState(supervisorPID: getpid(), qemuPID: qemu.processIdentifier, phase: .starting,
                              controlSocket: nil, startedAt: Date())
         library.writeRunState(state, id: id)
 
-        guard waitForMonitor(qemu: qemu, paths: paths) else {
+        let monitor = SupervisorMonitor(path: paths.supervisorSocket)
+        let storage = SupervisorStorage(name: configuration.name, machine: machineStorage, sharedFolder: sharedStorage,
+                                        qemu: qemu, monitor: monitor, volumes: storageVolumes, log: { [self] in say($0) })
+        storage.start()
+        defer { storage.stop() }
+        guard waitForMonitor(qemu: qemu, paths: paths, monitor: monitor, storage: storage) else {
+            if qemu.isRunning { kill(qemu.processIdentifier, SIGKILL) }
             qemu.waitUntilExit()
+            if storage.storageDisconnected { return Self.storageDisconnectedStatus }
             throw LibraryError.failed("QEMU exited during startup (status \(qemu.terminationStatus)). See \(logs.appending(path: "qemu.log").path)")
         }
         state.phase = .running
@@ -106,7 +123,7 @@ public final class Supervisor: @unchecked Sendable {
         library.writeRunState(state, id: id)
         say("Running. Control socket: \(paths.controlSocket)")
 
-        let power = SupervisorPower(qemu: qemu, library: library, id: id, socket: paths.supervisorSocket,
+        let power = SupervisorPower(qemu: qemu, library: library, id: id, monitor: monitor,
                                     state: state, log: { [self] in say($0) })
         power.start()
         defer { power.stop() }
@@ -117,6 +134,7 @@ public final class Supervisor: @unchecked Sendable {
         let bridgeLog = try Self.appendHandle(logs.appending(path: "bridges.log"))
         var bridges: [QEMULaunch.Bridge: Process] = [:]
         var restarts: [QEMULaunch.Bridge: Int] = [:]
+        var bridgeRetryAfter: [QEMULaunch.Bridge: TimeInterval] = [:]
         func startBridge(_ bridge: QEMULaunch.Bridge) {
             let process = Process()
             process.executableURL = runtime.helper
@@ -137,6 +155,11 @@ public final class Supervisor: @unchecked Sendable {
 
         var shutdownRequestedAt: TimeInterval?
         while qemu.isRunning {
+            storage.poll()
+            if storage.storageDisconnected {
+                Thread.sleep(forTimeInterval: 0.05)
+                continue
+            }
             if sleepSignal != 0 {
                 let simulated = sleepSignal
                 sleepSignal = 0
@@ -160,15 +183,17 @@ public final class Supervisor: @unchecked Sendable {
                 shutdownRequestedAt = .infinity
             }
             for bridge in QEMULaunch.Bridge.allCases {
-                guard let process = bridges[bridge], !process.isRunning else { continue }
-                bridges[bridge] = nil
-                // QEMU closes its sockets before it finishes exiting.
-                Thread.sleep(forTimeInterval: 0.5)
+                if let process = bridges[bridge], !process.isRunning {
+                    bridges[bridge] = nil
+                    bridgeRetryAfter[bridge] = ProcessInfo.processInfo.systemUptime + 0.5
+                }
+                guard let retryAt = bridgeRetryAfter[bridge], ProcessInfo.processInfo.systemUptime >= retryAt else { continue }
+                bridgeRetryAfter[bridge] = nil
                 guard qemu.isRunning else { break }
                 let count = restarts[bridge, default: 0]
                 if count < Self.bridgeRestartLimit {
                     restarts[bridge] = count + 1
-                    say("The \(bridge.rawValue) bridge exited (status \(process.terminationStatus)); restarting (\(count + 1)/\(Self.bridgeRestartLimit))")
+                    say("The \(bridge.rawValue) bridge exited; restarting (\(count + 1)/\(Self.bridgeRestartLimit))")
                     startBridge(bridge)
                 } else {
                     say("The \(bridge.rawValue) bridge is unavailable for the rest of this run")
@@ -184,15 +209,17 @@ public final class Supervisor: @unchecked Sendable {
             process.waitUntilExit()
         }
         say("QEMU exited with status \(qemu.terminationStatus)")
-        return qemu.terminationStatus
+        return storage.storageDisconnected ? Self.storageDisconnectedStatus : qemu.terminationStatus
     }
 
-    private func waitForMonitor(qemu: Process, paths: QEMULaunch.Paths) -> Bool {
+    private func waitForMonitor(qemu: Process, paths: QEMULaunch.Paths,
+                                monitor: SupervisorMonitor, storage: SupervisorStorage) -> Bool {
         let deadline = Date().addingTimeInterval(30)
         while Date() < deadline {
-            guard qemu.isRunning else { return false }
+            storage.poll()
+            guard qemu.isRunning, !storage.storageDisconnected else { return false }
             if FileManager.default.fileExists(atPath: paths.controlSocket),
-               (try? QMPClient(socketPath: paths.supervisorSocket, timeout: 2)) != nil {
+               (try? monitor.withClient(timeout: 0.5) { _ in true }) == true {
                 return true
             }
             Thread.sleep(forTimeInterval: 0.1)

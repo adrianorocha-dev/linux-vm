@@ -24,6 +24,12 @@ Each VM is a folder in `~/Library/Application Support/Linux VM/VMs/<id>/` with `
 
 The defaults follow our Milestone 0 measurements: the guest's own cursor without the Mac arrow, immersive full screen below the camera housing, and touch scrolling at 0.4 of Try Omarchy's travel.
 
+## Removable storage
+
+While a VM runs, ejecting the drive holding its VM folder or shared folder is refused with a message naming the VM. Ejecting an installer image’s drive first ejects the disc from the VM, then allows the drive to unmount. The supervisor checks the currently inserted disc, including changes made while running.
+
+If a drive is forcibly removed or disconnected, losing the VM folder stops QEMU immediately, without asking Linux to shut down. The supervisor releases its lock, removes its temporary run directory, and exits with status **74** (storage disconnected), even if QEMU exits successfully. It tries QMP `quit`, then kills QEMU if that fails or QEMU remains alive after two seconds. Losing an installer image ejects the disc and keeps the VM running; losing a shared folder is logged and also keeps it running. DiskArbitration notifications and a once-per-second filesystem check detect removal. The Mac’s boot/data volume is excluded.
+
 ## Building
 
 Prerequisites: the patched QEMU runtime and the pinned QEMU source archive, set up as described in [runtime/README.md](runtime/README.md).
