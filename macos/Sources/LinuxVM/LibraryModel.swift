@@ -6,11 +6,15 @@ import Observation
 @Observable
 final class LibraryModel {
     let library = VMLibrary()
-    let runtime = Runtime.locate()
+    let runtime: Runtime
     let host = HostResources.current
+    /// The guest tools version on this app's Guest Tools disc.
+    let discGuestTools: String?
 
     private(set) var machines: [VMConfiguration] = []
     private(set) var states: [String: VMState] = [:]
+    /// The last status each VM's guest tools reported, kept across runs.
+    private(set) var reports: [String: GuestReport] = [:]
     /// Operations in flight, so buttons can show progress and stay disabled.
     private(set) var busy: Set<String> = []
     var selection: String?
@@ -18,6 +22,9 @@ final class LibraryModel {
     private var refreshTask: Task<Void, Never>?
 
     init() {
+        let runtime = Runtime.locate()
+        self.runtime = runtime
+        discGuestTools = runtime.guestToolsVersion
         reload()
         selection = machines.first?.id
         refreshTask = Task { [weak self] in
@@ -38,10 +45,13 @@ final class LibraryModel {
 
     func refreshStates() {
         var updated: [String: VMState] = [:]
+        var updatedReports: [String: GuestReport] = [:]
         for machine in machines {
             updated[machine.id] = library.status(id: machine.id).state
+            updatedReports[machine.id] = library.guestReport(id: machine.id)
         }
         if updated != states { states = updated }
+        if updatedReports != reports { reports = updatedReports }
     }
 
     func state(of id: String) -> VMState { states[id] ?? .stopped }

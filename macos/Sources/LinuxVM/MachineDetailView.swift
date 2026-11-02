@@ -168,13 +168,15 @@ struct MachineSettingsForm: View {
                         }
                     }
                 }
-                Text("After installing Linux, eject the disc so the VM starts from its own disk. For the clipboard, audio, time zone and folder sharing, open the LINUXVM-TOOLS disc in Linux, run sh install.sh in a terminal there, then log out and back in.")
+                Text("After installing Linux, eject the disc so the VM starts from its own disk.")
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
             .fileImporter(isPresented: $choosingMedia, allowedContentTypes: [UTType(filenameExtension: "iso") ?? .diskImage, .diskImage]) { result in
                 if case .success(let url) = result { model.insertMedia(machine.id, path: url.path) }
             }
+
+            GuestToolsSection(report: model.reports[machine.id], disc: model.discGuestTools)
 
             Section("Sharing") {
                 LabeledContent("Mac folder") {
@@ -220,6 +222,14 @@ struct MachineSettingsForm: View {
                 Text("Display and Trackpad")
             } footer: {
                 FormNote("Scroll speed applies to the next scroll, even while the VM runs. GNOME's top bar does not avoid the camera, so its clock is hidden when Linux uses that area.")
+            }
+
+            Section {
+                Toggle("Pause while the Mac sleeps", isOn: binding(\.pauseDuringSleep))
+            } header: {
+                Text("Sleep")
+            } footer: {
+                FormNote("This applies the next time the Mac sleeps, even while the VM runs. When the Mac wakes, Linux sets its clock forward with guest tools 0.2.0 or later.")
             }
 
             Section("Network") {
@@ -303,6 +313,87 @@ struct MachineSettingsForm: View {
         }
         newHostPort = ""
         newGuestPort = ""
+    }
+}
+
+/// What a VM's guest tools last reported, compared with this app's disc.
+struct GuestToolsSection: View {
+    let report: GuestReport?
+    let disc: String?
+
+    private static let howToInstall = "open the LINUXVM-TOOLS disc in Linux, run sh install.sh in a terminal there, then log out and back in."
+
+    private var discIsNewer: Bool {
+        guard let report, let disc else { return false }
+        return GuestToolsVersion.compare(report.package, disc) == .orderedAscending
+    }
+
+    var body: some View {
+        Section {
+            if let report {
+                LabeledContent("Installed") {
+                    HStack(spacing: 8) {
+                        Text(report.package)
+                        if discIsNewer, let disc {
+                            Label("\(disc) on the disc", systemImage: "arrow.down.circle")
+                                .foregroundStyle(.orange)
+                        }
+                    }
+                }
+                LabeledContent("Linux") {
+                    Text([report.os, report.shell.map { "GNOME \($0)" }].compactMap { $0 }.joined(separator: ", "))
+                        .lineLimit(1)
+                        .truncationMode(.middle)
+                }
+                LabeledContent("Clipboard") {
+                    Label(clipboard.text, systemImage: clipboard.symbol)
+                        .foregroundStyle(clipboard.color)
+                }
+            } else {
+                LabeledContent("Installed") {
+                    Text("Not reported")
+                        .foregroundStyle(.secondary)
+                }
+            }
+        } header: {
+            Text("Guest Tools")
+        } footer: {
+            FormNote(note)
+        }
+    }
+
+    private var clipboard: (text: String, symbol: String, color: Color) {
+        switch report?.extensionState ?? .unknown {
+        case .active: ("On", "checkmark.circle.fill", .green)
+        case .inactive: ("Turned off", "xmark.circle", .orange)
+        case .outdated: ("Off for this GNOME version", "exclamationmark.triangle.fill", .orange)
+        case .error: ("Failed to load", "exclamationmark.triangle.fill", .red)
+        case .missing: ("Not loaded yet", "clock", .secondary)
+        case .unknown: ("Unknown", "questionmark.circle", .secondary)
+        }
+    }
+
+    private var note: String {
+        guard let report else {
+            return "Guest tools 0.2.0 and later report here while someone is logged in to Linux. To install them, \(Self.howToInstall)"
+        }
+        if discIsNewer, let disc {
+            return "Version \(disc) is on the Guest Tools disc. To update, \(Self.howToInstall)"
+        }
+        let reported = "Reported \(report.receivedAt.formatted(.relative(presentation: .named)))."
+        switch report.extensionState {
+        case .active, .unknown:
+            return reported
+        case .inactive:
+            return "Turn on LinuxVM Clipboard in Linux's Extensions app to share the clipboard. \(reported)"
+        case .outdated:
+            let shell = report.shell.map { "GNOME \($0)" } ?? "this GNOME version"
+            return "These guest tools do not support \(shell) yet, so the shared clipboard is off. Audio, time zone and folder sharing still work. \(reported)"
+        case .error:
+            return "The clipboard extension failed to load; Linux's Extensions app shows its error. \(reported)"
+        case .missing:
+            return "Log out of Linux and back in to load the clipboard extension. \(reported)"
+        }
     }
 }
 

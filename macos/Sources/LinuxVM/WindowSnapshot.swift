@@ -17,6 +17,14 @@ enum WindowSnapshot {
                 }
             }
         }
+        // LINUXVM_SNAPSHOT_SCROLL=end shows the bottom of scrolling content.
+        if ProcessInfo.processInfo.environment["LINUXVM_SNAPSHOT_SCROLL"] == "end" {
+            DispatchQueue.main.asyncAfter(deadline: .now() + max(0.5, delay - 1)) {
+                for window in NSApp.windows where window.isVisible {
+                    window.contentView.map(scrollToEnd)
+                }
+            }
+        }
         DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
             for (index, window) in NSApp.windows.enumerated() where window.isVisible {
                 guard let view = window.contentView?.superview ?? window.contentView,
@@ -26,5 +34,16 @@ enum WindowSnapshot {
                     .write(to: URL(fileURLWithPath: "\(prefix)-\(index).png"))
             }
         }
+    }
+
+    @MainActor
+    private static func scrollToEnd(_ view: NSView) {
+        if let scrollView = view as? NSScrollView, let document = scrollView.documentView {
+            let clip = scrollView.contentView
+            let end = document.isFlipped ? max(0, document.frame.height - clip.bounds.height) : 0
+            clip.scroll(to: NSPoint(x: clip.bounds.minX, y: end))
+            scrollView.reflectScrolledClipView(clip)
+        }
+        view.subviews.forEach(scrollToEnd)
     }
 }
