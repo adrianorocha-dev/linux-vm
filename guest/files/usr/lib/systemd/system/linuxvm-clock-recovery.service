@@ -2,7 +2,7 @@
 Description=Recover LinuxVM guest time after Mac sleep
 ConditionCredential=linuxvm.host
 ConditionPathExistsGlob=/sys/class/rtc/rtc*/since_epoch
-After=systemd-timesyncd.service
+After=chrony.service systemd-timesyncd.service
 
 [Service]
 Type=oneshot

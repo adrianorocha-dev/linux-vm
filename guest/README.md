@@ -44,7 +44,8 @@ The helper rejects samples taking over two seconds. The RTC's whole-second
 value is a lower bound: only a measured gap strictly greater than five seconds
 causes a step, to RTC seconds plus the sample duration. It never steps backward
 or writes the RTC. After stepping, `systemctl --no-block try-restart` restarts
-systemd-timesyncd only if already active. Small and backward offsets remain
+chrony (Ubuntu 26.04's time service) or systemd-timesyncd, whichever is running;
+a missing one does not fail the recovery. Small and backward offsets remain
 network time synchronization's responsibility; a wrong Mac clock remains a
 wrong reference.
 

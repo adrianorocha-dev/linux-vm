@@ -46,7 +46,7 @@ class RecoveryTests(unittest.TestCase):
             self.assertFalse(clock.recover())
             choose.assert_not_called()
 
-    def test_recover_steps_and_restarts_only_existing_timesyncd(self):
+    def test_recover_steps_and_restarts_running_time_service(self):
         with tempfile.TemporaryDirectory() as temp:
             root = Path(temp)
             (root / 'linuxvm.host').write_text('')
@@ -59,8 +59,11 @@ class RecoveryTests(unittest.TestCase):
                   patch.object(clock.subprocess, 'run') as run):
                 self.assertTrue(clock.recover())
                 step.assert_called_once_with(clock.time.CLOCK_REALTIME, 110.5)
-                self.assertEqual(run.call_args.args[0], ['/usr/bin/systemctl', '--no-block',
-                                                        'try-restart', 'systemd-timesyncd.service'])
+                self.assertEqual([call.args[0][-1] for call in run.call_args_list],
+                                 ['chrony.service', 'systemd-timesyncd.service'])
+                for call in run.call_args_list:
+                    self.assertEqual(call.args[0][:3], ['/usr/bin/systemctl', '--no-block', 'try-restart'])
+                    self.assertFalse(call.kwargs['check'])
 
     def test_wake_coalescing(self):
         now, run = Mock(side_effect=[0, 1, 4.99, 5]), Mock()

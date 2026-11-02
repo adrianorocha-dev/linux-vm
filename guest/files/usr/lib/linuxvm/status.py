@@ -116,11 +116,18 @@ def main():
         state, shell_version = 'unknown', None
         if shell.get_name_owner():
             try:
-                value = shell.get_cached_property('ShellVersion')
-                shell_version = value.unpack() if value else None
                 info = extensions.call_sync('GetExtensionInfo', GLib.Variant('(s)', (UUID,)),
                                             Gio.DBusCallFlags.NO_AUTO_START, 5000, None).unpack()[0]
                 state = extension_state(info)
+            except GLib.Error:
+                pass
+            # Ask each time: the proxy loads properties once, and at login
+            # that can precede GNOME Shell exporting them.
+            try:
+                value = bus.call_sync('org.gnome.Shell', '/org/gnome/Shell', 'org.freedesktop.DBus.Properties',
+                                      'Get', GLib.Variant('(ss)', ('org.gnome.Shell', 'ShellVersion')),
+                                      GLib.VariantType('(v)'), Gio.DBusCallFlags.NO_AUTO_START, 5000, None)
+                shell_version = value.unpack()[0]
             except GLib.Error:
                 pass
         write_all(fd, encode_status(VERSION, os_name, shell_version, state))

@@ -6,6 +6,8 @@ import subprocess
 import sys
 import time
 
+TIME_SERVICES = ('chrony.service', 'systemd-timesyncd.service')
+
 
 def choose_rtc(root=Path('/sys/class/rtc')):
     for rtc in sorted(root.glob('rtc*')):
@@ -37,8 +39,12 @@ def recover():
         return False
     time.clock_settime(time.CLOCK_REALTIME, target)
     print(f'Recovered guest clock forward to {target}', flush=True)
-    subprocess.run(['/usr/bin/systemctl', '--no-block', 'try-restart',
-                    'systemd-timesyncd.service'], check=True, timeout=5)
+    # Ubuntu 26.04 uses chrony; older releases use systemd-timesyncd.
+    # try-restart acts only on a running unit, and a missing one is fine:
+    # the step itself has succeeded.
+    for unit in TIME_SERVICES:
+        subprocess.run(['/usr/bin/systemctl', '--no-block', 'try-restart', unit],
+                       check=False, timeout=5, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     return True
 
 
