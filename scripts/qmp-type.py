@@ -31,23 +31,57 @@ def control_socket(vm_id):
         return json.load(handle)['controlSocket']
 
 
-def qmp(path):
+def qmp(path, timeout=10):
+    """Return a command callable with close() and next_event(timeout) methods."""
     connection = socket.socket(socket.AF_UNIX)
+    connection.settimeout(timeout)
     connection.connect(path)
-    stream = connection.makefile('rw')
-    stream.readline()
+    buffered = bytearray()
+    events = []
+
+    def receive(wait=timeout):
+        deadline = time.monotonic() + wait
+        while b'\n' not in buffered:
+            remaining = deadline - time.monotonic()
+            if remaining <= 0:
+                raise TimeoutError('QMP response timed out')
+            connection.settimeout(remaining)
+            chunk = connection.recv(65536)
+            if not chunk:
+                raise ConnectionError('QMP disconnected')
+            buffered.extend(chunk)
+        line, _, rest = buffered.partition(b'\n')
+        buffered[:] = rest
+        return json.loads(line)
 
     def execute(command, **arguments):
-        stream.write(json.dumps({'execute': command, 'arguments': arguments}) + '\n')
-        stream.flush()
+        connection.settimeout(timeout)
+        connection.sendall(json.dumps({'execute': command, 'arguments': arguments}).encode() + b'\n')
+        deadline = time.monotonic() + timeout
         while True:
-            reply = json.loads(stream.readline())
+            reply = receive(max(.001, deadline - time.monotonic()))
+            if 'event' in reply:
+                events.append(reply)
             if 'return' in reply or 'error' in reply:
                 if 'error' in reply:
-                    raise SystemExit(f"{command}: {reply['error']['desc']}")
+                    raise RuntimeError(f"{command}: {reply['error']['desc']}")
                 return reply['return']
+            if time.monotonic() >= deadline:
+                raise TimeoutError(f'QMP {command} timed out')
 
-    execute('qmp_capabilities')
+    def next_event(wait=timeout):
+        if events:
+            return events.pop(0)
+        return receive(wait)
+
+    try:
+        receive()
+        execute('qmp_capabilities')
+    except BaseException:
+        connection.close()
+        raise
+    execute.close = connection.close
+    execute.next_event = next_event
     return execute
 
 
@@ -70,9 +104,12 @@ def main():
     vm_id, mode, *rest = sys.argv[1:]
     execute = qmp(control_socket(vm_id))
     sequences = [chord(name) for name in rest] if mode == 'keys' else [character(c) for c in ' '.join(rest)]
-    for keys in sequences:
-        execute('send-key', keys=keys, **{'hold-time': 40})
-        time.sleep(0.06)
+    try:
+        for keys in sequences:
+            execute('send-key', keys=keys, **{'hold-time': 40})
+            time.sleep(0.06)
+    finally:
+        execute.close()
 
 
 if __name__ == '__main__':

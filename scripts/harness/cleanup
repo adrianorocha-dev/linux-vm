@@ -1,0 +1,6 @@
+#!/opt/homebrew/bin/python3.14
+import sys
+from fresh_install import cleanup
+if len(sys.argv) != 2:
+    sys.exit('usage: scripts/harness/cleanup RUN_DIR')
+cleanup(sys.argv[1])

@@ -1,0 +1,2 @@
+#!/bin/sh
+exec /opt/homebrew/bin/python3.14 "$(dirname "$0")/fresh_install.py" "$@"
