@@ -137,7 +137,7 @@ struct StateDot: View {
     private var color: Color {
         switch state {
         case .running: .green
-        case .starting, .stopping: .orange
+        case .starting, .stopping, .paused: .orange
         case .stopped: .secondary.opacity(0.5)
         }
     }

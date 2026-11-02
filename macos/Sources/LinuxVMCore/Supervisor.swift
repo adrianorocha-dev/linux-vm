@@ -2,10 +2,11 @@ import Darwin
 import Foundation
 
 nonisolated(unsafe) private var receivedSignal: Int32 = 0
+nonisolated(unsafe) private var sleepSignal: Int32 = 0
 
 /// Owns one VM run: QEMU, its host bridges and the run state. It runs as its
 /// own process (`linuxvmctl run`), so a VM outlives the app that started it.
-public final class Supervisor {
+public final class Supervisor: @unchecked Sendable {
     public static let shutdownGrace: TimeInterval = 90
     static let bridgeRestartLimit = 5
 
@@ -83,6 +84,10 @@ public final class Supervisor {
 
         signal(SIGTERM) { receivedSignal = $0 }
         signal(SIGINT) { receivedSignal = $0 }
+        if ProcessInfo.processInfo.environment["LINUXVM_DEBUG_SLEEP_SIGNALS"] == "1" {
+            signal(SIGUSR1) { sleepSignal = $0 }
+            signal(SIGUSR2) { sleepSignal = $0 }
+        }
         signal(SIGHUP, SIG_IGN)
         signal(SIGPIPE, SIG_IGN)
 
@@ -100,6 +105,14 @@ public final class Supervisor {
         state.controlSocket = paths.controlSocket
         library.writeRunState(state, id: id)
         say("Running. Control socket: \(paths.controlSocket)")
+
+        let power = SupervisorPower(qemu: qemu, library: library, id: id, socket: paths.supervisorSocket,
+                                    state: state, log: { [self] in say($0) })
+        power.start()
+        defer { power.stop() }
+        let statusReader = GuestStatusReader()
+        statusReader.start(path: paths.statusSocket, library: library, id: id, log: { [self] in say($0) })
+        defer { statusReader.stop() }
 
         let bridgeLog = try Self.appendHandle(logs.appending(path: "bridges.log"))
         var bridges: [QEMULaunch.Bridge: Process] = [:]
@@ -122,26 +135,29 @@ public final class Supervisor {
         }
         QEMULaunch.Bridge.allCases.forEach(startBridge)
 
-        var shutdownRequestedAt: Date?
+        var shutdownRequestedAt: TimeInterval?
         while qemu.isRunning {
+            if sleepSignal != 0 {
+                let simulated = sleepSignal
+                sleepSignal = 0
+                power.simulate(sleep: simulated == SIGUSR1)
+            }
             if receivedSignal != 0 {
                 let signalNumber = receivedSignal
                 receivedSignal = 0
                 if shutdownRequestedAt == nil {
                     say("Signal \(signalNumber): asking Linux to shut down")
-                    shutdownRequestedAt = Date()
-                    state.phase = .stopping
-                    library.writeRunState(state, id: id)
-                    try? QMPClient(socketPath: paths.supervisorSocket).execute("system_powerdown")
+                    shutdownRequestedAt = ProcessInfo.processInfo.systemUptime
+                    power.requestShutdown()
                 } else {
                     say("Second signal: stopping QEMU")
                     qemu.terminate()
                 }
             }
-            if let requested = shutdownRequestedAt, Date().timeIntervalSince(requested) > Self.shutdownGrace {
+            if let requested = shutdownRequestedAt, ProcessInfo.processInfo.systemUptime - requested > Self.shutdownGrace {
                 say("Linux did not shut down within \(Int(Self.shutdownGrace)) seconds: stopping QEMU")
                 qemu.terminate()
-                shutdownRequestedAt = .distantFuture
+                shutdownRequestedAt = .infinity
             }
             for bridge in QEMULaunch.Bridge.allCases {
                 guard let process = bridges[bridge], !process.isRunning else { continue }
@@ -249,9 +265,10 @@ extension VMLibrary {
         }
         try? logHandle.close()
         guard result == 0 else { throw LibraryError.failed("Cannot start the supervisor: \(String(cString: strerror(result)))") }
+        let childPID = pid
         Thread.detachNewThread {
             var status: Int32 = 0
-            waitpid(pid, &status, 0)
+            waitpid(childPID, &status, 0)
         }
 
         let deadline = Date().addingTimeInterval(45)

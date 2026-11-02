@@ -12,7 +12,7 @@ Usage: linuxvmctl <command> [arguments]
   set VM [--name N] [--cpus N] [--memory MIB] [--iso PATH|none]
          [--shared-folder PATH|none] [--scroll-scale X] [--mac-cursor on|off]
          [--immersive on|off] [--cover-notch on|off] [--forward HOST:GUEST|none]
-         [--grow-disk GIB]
+         [--grow-disk GIB] [--pause-during-sleep on|off]
   start VM                               start in the background
   run VM                                 supervise in the foreground
   stop VM [--force]                      shut down (or stop QEMU at once)
@@ -117,13 +117,14 @@ do {
         var machine = try library.find(reference)
         let values = try options(rest.dropFirst(), allowed: [
             "--name", "--cpus", "--memory", "--iso", "--shared-folder", "--scroll-scale",
-            "--mac-cursor", "--immersive", "--cover-notch", "--forward", "--grow-disk",
+            "--mac-cursor", "--immersive", "--cover-notch", "--forward", "--grow-disk", "--pause-during-sleep",
         ])
         let running = library.status(id: machine.id).state != .stopped
-        let liveKeys: Set<String> = ["--scroll-scale", "--name"]
+        let liveKeys: Set<String> = ["--scroll-scale", "--name", "--pause-during-sleep"]
         if running, !Set(values.keys).isSubset(of: liveKeys) {
-            throw LibraryError.failed("Only --name and --scroll-scale can change while “\(machine.name)” runs.")
+            throw LibraryError.failed("Only --name, --scroll-scale and --pause-during-sleep can change while “\(machine.name)” runs.")
         }
+        if let value = try boolean(values["--pause-during-sleep"]) { machine.pauseDuringSleep = value }
         if let name = values["--name"] { machine.name = name }
         if let cpus = try integer(values["--cpus"], "CPUs") { machine.cpuCount = cpus }
         if let memory = try integer(values["--memory"], "Memory") { machine.memoryMiB = memory }
@@ -175,6 +176,13 @@ do {
         print(status.state.rawValue)
         if let run = status.run {
             print("since \(run.startedAt), supervisor \(run.supervisorPID), QEMU \(run.qemuPID.map(String.init) ?? "-")")
+        }
+        if let report = library.guestReport(id: machine.id) {
+            print("guest tools \(report.package), extension \(report.extensionState.rawValue), received \(report.receivedAt)")
+            if let bundled = runtime.guestToolsVersion,
+               GuestToolsVersion.compare(report.package, bundled) == .orderedAscending {
+                print("Guest tools are older than the bundled disc (\(bundled)).")
+            }
         }
     case "insert":
         guard rest.count == 2 else { throw UsageError() }

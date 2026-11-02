@@ -9,6 +9,19 @@ struct ConfigurationTests {
         VMConfiguration(name: "Ubuntu", cpuCount: 4, memoryMiB: 4096, diskFileName: "disk.img", diskFormat: .raw)
     }
 
+    @Test func pauseConfigurationCompatibility() throws {
+        let encoder = JSONEncoder()
+        let data = try encoder.encode(machine())
+        var object = try #require(JSONSerialization.jsonObject(with: data) as? [String: Any])
+        object.removeValue(forKey: "pauseDuringSleep")
+        #expect(try JSONDecoder().decode(VMConfiguration.self, from: JSONSerialization.data(withJSONObject: object)).pauseDuringSleep)
+        object["pauseDuringSleep"] = false
+        let decoded = try JSONDecoder().decode(VMConfiguration.self, from: JSONSerialization.data(withJSONObject: object))
+        #expect(!decoded.pauseDuringSleep)
+        #expect(decoded.format == 1)
+        #expect(try JSONDecoder().decode(VMConfiguration.self, from: encoder.encode(decoded)) == decoded)
+    }
+
     @Test func acceptsDefaults() throws {
         try machine().validate(host: host)
     }
@@ -57,6 +70,9 @@ struct ConfigurationTests {
         for name in ["dev.linuxvm.clipboard", "dev.linuxvm.audio", "dev.linuxvm.timezone", "virtio-pinch-pci", "show-cursor=off", "immersive=on"] {
             #expect(joined.contains(name))
         }
+        #expect(joined.contains("socket,id=status,path=/tmp/r/status.sock,server=on,wait=off"))
+        #expect(joined.contains("virtserialport,bus=serial0.0,nr=4,chardev=status,name=dev.linuxvm.status"))
+        #expect(QEMULaunch.Bridge.allCases.count == 3)
         #expect(launch.environment["TRYOMARCHY_NOTCH"] == "0")
         #expect(!joined.contains("mount_tag=mac"))
     }
