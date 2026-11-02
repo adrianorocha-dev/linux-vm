@@ -118,6 +118,7 @@ public final class Supervisor: @unchecked Sendable {
             if storage.storageDisconnected { return Self.storageDisconnectedStatus }
             throw LibraryError.failed("QEMU exited during startup (status \(qemu.terminationStatus)). See \(logs.appending(path: "qemu.log").path)")
         }
+        storage.monitorDidStart()
         state.phase = .running
         state.controlSocket = paths.controlSocket
         library.writeRunState(state, id: id)

@@ -16,6 +16,7 @@ final class SupervisorStorage: @unchecked Sendable {
     private var lastPoll: TimeInterval = -.infinity
     private var stopped = false
     private var discQueryFailing = false
+    private var monitorReady = false
 
     init(name: String, machine: StorageWatch, sharedFolder: StorageWatch?, qemu: Process, monitor: SupervisorMonitor,
          volumes: any StorageVolumeMonitoring, log: @escaping @Sendable (String) -> Void) {
@@ -31,6 +32,11 @@ final class SupervisorStorage: @unchecked Sendable {
             volumes.start(queue: queue, approve: { [weak self] in self?.approve($0) },
                           removed: { [weak self] in self?.removed($0) })
         }
+    }
+
+    /// Until QEMU's monitor answers, the periodic check skips the disc query.
+    func monitorDidStart() {
+        queue.async { self.monitorReady = true }
     }
 
     func stop() {
@@ -56,6 +62,7 @@ final class SupervisorStorage: @unchecked Sendable {
         queue.async { [self] in
             defer { lossLock.withLock { pollPending = false } }
             guard !stopped, qemu.isRunning, !storageDisconnected else { return }
+            guard monitorReady else { return }
             refreshDisc()
             let lost = [StoragePathKind.disc, .sharedFolder].filter { kind in
                 guard !lostKinds.contains(kind), let watch = policy.watch(kind) else { return false }
