@@ -47,6 +47,7 @@ public struct VMConfiguration: Codable, Equatable, Identifiable, Sendable {
     /// Touch-scroll travel relative to Try Omarchy's. GNOME has no touchpad
     /// scroll factor, so the host applies Omarchy's 0.4 instead.
     public var scrollScale = VMConfiguration.defaultScrollScale
+    public var pauseDuringSleep = true
     public var portForwards: [PortForward] = []
     public var createdAt: Date
 
@@ -68,6 +69,29 @@ public struct VMConfiguration: Codable, Equatable, Identifiable, Sendable {
         self.diskFormat = diskFormat
         self.installMedia = installMedia
         self.createdAt = createdAt
+    }
+
+    enum CodingKeys: String, CodingKey {
+        case format, id, name, cpuCount, memoryMiB, diskFileName, diskFormat
+        case installMedia, sharedFolder, display, scrollScale, pauseDuringSleep, portForwards, createdAt
+    }
+
+    public init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        format = try c.decode(Int.self, forKey: .format)
+        id = try c.decode(String.self, forKey: .id)
+        name = try c.decode(String.self, forKey: .name)
+        cpuCount = try c.decode(Int.self, forKey: .cpuCount)
+        memoryMiB = try c.decode(Int.self, forKey: .memoryMiB)
+        diskFileName = try c.decode(String.self, forKey: .diskFileName)
+        diskFormat = try c.decode(DiskFormat.self, forKey: .diskFormat)
+        installMedia = try c.decodeIfPresent(String.self, forKey: .installMedia)
+        sharedFolder = try c.decodeIfPresent(String.self, forKey: .sharedFolder)
+        display = try c.decode(DisplaySettings.self, forKey: .display)
+        scrollScale = try c.decode(Double.self, forKey: .scrollScale)
+        pauseDuringSleep = try c.decodeIfPresent(Bool.self, forKey: .pauseDuringSleep) ?? true
+        portForwards = try c.decode([PortForward].self, forKey: .portForwards)
+        createdAt = try c.decode(Date.self, forKey: .createdAt)
     }
 
     /// A stable locally administered MAC address, so the guest keeps its

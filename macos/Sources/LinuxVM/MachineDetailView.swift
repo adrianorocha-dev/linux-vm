@@ -81,7 +81,7 @@ struct MachineDetailView: View {
             .buttonStyle(.borderedProminent)
             .controlSize(.large)
             .disabled(busy)
-        case .starting, .running, .stopping:
+        case .starting, .running, .stopping, .paused:
             HStack(spacing: 8) {
                 Button {
                     model.shutDown(machine.id)

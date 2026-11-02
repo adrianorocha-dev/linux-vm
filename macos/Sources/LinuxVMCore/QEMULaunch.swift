@@ -22,6 +22,7 @@ public struct QEMULaunch: Sendable {
     public struct Paths: Sendable {
         public var runDirectory: URL
         public var supervisorSocket: String { runDirectory.appending(path: "supervisor.sock").path }
+        public var statusSocket: String { runDirectory.appending(path: "status.sock").path }
         public var controlSocket: String { runDirectory.appending(path: "control.sock").path }
         public var audioRoutes: URL { runDirectory.appending(path: "audio-routes", directoryHint: .isDirectory) }
         public func bridgeSocket(_ bridge: Bridge) -> String { runDirectory.appending(path: "\(bridge.rawValue).sock").path }
@@ -112,6 +113,10 @@ public struct QEMULaunch: Sendable {
                 "-device", "virtserialport,bus=serial0.0,nr=\(index + 1),chardev=\(bridge.rawValue),name=\(bridge.portName)",
             ]
         }
+        arguments += [
+            "-chardev", "socket,id=status,path=\(escaped(paths.statusSocket)),server=on,wait=off",
+            "-device", "virtserialport,bus=serial0.0,nr=4,chardev=status,name=dev.linuxvm.status",
+        ]
         if let folder = configuration.sharedFolder {
             arguments += [
                 "-fsdev", "local,id=share,path=\(folder),security_model=none,multidevs=remap,guest_owner_uid=1000,guest_owner_gid=1000",

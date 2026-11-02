@@ -1,0 +1,73 @@
+import Foundation
+import Testing
+@testable import LinuxVMCore
+
+struct GuestReportTests {
+    func line(_ changes: [String: Any] = [:]) throws -> Data {
+        var object: [String: Any] = ["type": "status", "package": "0.2.0", "os": "Ubuntu", "shell": "50.1", "extension": "active"]
+        object.merge(changes) { _, new in new }
+        return try JSONSerialization.data(withJSONObject: object)
+    }
+    @Test func validReportAndUnknownFields() throws {
+        let now = Date()
+        let report = try #require(GuestReport.parse(line(["future": ["anything": true]]), receivedAt: now))
+        #expect(report.package == "0.2.0")
+        #expect(report.os == "Ubuntu")
+        #expect(report.shell == "50.1")
+        #expect(report.extensionState == .active)
+        #expect(report.receivedAt == now)
+        #expect(try GuestReport.parse(line(["extension": "future"]))?.extensionState == .unknown)
+        var object = try #require(JSONSerialization.jsonObject(with: line()) as? [String: Any])
+        object.removeValue(forKey: "shell")
+        #expect(GuestReport.parse(try JSONSerialization.data(withJSONObject: object))?.shell == nil)
+    }
+    @Test func rejectsInvalidLines() throws {
+        for changes: [String: Any] in [
+            ["package": "1.2"], ["package": "12345.0.0"], ["package": "1.2.3\n"],
+            ["package": 2], ["os": true], ["shell": 12], ["extension": false], ["type": "other"],
+            ["os": "a\nb"], ["os": "a\u{7f}b"], ["shell": "a\tb"],
+            ["os": String(repeating: "a", count: 129)], ["shell": String(repeating: "a", count: 33)]
+        ] { #expect(try GuestReport.parse(line(changes)) == nil) }
+        for bytes in [Data("{bad}".utf8), Data("[]".utf8), Data([0xff]), Data(repeating: 32, count: 4097)] {
+            #expect(GuestReport.parse(bytes) == nil)
+        }
+    }
+    @Test func boundedFramingRecoversAfterOversizedLine() throws {
+        var framing = GuestStatusLines()
+        var lines: [Data?] = []
+        framing.append(Data(repeating: 97, count: 100_000)) { lines.append($0) }
+        #expect(lines.isEmpty)
+        framing.append(Data([10]) + (try line()) + Data([10])) { lines.append($0) }
+        #expect(lines.count == 2)
+        #expect(lines[0] == nil)
+        #expect(GuestReport.parse(try #require(lines[1])) != nil)
+    }
+    @Test func numericVersions() {
+        #expect(GuestToolsVersion.compare("0.10.0", "0.2.9") == .orderedDescending)
+        #expect(GuestToolsVersion.compare("1.0.0", "1.0.0") == .orderedSame)
+        #expect(GuestToolsVersion.compare("1.0.0", "2.0.0") == .orderedAscending)
+        #expect(GuestToolsVersion.compare("01.0.0", "1.0.0") == .orderedSame)
+        for bad in ["1.2", "v1.2.3", "1.2.3\n", "1.2.3.4", "-1.0.0", "10000.0.0"] {
+            #expect(GuestToolsVersion.compare(bad, "1.0.0") == nil)
+            #expect(GuestToolsVersion.compare("1.0.0", bad) == nil)
+        }
+    }
+    @Test func reportPersistenceAndBundledVersion() throws {
+        let root = FileManager.default.temporaryDirectory.appending(path: UUID().uuidString)
+        defer { try? FileManager.default.removeItem(at: root) }
+        let library = VMLibrary(root: root)
+        let id = UUID().uuidString
+        try FileManager.default.createDirectory(at: library.directory(for: id), withIntermediateDirectories: true)
+        let report = try #require(GuestReport.parse(line(), receivedAt: Date(timeIntervalSince1970: 1000)))
+        try library.writeGuestReport(report, id: id)
+        #expect(library.guestReport(id: id) == report)
+        let runtime = Runtime(contents: root)
+        #expect(runtime.guestToolsVersion == nil)
+        try FileManager.default.createDirectory(at: root.appending(path: "Resources"), withIntermediateDirectories: true)
+        let version = root.appending(path: "Resources/guest-tools-version")
+        try "0.2.0\n".write(to: version, atomically: true, encoding: .utf8)
+        #expect(runtime.guestToolsVersion == "0.2.0")
+        try "0.2.0\nextra".write(to: version, atomically: true, encoding: .utf8)
+        #expect(runtime.guestToolsVersion == nil)
+    }
+}

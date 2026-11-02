@@ -172,6 +172,7 @@ extension VMState {
         case .stopped: "Stopped"
         case .starting: "Starting"
         case .running: "Running"
+        case .paused: "Paused"
         case .stopping: "Shutting Down"
         }
     }

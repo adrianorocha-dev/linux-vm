@@ -9,8 +9,10 @@ public final class QMPClient {
 
     private let descriptor: Int32
     private var buffer = Data()
+    private let deadline: TimeInterval
 
     public init(socketPath: String, timeout: TimeInterval = 5) throws {
+        deadline = ProcessInfo.processInfo.systemUptime + timeout
         descriptor = socket(AF_UNIX, SOCK_STREAM, 0)
         guard descriptor >= 0 else { throw Failure(message: "socket: \(String(cString: strerror(errno)))") }
         var address = sockaddr_un()
@@ -86,6 +88,10 @@ public final class QMPClient {
                 return object
             }
             var chunk = [UInt8](repeating: 0, count: 65536)
+            let remaining = deadline - ProcessInfo.processInfo.systemUptime
+            guard remaining > 0 else { throw Failure(message: "QMP deadline expired") }
+            var readiness = pollfd(fd: descriptor, events: Int16(POLLIN), revents: 0)
+            guard poll(&readiness, 1, Int32(remaining * 1000)) > 0 else { throw Failure(message: "QMP read timed out") }
             let count = read(descriptor, &chunk, chunk.count)
             guard count > 0 else { throw Failure(message: "QEMU closed the QMP connection") }
             buffer.append(contentsOf: chunk[0..<count])

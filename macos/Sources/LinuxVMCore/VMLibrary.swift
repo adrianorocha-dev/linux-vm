@@ -6,6 +6,7 @@ public enum VMState: String, Codable, Sendable {
     case stopped
     case starting
     case running
+    case paused
     case stopping
 }
 
@@ -232,7 +233,9 @@ public struct VMLibrary: Sendable {
 
     /// Asks Linux to shut down, as the power button would.
     public func requestShutdown(id: String) throws {
-        try control(id: id).execute("system_powerdown")
+        guard let pid = status(id: id).run?.supervisorPID, pid > 1, kill(pid, SIGTERM) == 0 else {
+            throw LibraryError.failed("The VM supervisor is not running.")
+        }
     }
 
     /// Stops QEMU at once. Unsaved guest data is lost.
