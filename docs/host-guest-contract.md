@@ -11,7 +11,7 @@ The Mac app (`macos/`) and the Ubuntu guest tools (`guest/`) meet only at the in
     - `dev.linuxvm.timezone`: helper `--bridge-native-timezone`. Besides zone names it carries `{"type":"wake"}` after the Mac wakes (see [Mac sleep](#mac-sleep-and-the-guest-clock)).
   - `dev.linuxvm.status` is served by our supervisor (`linuxvmctl run`), not by the helper. See [Guest status](#guest-status). Added in app and guest tools 0.2.0.
 - The shared Mac folder, when enabled: `virtio-9p-pci` with mount tag `mac`, exported with `security_model=none,multidevs=remap,guest_owner_uid=1000,guest_owner_gid=1000`. Files appear owned by uid/gid 1000, the first Ubuntu user.
-- The virtual touchpad `QEMU Virtio Pinch Touchpad` (`virtio-pinch-pci`). The Mac has already applied the scroll direction and scale.
+- The virtual touchpad `QEMU Virtio Pinch Touchpad` (`virtio-pinch-pci`). The Mac has already applied the scroll scale. Its finger-scroll contacts follow the fingers, without the Mac's natural scrolling, so the guest's own touchpad setting picks the direction. Guest tools 0.2.1 default natural scrolling on. Earlier app builds sent the Mac's direction, and guest tools 0.2.0 and earlier turned natural scrolling off to match; with a current app, such a VM scrolls the traditional way until its guest tools are updated or the setting is changed.
 - The PL031 real-time clock of QEMU's `virt` machine. It follows the Mac's UTC clock, including while the VM is paused. Linux usually reaches it through the UEFI firmware as `rtc-efi`.
 
 ## Host settings

@@ -21,8 +21,10 @@ build tools are needed on the Mac.
   The user agent creates `~/<name>` without replacing existing entries. It records
   device, inode and change time under `${XDG_STATE_HOME:-~/.local/state}/linuxvm/`
   and removes only its own unchanged links on rename, disconnect, logout or removal.
-- Touchpad defaults match host scrolling and disable tap-to-click and
-  disable-while-typing. Existing user settings take precedence.
+- Touchpad defaults turn on natural scrolling, as on the Mac, and disable
+  tap-to-click and disable-while-typing. The Mac's touchpad contacts follow
+  the fingers, so GNOME's own setting picks the direction. Existing user
+  settings take precedence.
 
 Ports are `dev.linuxvm.clipboard`, `.audio`, `.timezone` and `.status` under
 `/dev/virtio-ports/`. udev grants the active seat user access to clipboard,

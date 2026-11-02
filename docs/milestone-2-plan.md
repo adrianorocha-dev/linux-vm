@@ -121,6 +121,11 @@ Work that needed no one at the Mac. GPT-6.1-Sol built the storage handling; Clau
 - **Touchpad contact lifecycle** (`scripts/harness/touch-lifecycle`). These checks replay contacts through QMP. A pause mid-scroll, through QMP or through the supervisor's sleep path, left no contact down, even when the lift was lost during the pause. So did a scroll continued after a pause, 15 quick scroll and pinch cycles, and a guest reboot with contacts down. A scroll that turns into a pinch without lifting stays a scroll in libinput; Cocoa never sends that sequence. Focus loss needs the real trackpad.
 - **Helper branding.** The clipboard and audio bridges' log lines now say "the VM" instead of "Omarchy".
 
+### Reported at the Mac (2 November 2026)
+
+- **Touchpad scroll direction was reversed.** In a fresh Ubuntu VM, GNOME's "Natural" scrolling behaved as traditional, and the reverse. Try Omarchy's touch-scroll contacts moved in the direction macOS had already chosen, for a guest with natural scrolling off. GNOME then applied its own setting on top, and guest tools 0.2.0 defaulted it off to compensate. A runtime patch now undoes the Mac's inversion (`isDirectionInvertedFromDevice`), so the contacts follow the fingers and GNOME's setting decides. Guest tools 0.2.1 default natural scrolling on, like the Mac and GNOME. A VM on older guest tools scrolls the traditional way until its tools are updated or the setting is changed.
+- **Verification.** A test of the touch-scroll code moves virtual fingers under both Mac settings: the contacts follow the fingers in all four directions, and the test fails against the old code. In a fresh harness VM with guest tools 0.2.1, natural scrolling defaulted on. A GTK app in the session then received replayed finger scrolls: with Natural on, the content followed the fingers both ways; with it off, it moved the opposite way. Real trackpad events have not been checked yet.
+
 ### Next
 
 - With the user at the Mac: scrolling, pinch, swipe and cursor compared with Try Omarchy and macOS; window resizes, full-screen transitions and an external display; starting a VM from the app.

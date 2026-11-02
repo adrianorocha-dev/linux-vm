@@ -1,4 +1,4 @@
-LinuxVM guest tools 0.2.0 for Ubuntu 26.04 Desktop (GNOME Shell 50)
+LinuxVM guest tools 0.2.1 for Ubuntu 26.04 Desktop (GNOME Shell 50)
 
 Open a terminal in this disc's folder and run:
   sh install.sh

@@ -20,19 +20,151 @@ index f199020..9287d26 100644
          try bridge.run()
          exit(0)
      }
+diff --git a/macos/Tests/test-cocoa-touch-scroll-direction.py b/macos/Tests/test-cocoa-touch-scroll-direction.py
+new file mode 100644
+index 0000000..e9a5f56
+--- /dev/null
++++ b/macos/Tests/test-cocoa-touch-scroll-direction.py
+@@ -0,0 +1,125 @@
++#!/usr/bin/env python3
++"""Touch-scroll contacts follow the fingers whatever the Mac's scroll direction."""
++
++import hashlib
++import os
++from pathlib import Path
++import re
++import shlex
++import subprocess
++import tempfile
++import unittest
++
++
++ROOT = Path(__file__).resolve().parents[2]
++PATCHES = ROOT / "macos/patches"
++DIRECTION = PATCHES / "qemu-cocoa-touch-scroll-direction.patch"
++
++
++def added_file(patch, path):
++    section = patch.read_text().split(f"diff --git a/{path} b/{path}\n", 1)[1]
++    section = section.split("\ndiff --git ", 1)[0]
++    return "".join(line[1:] + "\n" for line in section.splitlines()
++                   if line.startswith("+") and not line.startswith("+++"))
++
++
++def section(patch, path):
++    return patch.read_text().split(f"diff --git a/{path} b/{path}\n", 1)[1].split("\ndiff --git ", 1)[0]
++
++
++class TouchScrollDirectionTests(unittest.TestCase):
++    def test_contacts_follow_the_fingers(self):
++        with tempfile.TemporaryDirectory() as directory:
++            work = Path(directory)
++            header = work / "include/ui/cocoa-touch-scroll.h"
++            header.parent.mkdir(parents=True)
++            header.write_text(added_file(PATCHES / "qemu-cocoa-touch-scroll.patch",
++                                         "include/ui/cocoa-touch-scroll.h"))
++            path = "include/ui/cocoa-touch-scroll.h"
++            for text in [(PATCHES / "qemu-cocoa-touch-scroll-scale.patch").read_text(),
++                         f"diff --git a/{path} b/{path}\n" + section(DIRECTION, path)]:
++                subprocess.run(["patch", "-s", "-p1", "-f", "-d", str(work)], input=text, text=True, check=True)
++            (work / "test.c").write_text(r'''
++#include <assert.h>
++#include "include/ui/cocoa-touch-scroll.h"
++
++static CocoaTouchScrollFrame last;
++
++static void record(void *opaque, const CocoaTouchScrollFrame *frame)
++{
++    last = *frame;
++}
++
++/* ui/cocoa.m's handleTouchScrollLocked: undo the Mac's natural scrolling. */
++static double device(double appkit, bool inverted)
++{
++    double direction = inverted ? -1.0 : 1.0;
++
++    return direction * appkit;
++}
++
++/*
++ * AppKit's scrollingDelta for fingers moving (fx, fy) points, right and down
++ * positive. Without natural scrolling, positive deltas scroll toward the top
++ * and left, which is the fingers moving up and left.
++ */
++static void move(CocoaTouchScroll *s, double fx, double fy, bool natural)
++{
++    double sign = natural ? 1.0 : -1.0;
++
++    cocoa_touch_scroll_event(s, 0, true, device(sign * fx, natural),
++                             device(sign * fy, natural), record, NULL);
++}
++
++static void fingers(double fx, double fy, bool natural, int *x, int *y)
++{
++    CocoaTouchScroll s = {0};
++
++    cocoa_touch_scroll_event(&s, COCOA_TOUCH_SCROLL_BEGIN, true, 0, 0, record, NULL);
++    move(&s, fx, fy, natural);
++    move(&s, fx, fy, natural);
++    *x = (last.x[0] + last.x[1]) / 2 - COCOA_TOUCH_SCROLL_CENTER;
++    *y = last.y - COCOA_TOUCH_SCROLL_CENTER;
++}
++
++int main(void)
++{
++    for (int natural = 0; natural < 2; natural++) {
++        int x, y;
++
++        fingers(0, 10, natural, &x, &y);
++        assert(x == 0 && y > 0);
++        fingers(0, -10, natural, &x, &y);
++        assert(x == 0 && y < 0);
++        fingers(10, 0, natural, &x, &y);
++        assert(x > 0 && y == 0);
++        fingers(-10, 0, natural, &x, &y);
++        assert(x < 0 && y == 0);
++    }
++    return 0;
++}
++''')
++            compiler = shlex.split(os.environ.get("CC", "cc"))
++            subprocess.run(compiler + ["-std=c11", "-Wall", "-Wextra", "-Werror", "-Wno-unused-parameter",
++                                       "-Wno-unused-function", str(work / "test.c"), "-lm", "-o", str(work / "test")],
++                           check=True)
++            subprocess.run([str(work / "test")], check=True)
++
++    def test_cocoa_undoes_the_mac_direction_on_both_axes(self):
++        cocoa = added_file(DIRECTION, "ui/cocoa.m")
++        self.assertIn("double direction = [event isDirectionInvertedFromDevice] ? -1.0 : 1.0;", cocoa)
++        self.assertIn("direction * [event scrollingDeltaX],", cocoa)
++        self.assertIn("direction * [event scrollingDeltaY],", cocoa)
++
++    def test_builder_verifies_and_applies_it_after_the_other_cocoa_patches(self):
++        builder = (ROOT / "macos/build-qemu-gpu-runtime.sh").read_text()
++        expected = re.search(r"^touch_scroll_direction_patch_sha256=([a-f0-9]{64})$", builder, re.M)
++        self.assertIsNotNone(expected)
++        self.assertEqual(hashlib.sha256(DIRECTION.read_bytes()).hexdigest(), expected[1])
++        applies = re.findall(r'^patch -d "\$source_dir" -p1 -f -i "\$(\w+)"$', builder, re.M)
++        self.assertEqual(applies[-1], "touch_scroll_direction_patch")
++        self.assertLess(applies.index("touch_scroll_scale_patch"), applies.index("touch_scroll_direction_patch"))
++
++
++if __name__ == "__main__":
++    unittest.main()
 diff --git a/macos/build-qemu-gpu-runtime.sh b/macos/build-qemu-gpu-runtime.sh
-index e2a7110..8ce4a07 100755
+index e2a7110..9810f5f 100755
 --- a/macos/build-qemu-gpu-runtime.sh
 +++ b/macos/build-qemu-gpu-runtime.sh
-@@ -65,6 +65,7 @@ pause_ownership_patch="$native_dir/patches/qemu-cocoa-pause-ownership.patch"
+@@ -65,6 +65,8 @@ pause_ownership_patch="$native_dir/patches/qemu-cocoa-pause-ownership.patch"
  pinch_patch="$native_dir/patches/qemu-cocoa-pinch-zoom.patch"
  precise_scroll_patch="$native_dir/patches/qemu-cocoa-precise-scroll.patch"
  touch_scroll_patch="$native_dir/patches/qemu-cocoa-touch-scroll.patch"
 +touch_scroll_scale_patch="$native_dir/patches/qemu-cocoa-touch-scroll-scale.patch"
++touch_scroll_direction_patch="$native_dir/patches/qemu-cocoa-touch-scroll-direction.patch"
  iso_swap_patch="$native_dir/patches/qemu-cocoa-iso-section-grave-swap.patch"
  injected_text_patch="$native_dir/patches/qemu-cocoa-injected-text.patch"
  command_chord_patch="$native_dir/patches/qemu-cocoa-command-chord-hold.patch"
-@@ -89,6 +90,7 @@ udp_patch="$native_dir/patches/libslirp-ipv4-udp-translation.patch"
+@@ -89,6 +91,7 @@ udp_patch="$native_dir/patches/libslirp-ipv4-udp-translation.patch"
  fence_poll_patch="$native_dir/patches/qemu-darwin-gpu-fence-poll.patch"
  virgl_native_patch="$native_dir/patches/virgl-native-opengl.patch"
  virgl_upload_flush_patch="$native_dir/patches/virgl-ctx0-upload-flush.patch"
@@ -40,7 +172,7 @@ index e2a7110..8ce4a07 100755
  prepare_runtime="$native_dir/prepare-qemu-gpu-runtime.sh"
  pinned_bottles="$native_dir/pinned-runtime-bottles.sh"
  
-@@ -96,7 +98,10 @@ qemu_commit=c3d48b7d1e89604920e5b81b91140c2ad39a1943
+@@ -96,7 +99,10 @@ qemu_commit=c3d48b7d1e89604920e5b81b91140c2ad39a1943
  qemu_root="qemu-$qemu_commit"
  qemu_archive_name="$qemu_root.tar.gz"
  qemu_url="https://gitlab.com/qemu-project/qemu/-/archive/$qemu_commit/$qemu_archive_name"
@@ -52,15 +184,16 @@ index e2a7110..8ce4a07 100755
  
  texture_patch_sha256=b8e107ecd82813854bac7f6bb110722f52937d64b6f98611c4dd02842977fc2f
  gpu_fix_patch_sha256=b554e1ef9910d0891d69ee0fe84e479559c057dc28291e36e1524031808fc69f
-@@ -109,6 +114,7 @@ pause_ownership_patch_sha256=1a5729b36eb3e437395d41883a10c3c652df71d289d5df84d95
+@@ -109,6 +115,8 @@ pause_ownership_patch_sha256=1a5729b36eb3e437395d41883a10c3c652df71d289d5df84d95
  pinch_patch_sha256=618c17eef1c2ab97d48ed82b58d9fa2b727ea3f26a0d30225199ac97985a9f06
  precise_scroll_patch_sha256=54252b3b19358aa7e2c75d5f50775a7f488ef2d8b4db8723ba4768b56316a78f
  touch_scroll_patch_sha256=e4aa6c3661ee9265724a6236153630ed3870ef5e6f21e5cfe7af3023b6c870e4
 +touch_scroll_scale_patch_sha256=a9a69577a4550b64556be3168ad6f536d861a04362ea65ae859259784be82138
++touch_scroll_direction_patch_sha256=fa2a194e4eae363490ce1cf6f1e161c8cf3bc4b743fce8e8f98ac8e5e34b103f
  iso_swap_patch_sha256=57f33a5fb08fb90a7813b13bb7037a13198e4d7db230085b1faa28b284cf2387
  injected_text_patch_sha256=18d64d52f715d0cf1b2b6d1761059371e1859ee61faf3cc4800e2effc1ed4dd1
  command_chord_patch_sha256=d2a6cc3827ddac15f5baa063b36ab857b9571221ca1ce4ef25896cae914ff9f6
-@@ -122,6 +128,7 @@ mapped_sections_patch_sha256=2991378d565faeaf114bb5948bfa9ad05c39b078e4e1f4c2a67
+@@ -122,6 +130,7 @@ mapped_sections_patch_sha256=2991378d565faeaf114bb5948bfa9ad05c39b078e4e1f4c2a67
  fence_poll_patch_sha256=1ac407bdb617dfc52d004d0ebd0d07641d920f7d3a9756223c6426a207fb1499
  virgl_native_patch_sha256=692ed73cf88780b4c0e04c56e3cfb21cec761768dea909d755624e07d82fc60c
  virgl_upload_flush_patch_sha256=e5de1617bfeeb2e0ea0fa5cc5c4192f34c896c86efc51e0f68cfa14057afcac0
@@ -68,7 +201,7 @@ index e2a7110..8ce4a07 100755
  strchrnul_patch_sha256=ec1048dd0e8ebe53bf7e8a3bca9bf2f5f4336cd607d4cd077437470e9a32094a
  usb_exact_bus_patch_sha256=5e39159171295c566d014a1ef2744130f80fa02b742c349fa47373b00ae697ec
  minimum_guest_size_patch_sha256=f01e20999bf87821639c93f3489eb093b292c48b107a14ba4fbdad5cbf5840a5
-@@ -149,7 +156,9 @@ keycodemap_commit=f5772a62ec52591ff6870b7e8ef32482371f22c6
+@@ -149,7 +158,9 @@ keycodemap_commit=f5772a62ec52591ff6870b7e8ef32482371f22c6
  keycodemap_root="keycodemapdb-$keycodemap_commit"
  keycodemap_archive_name="$keycodemap_root.tar.gz"
  keycodemap_url="https://gitlab.com/qemu-project/keycodemapdb/-/archive/$keycodemap_commit/$keycodemap_archive_name"
@@ -79,24 +212,29 @@ index e2a7110..8ce4a07 100755
  
  dtc_commit=b6910bec11614980a21e46fbccc35934b671bd81
  dtc_root="dtc-$dtc_commit"
-@@ -502,6 +511,8 @@ verify_file_sha "Try Omarchy Cocoa precise-scroll patch" \
+@@ -502,6 +513,10 @@ verify_file_sha "Try Omarchy Cocoa precise-scroll patch" \
    "$precise_scroll_patch" "$precise_scroll_patch_sha256"
  verify_file_sha "Try Omarchy Cocoa touch-scroll patch" \
    "$touch_scroll_patch" "$touch_scroll_patch_sha256"
 +verify_file_sha "Ubuntu prototype touch-scroll scale patch" \
 +  "$touch_scroll_scale_patch" "$touch_scroll_scale_patch_sha256"
++verify_file_sha "Linux VM touch-scroll direction patch" \
++  "$touch_scroll_direction_patch" "$touch_scroll_direction_patch_sha256"
  verify_file_sha "Try Omarchy Cocoa ISO Section/Grave swap patch" \
    "$iso_swap_patch" "$iso_swap_patch_sha256"
  verify_file_sha "Try Omarchy Cocoa injected-text patch" \
-@@ -573,6 +584,7 @@ patch -d "$source_dir" -p1 -f -i "$main_loop_qos_patch"
+@@ -573,8 +588,10 @@ patch -d "$source_dir" -p1 -f -i "$main_loop_qos_patch"
  patch -d "$source_dir" -p1 -f -i "$notch_patch"
  patch -d "$source_dir" -p1 -f -i "$command_chord_patch"
  patch -d "$source_dir" -p1 -f -i "$touch_scroll_patch"
 +patch -d "$source_dir" -p1 -f -i "$touch_scroll_scale_patch"
  patch -d "$source_dir" -p1 -f -i "$korean_caps_lock_patch"
  patch -d "$source_dir" -p1 -f -i "$pointer_mapping_patch"
++patch -d "$source_dir" -p1 -f -i "$touch_scroll_direction_patch"
  
-@@ -694,6 +706,8 @@ verify_file_sha "Native OpenGL browser compatibility patch" "$virgl_native_patch
+ virgl_root="$dependency_root/virglrenderer/$virgl_version"
+ angle_root="$dependency_root/angle/$angle_version"
+@@ -694,6 +711,8 @@ verify_file_sha "Native OpenGL browser compatibility patch" "$virgl_native_patch
  patch -d "$virgl_source" -p1 -f -i "$virgl_native_patch"
  verify_file_sha "Context 0 upload flush patch" "$virgl_upload_flush_patch" "$virgl_upload_flush_patch_sha256"
  patch -d "$virgl_source" -p1 -f -i "$virgl_upload_flush_patch"
@@ -105,6 +243,63 @@ index e2a7110..8ce4a07 100755
  virgl_build="$virgl_source/build"
  meson="$tool_root/$meson_root/meson.py"
  # Optimize the graphics command path while retaining assertions and diagnostics.
+diff --git a/macos/patches/qemu-cocoa-touch-scroll-direction.patch b/macos/patches/qemu-cocoa-touch-scroll-direction.patch
+new file mode 100644
+index 0000000..b2bca90
+--- /dev/null
++++ b/macos/patches/qemu-cocoa-touch-scroll-direction.patch
+@@ -0,0 +1,51 @@
++From: Linux VM
++Subject: [PATCH] cocoa: let the guest choose the touch-scroll direction
++
++Applies after the touch-scroll scale patch. AppKit's scroll deltas already
++include the Mac's natural scrolling, so the contacts moved the way macOS
++had chosen, and a guest that also applies natural scrolling, such as
++GNOME by default, reversed it again. The contacts now follow the fingers,
++so the guest's own natural-scrolling setting decides the direction. The
++wheel path still uses the Mac's direction.
++
++diff --git a/include/ui/cocoa-touch-scroll.h b/include/ui/cocoa-touch-scroll.h
++index 4753659..a29f3d9 100644
++--- a/include/ui/cocoa-touch-scroll.h
+++++ b/include/ui/cocoa-touch-scroll.h
++@@ -213,8 +213,10 @@ static inline void cocoa_touch_scroll_place(CocoaTouchScroll *scroll,
++ }
++ 
++ /*
++- * Contacts move as libinput's default, non-natural finger scrolling expects,
++- * so the guest scrolls in the direction the wheel path used.
+++ * dx and dy are AppKit's deltas without the Mac's natural scrolling, so
+++ * positive values are the fingers moving left and up. The contacts move with
+++ * the fingers, and the guest's own natural-scrolling setting picks the
+++ * direction, as on real hardware.
++  */
++ static inline void cocoa_touch_scroll_move(CocoaTouchScroll *scroll,
++                                            double dx, double dy,
++diff --git a/ui/cocoa.m b/ui/cocoa.m
++index 88ddc98..5209b53 100644
++--- a/ui/cocoa.m
+++++ b/ui/cocoa.m
++@@ -1739,6 +1739,8 @@ - (bool) handleTouchScrollLocked:(NSEvent *)event
++     NSEventPhase phase = [event phase];
++     NSEventPhase momentum = [event momentumPhase];
++     NSPoint point = [self convertPoint:[event locationInWindow] fromView:nil];
+++    /* Undo the Mac's natural scrolling; the guest applies its own setting. */
+++    double direction = [event isDirectionInvertedFromDevice] ? -1.0 : 1.0;
++     unsigned action = 0;
++     bool eligible = [event hasPreciseScrollingDeltas] &&
++                     [event window] == [self window] &&
++@@ -1766,8 +1768,8 @@ - (bool) handleTouchScrollLocked:(NSEvent *)event
++         action |= COCOA_TOUCH_SCROLL_MOMENTUM_END;
++     }
++     return cocoa_touch_scroll_event(&touchScroll, action, eligible,
++-                                    [event scrollingDeltaX],
++-                                    [event scrollingDeltaY],
+++                                    direction * [event scrollingDeltaX],
+++                                    direction * [event scrollingDeltaY],
++                                     cocoa_touch_scroll_send_frame, NULL);
++ }
++ 
 diff --git a/macos/patches/qemu-cocoa-touch-scroll-scale.patch b/macos/patches/qemu-cocoa-touch-scroll-scale.patch
 new file mode 100644
 index 0000000..6194fb3
