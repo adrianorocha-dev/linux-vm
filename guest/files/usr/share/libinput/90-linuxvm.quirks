@@ -1,0 +1,4 @@
+# Adapted from Try Omarchy (MIT). Host scroll deltas already have direction and scale.
+[LinuxVM Virtio Pinch Touchpad]
+MatchName=QEMU Virtio Pinch Touchpad
+ModelLenovoX1Gen6Touchpad=1

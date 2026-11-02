@@ -1,0 +1,7 @@
+{
+  "uuid": "clipboard@linuxvm.dev",
+  "name": "LinuxVM Clipboard",
+  "description": "Clipboard transport for the LinuxVM host bridge",
+  "shell-version": ["50"],
+  "version": 1
+}

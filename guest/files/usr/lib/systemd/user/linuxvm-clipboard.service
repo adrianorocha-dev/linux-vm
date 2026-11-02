@@ -1,0 +1,15 @@
+[Unit]
+Description=LinuxVM clipboard
+PartOf=graphical-session.target
+After=graphical-session-pre.target
+ConditionPathExists=/dev/virtio-ports/dev.linuxvm.clipboard
+StartLimitIntervalSec=0
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/python3 /usr/lib/linuxvm/clipboard.py
+Restart=on-failure
+RestartSec=3
+
+[Install]
+WantedBy=graphical-session.target

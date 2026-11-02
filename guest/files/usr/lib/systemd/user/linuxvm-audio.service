@@ -1,0 +1,15 @@
+[Unit]
+Description=LinuxVM audio
+PartOf=graphical-session.target
+After=graphical-session-pre.target
+ConditionPathExists=/dev/virtio-ports/dev.linuxvm.audio
+StartLimitIntervalSec=0
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/python3 /usr/lib/linuxvm/audio.py
+Restart=on-failure
+RestartSec=3
+
+[Install]
+WantedBy=graphical-session.target

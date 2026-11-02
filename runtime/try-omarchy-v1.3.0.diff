@@ -1,0 +1,161 @@
+diff --git a/macos/build-qemu-gpu-runtime.sh b/macos/build-qemu-gpu-runtime.sh
+index e2a7110..5b0a540 100755
+--- a/macos/build-qemu-gpu-runtime.sh
++++ b/macos/build-qemu-gpu-runtime.sh
+@@ -65,6 +65,7 @@ pause_ownership_patch="$native_dir/patches/qemu-cocoa-pause-ownership.patch"
+ pinch_patch="$native_dir/patches/qemu-cocoa-pinch-zoom.patch"
+ precise_scroll_patch="$native_dir/patches/qemu-cocoa-precise-scroll.patch"
+ touch_scroll_patch="$native_dir/patches/qemu-cocoa-touch-scroll.patch"
++touch_scroll_scale_patch="$native_dir/patches/qemu-cocoa-touch-scroll-scale.patch"
+ iso_swap_patch="$native_dir/patches/qemu-cocoa-iso-section-grave-swap.patch"
+ injected_text_patch="$native_dir/patches/qemu-cocoa-injected-text.patch"
+ command_chord_patch="$native_dir/patches/qemu-cocoa-command-chord-hold.patch"
+@@ -96,7 +97,10 @@ qemu_commit=c3d48b7d1e89604920e5b81b91140c2ad39a1943
+ qemu_root="qemu-$qemu_commit"
+ qemu_archive_name="$qemu_root.tar.gz"
+ qemu_url="https://gitlab.com/qemu-project/qemu/-/archive/$qemu_commit/$qemu_archive_name"
+-qemu_sha256=7563781d7dec46f11509801e027f852597235d29ca7afa44a07ed9d8b108b8cd
++# Ubuntu prototype: gitlab.com archives sit behind a Cloudflare challenge, so
++# this archive is `git archive` of the same commit fetched from github.com/qemu/qemu
++# (upstream archive sha256 7563781d7dec46f11509801e027f852597235d29ca7afa44a07ed9d8b108b8cd).
++qemu_sha256=db14020067babeb646ba35e3cffdf1f252a04157114684fa5c0f5da98015ffdf
+ 
+ texture_patch_sha256=b8e107ecd82813854bac7f6bb110722f52937d64b6f98611c4dd02842977fc2f
+ gpu_fix_patch_sha256=b554e1ef9910d0891d69ee0fe84e479559c057dc28291e36e1524031808fc69f
+@@ -109,6 +113,7 @@ pause_ownership_patch_sha256=1a5729b36eb3e437395d41883a10c3c652df71d289d5df84d95
+ pinch_patch_sha256=618c17eef1c2ab97d48ed82b58d9fa2b727ea3f26a0d30225199ac97985a9f06
+ precise_scroll_patch_sha256=54252b3b19358aa7e2c75d5f50775a7f488ef2d8b4db8723ba4768b56316a78f
+ touch_scroll_patch_sha256=e4aa6c3661ee9265724a6236153630ed3870ef5e6f21e5cfe7af3023b6c870e4
++touch_scroll_scale_patch_sha256=a9a69577a4550b64556be3168ad6f536d861a04362ea65ae859259784be82138
+ iso_swap_patch_sha256=57f33a5fb08fb90a7813b13bb7037a13198e4d7db230085b1faa28b284cf2387
+ injected_text_patch_sha256=18d64d52f715d0cf1b2b6d1761059371e1859ee61faf3cc4800e2effc1ed4dd1
+ command_chord_patch_sha256=d2a6cc3827ddac15f5baa063b36ab857b9571221ca1ce4ef25896cae914ff9f6
+@@ -149,7 +154,9 @@ keycodemap_commit=f5772a62ec52591ff6870b7e8ef32482371f22c6
+ keycodemap_root="keycodemapdb-$keycodemap_commit"
+ keycodemap_archive_name="$keycodemap_root.tar.gz"
+ keycodemap_url="https://gitlab.com/qemu-project/keycodemapdb/-/archive/$keycodemap_commit/$keycodemap_archive_name"
+-keycodemap_sha256=d014b53382dbb17b8196ad12f50de7f20d0ef1b9f7d54b0be51a6cbb14209195
++# Ubuntu prototype: `git archive` of the same commit from github.com/qemu/keycodemapdb
++# (upstream archive sha256 d014b53382dbb17b8196ad12f50de7f20d0ef1b9f7d54b0be51a6cbb14209195).
++keycodemap_sha256=6a73ce24e06299eb0a6ad7128c2b4c19aaf6eeb78ee871de019bc930bb52468e
+ 
+ dtc_commit=b6910bec11614980a21e46fbccc35934b671bd81
+ dtc_root="dtc-$dtc_commit"
+@@ -502,6 +509,8 @@ verify_file_sha "Try Omarchy Cocoa precise-scroll patch" \
+   "$precise_scroll_patch" "$precise_scroll_patch_sha256"
+ verify_file_sha "Try Omarchy Cocoa touch-scroll patch" \
+   "$touch_scroll_patch" "$touch_scroll_patch_sha256"
++verify_file_sha "Ubuntu prototype touch-scroll scale patch" \
++  "$touch_scroll_scale_patch" "$touch_scroll_scale_patch_sha256"
+ verify_file_sha "Try Omarchy Cocoa ISO Section/Grave swap patch" \
+   "$iso_swap_patch" "$iso_swap_patch_sha256"
+ verify_file_sha "Try Omarchy Cocoa injected-text patch" \
+@@ -573,6 +582,7 @@ patch -d "$source_dir" -p1 -f -i "$main_loop_qos_patch"
+ patch -d "$source_dir" -p1 -f -i "$notch_patch"
+ patch -d "$source_dir" -p1 -f -i "$command_chord_patch"
+ patch -d "$source_dir" -p1 -f -i "$touch_scroll_patch"
++patch -d "$source_dir" -p1 -f -i "$touch_scroll_scale_patch"
+ patch -d "$source_dir" -p1 -f -i "$korean_caps_lock_patch"
+ patch -d "$source_dir" -p1 -f -i "$pointer_mapping_patch"
+ 
+diff --git a/macos/patches/qemu-cocoa-touch-scroll-scale.patch b/macos/patches/qemu-cocoa-touch-scroll-scale.patch
+new file mode 100644
+index 0000000..6194fb3
+--- /dev/null
++++ b/macos/patches/qemu-cocoa-touch-scroll-scale.patch
+@@ -0,0 +1,95 @@
++From: Ubuntu prototype
++Subject: [PATCH] cocoa: make the touch-scroll travel adjustable
++
++Applies after the touch-scroll patch. GNOME has no touchpad scroll factor,
++so the host scales the contacts' travel instead (see the header comment).
++
++--- a/include/ui/cocoa-touch-scroll.h
+++++ b/include/ui/cocoa-touch-scroll.h
++@@ -7,6 +7,8 @@
++ #define QEMU_COCOA_TOUCH_SCROLL_H
++ 
++ #include <stdbool.h>
+++#include <stdio.h>
+++#include <stdlib.h>
++ #include <math.h>
++ 
++ /*
++@@ -35,7 +37,61 @@
++  * direction, in a frame of its own, starts it, so no scrolling is lost.
++  */
++ #define COCOA_TOUCH_SCROLL_PREROLL 16.0
+++
+++/*
+++ * Prototype: scales the contacts' travel for guests without a touchpad scroll
+++ * factor, such as GNOME, where Omarchy's Hyprland applies 0.4. The scale is
+++ * read at every landing from the file TRYOMARCHY_TOUCH_SCROLL_SCALE_FILE
+++ * names, so it can be tuned while the VM runs, or else from
+++ * TRYOMARCHY_TOUCH_SCROLL_SCALE. Values outside 0.05-4 are clamped; anything
+++ * unreadable keeps the last scale. The first move that starts libinput's
+++ * scroll is not scaled, so scrolls still start at once.
+++ */
+++static inline double cocoa_touch_scroll_parse_scale(const char *text,
+++                                                    double fallback)
+++{
+++    char *end;
+++    double value;
+++
+++    if (!text) {
+++        return fallback;
+++    }
+++    value = strtod(text, &end);
+++    while (*end == ' ' || *end == '\n' || *end == '\r' || *end == '\t') {
+++        end++;
+++    }
+++    if (end == text || *end != '\0' || !isfinite(value)) {
+++        return fallback;
+++    }
+++    return fmin(4.0, fmax(0.05, value));
+++}
++ 
+++static double cocoa_touch_scroll_current_scale = 1.0;
+++
+++static inline void cocoa_touch_scroll_refresh_scale(void)
+++{
+++    static bool initialized;
+++    const char *path = getenv("TRYOMARCHY_TOUCH_SCROLL_SCALE_FILE");
+++
+++    if (!initialized) {
+++        initialized = true;
+++        cocoa_touch_scroll_current_scale = cocoa_touch_scroll_parse_scale(
+++            getenv("TRYOMARCHY_TOUCH_SCROLL_SCALE"), 1.0);
+++    }
+++    if (path) {
+++        char text[32] = { 0 };
+++        FILE *file = fopen(path, "r");
+++
+++        if (file) {
+++            if (fgets(text, sizeof(text), file)) {
+++                cocoa_touch_scroll_current_scale = cocoa_touch_scroll_parse_scale(
+++                    text, cocoa_touch_scroll_current_scale);
+++            }
+++            fclose(file);
+++        }
+++    }
+++}
+++
++ typedef struct CocoaTouchScroll {
++     bool active;
++     /* The current AppKit gesture reached the guest as finger scrolling. */
++@@ -106,6 +162,7 @@
++                                             CocoaTouchScrollEmit emit,
++                                             void *opaque)
++ {
+++    cocoa_touch_scroll_refresh_scale();
++     scroll->active = true;
++     scroll->owns_momentum = true;
++     scroll->started = false;
++@@ -166,6 +223,7 @@
++ {
++     double points = hypot(dx, dy);
++     double units = COCOA_TOUCH_SCROLL_UNITS_PER_POINT *
+++                   cocoa_touch_scroll_current_scale *
++                    cocoa_touch_scroll_gain(points);
++ 
++     if (!scroll->started) {

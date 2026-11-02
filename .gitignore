@@ -1,0 +1,6 @@
+build/
+macos/.build/
+guest/dist/
+test-media/
+__pycache__/
+.DS_Store

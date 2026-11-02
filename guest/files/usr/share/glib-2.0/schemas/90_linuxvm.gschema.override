@@ -1,0 +1,4 @@
+[org.gnome.desktop.peripherals.touchpad]
+tap-to-click=false
+disable-while-typing=false
+natural-scroll=false

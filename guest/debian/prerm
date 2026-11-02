@@ -1,0 +1,24 @@
+#!/bin/sh
+set -eu
+case "$1" in
+    remove|deconfigure|upgrade)
+        if [ -d /run/systemd/system ]; then
+            # A global enable/disable alone does not stop services in existing sessions.
+            loginctl list-users --no-legend 2>/dev/null | while read -r uid user rest; do
+                [ -S "/run/user/$uid/bus" ] || continue
+                runuser -u "$user" -- env XDG_RUNTIME_DIR="/run/user/$uid" \
+                    DBUS_SESSION_BUS_ADDRESS="unix:path=/run/user/$uid/bus" \
+                    systemctl --user stop linuxvm-clipboard.service linuxvm-audio.service linuxvm-share-link.service || true
+                runuser -u "$user" -- /usr/bin/python3 /usr/lib/linuxvm/share.py unlink || true
+                runuser -u "$user" -- env XDG_RUNTIME_DIR="/run/user/$uid" \
+                    DBUS_SESSION_BUS_ADDRESS="unix:path=/run/user/$uid/bus" \
+                    gnome-extensions disable clipboard@linuxvm.dev || true
+            done
+            systemctl stop linuxvm-timezone.service linuxvm-share-mount.service || true
+        fi
+        if [ "$1" != upgrade ]; then
+            systemctl disable linuxvm-timezone.service linuxvm-share-mount.service || true
+            systemctl --global disable linuxvm-clipboard.service linuxvm-audio.service linuxvm-share-link.service || true
+        fi
+        ;;
+esac

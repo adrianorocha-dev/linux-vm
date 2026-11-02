@@ -1,0 +1,22 @@
+[Unit]
+Wants=systemd-udev-settle.service
+Description=Mount the LinuxVM Mac shared folder
+After=systemd-udev-settle.service
+ConditionPathExists=/sys/bus/virtio/devices
+StartLimitIntervalSec=0
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ImportCredential=linuxvm.host
+RuntimeDirectory=linuxvm
+RuntimeDirectoryMode=0755
+RuntimeDirectoryPreserve=yes
+ExecStart=/usr/bin/python3 /usr/lib/linuxvm/share.py mount
+ExecStop=/usr/bin/python3 /usr/lib/linuxvm/share.py unmount
+Restart=on-failure
+RestartSec=3
+TimeoutStopSec=35
+
+[Install]
+WantedBy=multi-user.target
