@@ -111,13 +111,22 @@ The user's "Ubuntu" VM was upgraded from guest tools 0.1.0 to 0.2.0 with `./inst
 - **Clipboard.** Text crossed both ways, Mac → guest and guest → Mac.
 - **Real Mac sleep.** The Mac slept from 17:04 to 18:06 UTC. The supervisor paused QEMU at 17:04:00, five seconds before macOS logged the sleep. Power Nap was on, and the VM stayed paused through about 20 dark wakes, one of them 20 minutes long, and resumed at 18:06:30, a second after the full wake. At 18:06:31 the guest stepped its clock forward by about 62 minutes and restarted chrony, which picked an NTP source at 18:06:38. The user saw the correct time in Linux on waking. Evidence: the VM's `logs/supervisor.log`, `pmset -g log`, and the guest journal for `linuxvm-clock-recovery` and `chrony`.
 
+### Second wave (2 November 2026)
+
+Work that needed no one at the Mac. GPT-6.1-Sol built the storage handling; Claude reviewed and integrated it, and built and ran the rest on a fresh harness VM (`m2-solo`).
+
+- **Storage that disappears.** The supervisor watches, through DiskArbitration plus a once-a-second check, the drives holding the VM's folder, the installer disc in the VM and the shared folder. Ejecting a drive that holds the VM or its shared folder is refused, with a message naming the VM. Ejecting the drive of an installer disc first ejects the disc from the VM. If the VM's own drive is pulled, QEMU stops at once and the supervisor exits with status 74. Losing a disc's drive ejects the disc. Losing a shared folder's drive is logged. Sol verified each case on throwaway disk images with a firmware-only VM: QEMU was gone 0.12 s after the VM's drive was forcibly detached. On the harness VM with the final build, ejecting the shared folder's drive was refused. Ejecting an ISO's drive ejected the disc (Linux then reads "No medium found") and the drive unmounted.
+- **VirGL `GL_ARB_draw_instanced`.** virglrenderer wrote `#extension GL_ARB_draw_instanced : require` into every shader reading `gl_InstanceID`. macOS's GLSL 4.10 compiler rejects it, so those shaders failed on the Mac and their draws were lost, while Linux saw no error. A GTK test drawing 100 instanced squares showed nothing before and all of them after a one-line runtime patch ([runtime/README.md](../runtime/README.md)). None of the surveyed apps hit it: Text Editor, Files, Settings, Image Viewer, Document Viewer, Disk Usage, Calculator, glmark2 (GL and GLES) and glxgears. Firefox's WebGL did not run in the guest, so browsers remain unchecked.
+- **Lifecycle soak** (`scripts/harness/soak`). Eight rounds passed, five on the build before the merge and three on the final one. Each round was a start, a guest reboot, 30 s of simulated Mac sleep and a shutdown. Every boot reached the desktop with the guest tools active in about 25 s and sent a fresh status report. Linux's clock was within 0.15 s of the Mac's after each boot, and back within a second a moment after each wake. Shutdowns were clean in about 4 s, with no forced stops, bridge restarts, failed units or ext4 recovery.
+- **Touchpad contact lifecycle** (`scripts/harness/touch-lifecycle`). These checks replay contacts through QMP. A pause mid-scroll, through QMP or through the supervisor's sleep path, left no contact down, even when the lift was lost during the pause. So did a scroll continued after a pause, 15 quick scroll and pinch cycles, and a guest reboot with contacts down. A scroll that turns into a pinch without lifting stays a scroll in libinput; Cocoa never sends that sequence. Focus loss needs the real trackpad.
+- **Helper branding.** The clipboard and audio bridges' log lines now say "the VM" instead of "Omarchy".
+
 ### Next
 
 - With the user at the Mac: scrolling, pinch, swipe and cursor compared with Try Omarchy and macOS; window resizes, full-screen transitions and an external display; starting a VM from the app.
 - Presentation: check pacing in full screen and on a second display, with the VM in use.
-- Trackpad lifecycle checks with QMP replay: stuck contacts across pause, resume and focus loss.
-- Storage that disappears.
-- VirGL's `GL_ARB_draw_instanced` and the helper's "Omarchy" log lines.
+- With the user at the Mac: focus loss in the middle of a gesture, unplugging a drive for real, and Finder's message when an eject is refused.
+- Firefox and WebGL in the guest, to finish the VirGL survey.
 
 ## How the work is split
 
