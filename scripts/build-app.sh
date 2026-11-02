@@ -58,8 +58,15 @@ bunzip2 -c "$scratch/qemu-$qemu_commit/pc-bios/edk2-aarch64-code.fd.bz2" >"$stag
 [[ $(stat -f %z "$staging/Contents/Resources/firmware/edk2-aarch64-code.fd") == 67108864 ]] || fail "the firmware is not a 64 MiB flash image"
 install -m 0644 "$scratch/qemu-$qemu_commit/pc-bios/edk2-licenses.txt" "$staging/Contents/Resources/firmware/"
 
-if [[ -f $root/guest/dist/guest-tools.iso ]]; then
-  install -m 0644 "$root/guest/dist/guest-tools.iso" "$staging/Contents/Resources/guest-tools.iso"
+guest_iso="$root/guest/dist/guest-tools.iso"
+if [[ -f $guest_iso ]]; then
+  # The app compares this version with the one each VM reports.
+  guest_version=$(sed -n "s/^VERSION = '\([0-9.]*\)'$/\1/p" "$root/guest/build.py")
+  [[ $guest_version =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || fail "cannot read the guest tools version from guest/build.py"
+  LC_ALL=C grep -a -q -F "linuxvm-guest_${guest_version}_all.deb" "$guest_iso" ||
+    fail "$guest_iso does not hold linuxvm-guest $guest_version; rebuild it with guest/build-tools-iso.sh"
+  install -m 0644 "$guest_iso" "$staging/Contents/Resources/guest-tools.iso"
+  printf '%s\n' "$guest_version" >"$staging/Contents/Resources/guest-tools-version"
 else
   echo "[build-app] warning: guest/dist/guest-tools.iso is missing; VMs will start without the guest tools disc" >&2
 fi
