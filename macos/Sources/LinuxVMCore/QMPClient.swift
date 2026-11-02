@@ -8,6 +8,7 @@ public final class QMPClient {
     }
 
     private let descriptor: Int32
+    private var disconnected = false
     private var buffer = Data()
     private let deadline: TimeInterval
 
@@ -26,7 +27,7 @@ public final class QMPClient {
             raw.copyBytes(from: pathBytes)
             raw[pathBytes.count] = 0
         }
-        var interval = timeval(tv_sec: Int(timeout), tv_usec: 0)
+        var interval = timeval(tv_sec: Int(timeout), tv_usec: Int32((timeout - floor(timeout)) * 1_000_000))
         setsockopt(descriptor, SOL_SOCKET, SO_RCVTIMEO, &interval, socklen_t(MemoryLayout<timeval>.size))
         setsockopt(descriptor, SOL_SOCKET, SO_SNDTIMEO, &interval, socklen_t(MemoryLayout<timeval>.size))
         var noSigPipe: Int32 = 1
@@ -50,7 +51,11 @@ public final class QMPClient {
         }
     }
 
-    deinit {
+    deinit { disconnect() }
+
+    func disconnect() {
+        guard !disconnected else { return }
+        disconnected = true
         close(descriptor)
     }
 
@@ -97,5 +102,26 @@ public final class QMPClient {
             buffer.append(contentsOf: chunk[0..<count])
             guard buffer.count < 16 * 1_048_576 else { throw Failure(message: "QMP message too large") }
         }
+    }
+}
+
+// QEMU accepts only one client on the supervisor socket, including during host sleep.
+final class SupervisorMonitor: @unchecked Sendable {
+    private let lock = NSLock()
+    private let path: String
+
+    init(path: String) { self.path = path }
+
+    func withClient<T>(timeout: TimeInterval = 5, _ body: (QMPClient) throws -> T) throws -> T {
+        let deadline = ProcessInfo.processInfo.systemUptime + timeout
+        guard lock.lock(before: Date().addingTimeInterval(timeout)) else {
+            throw QMPClient.Failure(message: "Supervisor monitor is busy")
+        }
+        defer { lock.unlock() }
+        let remaining = deadline - ProcessInfo.processInfo.systemUptime
+        guard remaining > 0 else { throw QMPClient.Failure(message: "Supervisor monitor deadline expired") }
+        let client = try QMPClient(socketPath: path, timeout: remaining)
+        defer { client.disconnect() }
+        return try body(client)
     }
 }

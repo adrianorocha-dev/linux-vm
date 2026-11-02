@@ -20,25 +20,27 @@ protocol VMHostSleepControlling: AnyObject {
     func resume() throws
 }
 final class QMPHostSleepController: VMHostSleepControlling {
-    let path: String
-    init(path: String) { self.path = path }
+    let monitor: SupervisorMonitor
+    init(monitor: SupervisorMonitor) { self.monitor = monitor }
     func pauseIfRunning() throws -> Bool {
         // One five-second deadline includes greeting, capabilities, status and stop.
-        let client = try QMPClient(socketPath: path)
-        let status = try client.execute("query-status") as? [String: Any]
-        guard status?["running"] as? Bool == true, status?["status"] as? String == "running" else { return false }
-        do { try client.execute("stop") }
-        catch { throw VMHostSleepControlError.pauseOutcomeUnknown(error.localizedDescription) }
-        return true
+        try monitor.withClient { client in
+            let status = try client.execute("query-status") as? [String: Any]
+            guard status?["running"] as? Bool == true, status?["status"] as? String == "running" else { return false }
+            do { try client.execute("stop") }
+            catch { throw VMHostSleepControlError.pauseOutcomeUnknown(error.localizedDescription) }
+            return true
+        }
     }
     func resume() throws {
-        let client = try QMPClient(socketPath: path)
-        let status = try client.execute("query-status") as? [String: Any]
-        if status?["status"] as? String == "running" { return }
-        guard status?["status"] as? String == "paused" else {
-            throw VMHostSleepControlError.unsafeResumeState(status?["status"] as? String ?? "unknown")
+        try monitor.withClient { client in
+            let status = try client.execute("query-status") as? [String: Any]
+            if status?["status"] as? String == "running" { return }
+            guard status?["status"] as? String == "paused" else {
+                throw VMHostSleepControlError.unsafeResumeState(status?["status"] as? String ?? "unknown")
+            }
+            try client.execute("cont")
         }
-        try client.execute("cont")
     }
 }
 
@@ -76,13 +78,13 @@ struct VMHostWakeRetryPolicy {
     }
 }
 
-/// All mutable state, callbacks, and private-monitor access belong to queue.
+/// Power state and callbacks belong to queue; monitor access also takes the storage lock.
 final class SupervisorPower: @unchecked Sendable {
     let queue = DispatchQueue(label: "dev.linuxvm.power")
+    let monitor: SupervisorMonitor
     private let qemu: Process
     private let library: VMLibrary
     private let id: String
-    private let socket: String
     private let log: @Sendable (String) -> Void
     private var state: RunState
     private let coordinator: VMHostSleepCoordinator
@@ -95,11 +97,12 @@ final class SupervisorPower: @unchecked Sendable {
     private var port: IONotificationPortRef?
     private var notifier: io_object_t = 0
 
-    init(qemu: Process, library: VMLibrary, id: String, socket: String, state: RunState,
+    init(qemu: Process, library: VMLibrary, id: String, monitor: SupervisorMonitor, state: RunState,
          log: @escaping @Sendable (String) -> Void) {
         self.qemu = qemu; self.library = library; self.id = id
-        self.socket = socket; self.state = state; self.log = log
-        coordinator = VMHostSleepCoordinator(controller: QMPHostSleepController(path: socket))
+        self.state = state; self.log = log
+        self.monitor = monitor
+        coordinator = VMHostSleepCoordinator(controller: QMPHostSleepController(monitor: monitor))
     }
     func start() {
         root = IORegisterForSystemPower(Unmanaged.passUnretained(self).toOpaque(), &port, { context, _, message, argument in
@@ -180,7 +183,7 @@ final class SupervisorPower: @unchecked Sendable {
         log("Posted host wake notification (result \(result))")
     }
     func requestShutdown() {
-        queue.sync {
+        queue.sync { () -> Void in
             generation += 1
             phase(.stopping)
             // A powerdown event cannot be handled by a guest we have paused.
@@ -190,7 +193,9 @@ final class SupervisorPower: @unchecked Sendable {
                 try coordinator.resumeAfterHostWake(vmIsRunning: qemu.isRunning, isStopping: false)
                 if owned { log("Resumed sleep pause for guest shutdown") }
             } catch { log("Cannot resume sleep pause for shutdown: \(error)") }
-            _ = try? QMPClient(socketPath: socket, timeout: 2).execute("system_powerdown")
+            try? monitor.withClient(timeout: 2) { client -> Void in
+                try client.execute("system_powerdown")
+            }
         }
     }
 }
