@@ -1,0 +1,11 @@
+[Unit]
+Description=Check LinuxVM guest clock for missed wake messages
+
+[Timer]
+OnBootSec=5s
+OnUnitInactiveSec=60s
+AccuracySec=1s
+Unit=linuxvm-clock-recovery.service
+
+[Install]
+WantedBy=timers.target

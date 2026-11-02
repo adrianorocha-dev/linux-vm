@@ -1,3 +1,4 @@
 SUBSYSTEM=="virtio-ports", ATTR{name}=="dev.linuxvm.clipboard", OWNER="root", GROUP="root", MODE="0660", TAG+="uaccess"
 SUBSYSTEM=="virtio-ports", ATTR{name}=="dev.linuxvm.audio", OWNER="root", GROUP="root", MODE="0660", TAG+="uaccess"
 SUBSYSTEM=="virtio-ports", ATTR{name}=="dev.linuxvm.timezone", OWNER="root", GROUP="root", MODE="0600"
+SUBSYSTEM=="virtio-ports", ATTR{name}=="dev.linuxvm.status", OWNER="root", GROUP="root", MODE="0660", TAG+="uaccess"

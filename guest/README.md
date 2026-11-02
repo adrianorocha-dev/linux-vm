@@ -1,85 +1,133 @@
 # LinuxVM guest tools
 
-Ubuntu 26.04 Desktop, GNOME Shell/Mutter 50 on Wayland. This builds
-`linuxvm-guest` 0.1.0 (`Architecture: all`), using Python's standard library.
-No VM access or Debian build tools are needed on the Mac.
+`linuxvm-guest` 0.2.0 targets Ubuntu 26.04 Desktop, GNOME Shell/Mutter 50 on
+Wayland. The Debian package builder uses Python's standard library; the tools
+disc requires xorriso (PATH, then `/opt/homebrew/bin/xorriso`). No VM or Debian
+build tools are needed on the Mac.
 
-- `files/usr/lib/linuxvm/clipboard.py` adapts Try Omarchy's text/PNG wire
-  protocol and echo suppression to a GNOME Shell extension. It retries enabling
-  the extension while waiting for its D-Bus name and resynchronizes with the Mac
-  when the name appears. Clipboard data is limited to 16 MiB, with strict UTF-8
-  text and base64 validation. Disconnects fail the service so systemd restarts it.
-- `audio.py` adapts the upstream pactl remap modules and route selection to
-  PipeWire/pipewire-pulse, with `linuxvm_host_` endpoint names.
-- Root `timezone.py` accepts the launch credential and live host zones. It
-  validates names against `/usr/share/zoneinfo` and calls `timedatectl`. A guest
-  zone differing from its last applied zone permanently stops following,
-  including across restarts. State is `/var/lib/linuxvm/timezone.json`.
-  To resume following explicitly, stop `linuxvm-timezone.service`, delete that
-  state file, then start the service. Host `wake` messages are accepted and ignored.
-- Root `share.py mount` mounts only the `mac` 9p tag at `/mnt/mac`, using upstream
-  `cache=readahead,msize=1048576` plus `nodev,nosuid`. It validates the URL-safe
-  base64 folder name in `$CREDENTIALS_DIRECTORY/linuxvm.host` and publishes only
-  that encoded name at `/run/linuxvm/shared-folder-name`. Invalid names suppress
-  the home link while allowing the mount. A user agent watches the mounted share
-  and links `~/<name>`; it never replaces an existing entry. It records each link's
+## Integrations
+
+- Clipboard text/PNG uses Try Omarchy's wire protocol and echo suppression via
+  `clipboard@linuxvm.dev`. Payloads are limited to 16 MiB, with strict UTF-8 and
+  base64 checks. Disconnects fail the agent so systemd restarts it.
+- Audio mirrors Mac endpoints through PipeWire/pipewire-pulse using pactl.
+- Root `timezone.py` validates host IANA zones against `/usr/share/zoneinfo`.
+  A guest zone differing from its last applied zone permanently stops following,
+  including across restarts. To resume: stop `linuxvm-timezone.service`, delete
+  `/var/lib/linuxvm/timezone.json`, then start it again.
+- Root `share.py mount` mounts only the `mac` 9p tag at `/mnt/mac`, with
+  `cache=readahead,msize=1048576,nodev,nosuid`. It validates the credential's
+  URL-safe base64 folder name and publishes it at `/run/linuxvm/shared-folder-name`.
+  The user agent creates `~/<name>` without replacing existing entries. It records
   device, inode and change time under `${XDG_STATE_HOME:-~/.local/state}/linuxvm/`
-  and removes only matching links, on rename, loss of sharing, logout or removal.
-- udev grants the active desktop user access to clipboard/audio ports and keeps
-  timezone root-only. The libinput quirk and gsettings override match the host's
-  virtual touchpad scrolling and disable tap-to-click/disable-while-typing.
+  and removes only its own unchanged links on rename, disconnect, logout or removal.
+- Touchpad defaults match host scrolling and disable tap-to-click and
+  disable-while-typing. Existing user settings take precedence.
 
-The three port names are `dev.linuxvm.clipboard`, `dev.linuxvm.audio` and
-`dev.linuxvm.timezone`. Root services use `ImportCredential=linuxvm.host`.
-User services are enabled globally for `graphical-session.target`; system
-services start at `multi-user.target`. Installation needs a logout/login to
-load the new Shell extension and start user services. Existing per-user
-settings take precedence over the touchpad defaults.
+Ports are `dev.linuxvm.clipboard`, `.audio`, `.timezone` and `.status` under
+`/dev/virtio-ports/`. udev grants the active seat user access to clipboard,
+audio and status; timezone remains root-only. User services are globally enabled
+for `graphical-session.target`; installation and upgrades require logout/login
+to load the extension and start the new user units. The extension declares only
+Shell 50, the tested major version; its own version is now 2.
 
-## Clipboard D-Bus API
+## Clock recovery after Mac sleep
 
-Session bus name `dev.linuxvm.Clipboard`, object `/dev/linuxvm/Clipboard`,
-interface `dev.linuxvm.Clipboard1`:
+`linuxvm-clock-recovery.service` runs `/usr/lib/linuxvm/clock.py` as a root
+oneshot with only CAP_SYS_TIME retained, a read-only filesystem sandbox and
+no home access. It requires the `linuxvm.host` credential and an RTC exposing
+`since_epoch`. The helper independently checks its imported credential, then
+selects an RTC whose driver name is `rtc-efi`, `rtc-pl031` or `pl031`, rather
+than assuming rtc0 is the correct device.
 
-- `GetSelection() → (s mime, ay data)`: UTF-8 text preferred over PNG; empty mime
-  and data for unsupported, empty, stale, oversized or timed-out selections.
-- `SetSelection(s mime, ay data) → ()`: accepts `text/plain;charset=utf-8` or
-  `image/png`, with 1–16777216 bytes. Invalid input returns
+The helper rejects samples taking over two seconds. The RTC's whole-second
+value is a lower bound: only a measured gap strictly greater than five seconds
+causes a step, to RTC seconds plus the sample duration. It never steps backward
+or writes the RTC. After stepping, `systemctl --no-block try-restart` restarts
+systemd-timesyncd only if already active. Small and backward offsets remain
+network time synchronization's responsibility; a wrong Mac clock remains a
+wrong reference.
+
+The timezone agent requests `systemctl start --no-block
+linuxvm-clock-recovery.service` on wake, coalescing messages within five seconds
+using monotonic time. The fallback timer runs five seconds after boot and every
+60 seconds of guest runtime after the oneshot becomes inactive, with one-second
+accuracy. GNOME's GnomeWallClock uses a cancel-on-set timerfd and follows clock
+steps automatically; no refresh unit is required.
+
+Clock recovery is adapted from Try Omarchy's MIT `guest-clock-recover`, its
+recovery units and `docs/guest-clock-recovery.md`; its license is included at
+`/usr/share/doc/linuxvm-guest/copyright`.
+
+## Guest status
+
+`linuxvm-status.service` runs in the graphical session only when the status port
+exists. It sends bounded UTF-8 JSON lines at startup, on our extension's
+`ExtensionStateChanged`, on Shell bus-owner changes and for every host `query`.
+Unknown keys/types and malformed or oversized lines are dropped; input resumes
+after the offending newline. Transport failure exits and systemd reconnects.
+
+The package version comes from `version.py`, generated from build.py's VERSION
+and included with package md5sums; there are no runtime dpkg calls. OS comes from
+PRETTY_NAME (128 characters), ShellVersion from `org.gnome.Shell` (32 characters,
+omitted if unknown). `GetExtensionInfo` maps states 1/2/3/4/99 to
+active/inactive/error/outdated/missing, empty info to missing and other states to
+unknown. Without a Shell owner, the state is unknown.
+
+## Clipboard D-Bus API and access boundary
+
+Session name `dev.linuxvm.Clipboard`, object `/dev/linuxvm/Clipboard`, interface
+`dev.linuxvm.Clipboard1` exports:
+
+- `GetSelection() → (s mime, ay data)`: UTF-8 text preferred over PNG; empty for
+  unsupported, empty, stale, oversized or timed-out selections.
+- `SetSelection(s mime, ay data) → ()`: canonical `text/plain;charset=utf-8` or
+  `image/png`, 1–16777216 bytes. Invalid data returns
   `dev.linuxvm.Clipboard.Error.InvalidData`.
-- `Changed()`: emitted when the CLIPBOARD owner changes, including our own writes.
+- `Changed()`: data-free broadcast when the CLIPBOARD owner changes.
 
-The ESM extension `clipboard@linuxvm.dev` uses `St.Clipboard` and
-`global.display.get_selection()`; it disconnects signals, cancels pending
-D-Bus calls and releases its bus name when disabled. Text reads also accept
-`text/plain`, `UTF8_STRING`, `TEXT` and `STRING`, provided the bytes are UTF-8.
-The St API delivers a complete `GBytes` before the extension can check its size.
+Both methods first obtain the sender's `GetConnectionCredentials`, require the
+Shell's UID, and check `/proc/<pid>/cgroup` for the exact user-unit component
+`linuxvm-clipboard.service`. The unit directly ExecStarts Python, so the agent
+runs in that cgroup. Results are cached per unique bus name and invalidated by
+NameOwnerChanged; pending authorization cannot repopulate a stale cache after
+name changes or extension disable. Unauthorized requests receive
+`dev.linuxvm.Clipboard.Error.AccessDenied` before clipboard access.
 
-## Build and test
+This reduces accidental access and Wayland focus bypass through this API, but
+is not a strong same-user security boundary: a same-user process able to move
+itself into the unit's cgroup can impersonate the agent, and a cached caller can
+move later. Confined snaps and Flatpaks are already restricted by their D-Bus
+mediation. `Changed()` carries no clipboard content. St.Clipboard still allocates
+a complete GBytes before the extension can enforce the payload size limit.
 
-From `linux-vm/`:
+Disable disconnects signals, fails pending reads, unexports the object and
+releases its bus name. Text aliases `text/plain`, `UTF8_STRING`, `TEXT`, `STRING`
+are accepted when valid UTF-8.
+
+## Build and verify
 
 ```sh
-/opt/homebrew/bin/python3.14 -m unittest discover guest/tests -v
 /opt/homebrew/bin/python3.14 guest/build.py
 PYTHON=/opt/homebrew/bin/python3.14 guest/build-tools-iso.sh
+/opt/homebrew/bin/python3.14 -m unittest discover guest/tests -v
 ```
 
-Or use any Python 3 on PATH. The ISO step requires macOS `hdiutil`. Outputs:
-`dist/linuxvm-guest_0.1.0_all.deb` and `dist/guest-tools.iso` (LINUXVM-TOOLS).
-The disc contains the package, `install.sh` and `README.txt`. Run
-`sh install.sh` from the mounted disc; it uses `sudo apt-get install -y`.
+Outputs: `guest/dist/linuxvm-guest_0.2.0_all.deb` and
+`guest/dist/guest-tools.iso`. xorriso creates Rock Ridge plus Joliet with label
+`LINUXVM-TOOLS`; root ownership, directories/install.sh 0755, other files 0644,
+and fixed 2000-01-01 UTC timestamps. Two builds produce identical bytes; the
+old makehybrid normalizer is removed. xorriso warns about the label's hyphen
+under strict ISO9660 rules; both descriptors preserve the required label.
 
-All archive mtimes use 2000-01-01 UTC. Debian ownership is root:root and modes
-are assigned explicitly. The ISO normalizer removes makehybrid's host-specific
-POSIX metadata and fixes descriptor/directory times; the disc uses Joliet names.
-Tests check the wire/echo logic, untrusted settings, timezone opt-out, safe link
-management, package contents/metadata, shell syntax and JavaScript syntax when
-Node is available. Built ISO contents are checked when the ISO exists.
+Run `./install.sh` on the disc. It requires exactly one
+`linuxvm-guest_*_all.deb` and installs it with sudo apt-get. Upgrades enable and
+start the clock service/timer and globally enable status for the next login.
+Removal stops current user agents, disables system/global units and reloads
+managers and udev; purge also removes timezone state.
 
-The macOS checks cannot exercise GNOME, D-Bus, virtio ports, udev, systemd,
-PipeWire or 9p. Validate those in the guest after logout/login.
-
-Parts are adapted from [Try Omarchy v1.3.0](https://github.com/omacom/try-omarchy)
-(MIT). Its license notice is included at
-`/usr/share/doc/linuxvm-guest/copyright`. Clipboard, audio and timezone wire
-schemas were checked against the corresponding Swift helper bridges.
+macOS tests cover logic, syntax, package metadata and Rock Ridge/Joliet contents.
+GNOME, D-Bus, systemd, udev, virtio, PipeWire and 9p require the in-guest checks
+in [BUILD-REPORT.md](BUILD-REPORT.md). No VM was used for this implementation.
+Other adaptations are from [Try Omarchy v1.3.0](https://github.com/omacom/try-omarchy)
+(MIT); its notice is included in the package.

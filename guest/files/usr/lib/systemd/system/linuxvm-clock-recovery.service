@@ -1,0 +1,24 @@
+[Unit]
+Description=Recover LinuxVM guest time after Mac sleep
+ConditionCredential=linuxvm.host
+ConditionPathExistsGlob=/sys/class/rtc/rtc*/since_epoch
+After=systemd-timesyncd.service
+
+[Service]
+Type=oneshot
+ImportCredential=linuxvm.host
+ExecStart=/usr/bin/python3 /usr/lib/linuxvm/clock.py
+TimeoutStartSec=10
+NoNewPrivileges=yes
+CapabilityBoundingSet=CAP_SYS_TIME
+ProtectSystem=strict
+ProtectHome=yes
+PrivateTmp=yes
+PrivateDevices=yes
+ProtectKernelTunables=yes
+ProtectKernelModules=yes
+ProtectControlGroups=yes
+RestrictAddressFamilies=AF_UNIX
+
+[Install]
+WantedBy=multi-user.target
