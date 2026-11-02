@@ -23,7 +23,8 @@ Guest Tools disc. `--run-dir PATH` chooses a new, nonexistent output directory.
 
 Each VM has 4096 MiB, four CPUs, a sparse 32 GiB disk, a unique harness name,
 a forwarded loopback SSH port, and a throwaway ed25519 key. The harness refuses
-to start while any QEMU process is present. Stop existing VMs yourself; it never
+to start while any QEMU process is present, and serializes concurrent harness
+launches across worktrees with a host lock. Stop existing VMs yourself; it never
 stops the user's Ubuntu or UTM VMs. The window appearing on the Mac is expected.
 Do not start another VM while this harness runs.
 
@@ -31,8 +32,11 @@ The seed server binds loopback; QEMU user networking reaches it through
 10.0.2.2. It serves all four NoCloud files. GRUB is controlled through one QMP
 connection using the existing `qmp-type.py` module. The serial terminal state
 locates the kernel line and verifies the complete arguments before Ctrl-X.
-This avoids depending on a fixed number of Down presses. At the last installer
-late-command, the host ejects the ISO before reboot. The final command runs only
+This avoids depending on a fixed number of Down presses. The final installer
+late-command marks the target complete. The host then waits for QMP RESET or the
+installer media-removal prompt before ejecting (and presses Enter at that prompt).
+Ejecting at the late-command alone is unsafe: the live squashfs is still needed
+during shutdown. The final command runs only
 after target installation, sudoers, automatic login and the installed-system
 marker have been written. SSH must see that marker, so a live ISO session cannot
 be mistaken for a successful installation.
@@ -45,12 +49,15 @@ automatic and sudo is passwordless: use this seed only for disposable test VMs.
 Timeouts: GRUB menu 180 s; installation 3600 s (`--install-timeout`); each boot
 600 s (`--boot-timeout`); integration session 180 s; guest package installation
 600 s; normal shutdown 90 s (10 s if still in firmware/GRUB), then forced stop
-30 s. Individual host commands and QMP reads are bounded too. A failed phase
+30 s. Individual host commands and QMP reads are bounded too. Installer errors/panics and unexpected early resets
+fail immediately; installer debug output is mirrored into the serial log. A failed phase
 names its log; command failures also save `<phase>-error.log`.
 
 `harness-runs/<local timestamp>/` contains the seed, private SSH key,
 `connection.json`, `owned-vm.json`, `host.log`, `http.log`, GRUB edit evidence,
-SSH/package/session logs, VM log copies and `summary.json` with phase durations.
+SSH/package/session logs, OS/kernel/guest package versions in `guest-environment.txt`,
+VM log copies (`vm-logs/`, plus `vm-logs-final/` when cleaning up a kept VM)
+and `summary.json` with phase durations.
 The directory is mode 0700 and git-ignored. Keep it private. HTTP stops on success,
 failure or Ctrl-C. By default the harness stops its own VM, waits for it to stop,
 copies logs, then removes its folder directly, avoiding Trash disk retention.
@@ -105,14 +112,20 @@ Over SSH, session commands need
 `XDG_RUNTIME_DIR=/run/user/$(id -u)` and
 `DBUS_SESSION_BUS_ADDRESS=unix:path=$XDG_RUNTIME_DIR/bus`; tools set these, plus
 `WAYLAND_DISPLAY=wayland-0` for GTK. This assumes tester's first/default Wayland
-session, not a multi-seat desktop.
+session, not a multi-seat desktop. Installation and `--install-deps` need internet
+access to Ubuntu repositories. Apt packages are not snapshotted, so versions and
+installation durations can change even with the same ISO.
 
 `record-input` discovers the exact QEMU Virtio Pinch Touchpad and tablet devices,
 runs one line-buffered `libinput debug-events` reader per device, and records raw
 evdev events with CLOCK_MONOTONIC timestamps concurrently. The JSON includes
 names, device paths, debug output, process start offsets/exit codes, duration and
-raw events. No Python evdev/YAML dependency is needed. It does not grab devices;
-normal desktop input continues. Lift all fingers before starting and after the
+raw events. Debug-event clock origins are aligned approximately to each device's
+first raw evdev event (libinput starts its clock at the first event, not process
+launch). No Python evdev/YAML dependency is needed. It does not grab devices;
+normal desktop input continues. Each debug-events reader has its own libinput
+context and does not inherit Mutter's per-device runtime settings. It describes
+libinput's interpretation, not whether a desktop application consumed a gesture. Lift all fingers before starting and after the
 last gesture. Move the pointer into the VM and perform the gestures while it
 records. An unattended idle recording verifies the collector, not gesture feel.
 
@@ -134,6 +147,8 @@ The fixed workload is an 800×600 GTK4 DrawingArea with a solid background and a
 queues a redraw. `--cpu-load N` adds N independent Python busy-loop processes,
 terminated when the workload exits. Keep the VM window visible and avoid other
 activity when comparing runs; the display/window state and host load matter.
+There is no warmup phase. First-login background work and cold caches can affect
+the result; repeat in a consistent guest state before comparing CPU variants.
 
 The collector queries completed GdkFrameTimings for every requested tick, using
 `presentation_time` and `refresh_interval` from compositor presentation feedback.

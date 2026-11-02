@@ -20,6 +20,8 @@ for path in glob.glob('/sys/class/input/event*/device/name'):
         devices.append({'name': name, 'path': '/dev/input/' + Path(path).parents[1].name})
 if not any(d['name'] == 'QEMU Virtio Pinch Touchpad' for d in devices):
     raise RuntimeError('QEMU Virtio Pinch Touchpad not found')
+if not any('tablet' in d['name'].lower() for d in devices):
+    raise RuntimeError('QEMU tablet not found')
 raw = []
 opened = {}
 processes = []
@@ -55,4 +57,8 @@ finally:
         output.seek(0)
         device.update(debug_events=output.read(), start_offset_seconds=offset, exit_code=process.returncode)
         output.close()
+for device in devices:
+    times = [e['time'] for e in raw if e['device'] == device['path']]
+    if times:
+        device['debug_time_origin_seconds'] = min(times)
 print(json.dumps({'format': 'linuxvm-input-v1', 'duration_seconds': seconds, 'devices': devices, 'evdev': raw}))

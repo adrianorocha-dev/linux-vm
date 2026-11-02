@@ -32,31 +32,56 @@ def control_socket(vm_id):
 
 
 def qmp(path, timeout=10):
+    """Return a command callable with close() and next_event(timeout) methods."""
     connection = socket.socket(socket.AF_UNIX)
     connection.settimeout(timeout)
     connection.connect(path)
-    stream = connection.makefile('rw')
-    stream.readline()
+    buffered = bytearray()
+    events = []
+
+    def receive(wait=timeout):
+        deadline = time.monotonic() + wait
+        while b'\n' not in buffered:
+            remaining = deadline - time.monotonic()
+            if remaining <= 0:
+                raise TimeoutError('QMP response timed out')
+            connection.settimeout(remaining)
+            chunk = connection.recv(65536)
+            if not chunk:
+                raise ConnectionError('QMP disconnected')
+            buffered.extend(chunk)
+        line, _, rest = buffered.partition(b'\n')
+        buffered[:] = rest
+        return json.loads(line)
 
     def execute(command, **arguments):
-        stream.write(json.dumps({'execute': command, 'arguments': arguments}) + '\n')
-        stream.flush()
+        connection.settimeout(timeout)
+        connection.sendall(json.dumps({'execute': command, 'arguments': arguments}).encode() + b'\n')
+        deadline = time.monotonic() + timeout
         while True:
-            line = stream.readline()
-            if not line:
-                raise ConnectionError(f'QMP disconnected during {command}')
-            reply = json.loads(line)
+            reply = receive(max(.001, deadline - time.monotonic()))
+            if 'event' in reply:
+                events.append(reply)
             if 'return' in reply or 'error' in reply:
                 if 'error' in reply:
-                    raise SystemExit(f"{command}: {reply['error']['desc']}")
+                    raise RuntimeError(f"{command}: {reply['error']['desc']}")
                 return reply['return']
+            if time.monotonic() >= deadline:
+                raise TimeoutError(f'QMP {command} timed out')
 
-    def close():
-        stream.close()
+    def next_event(wait=timeout):
+        if events:
+            return events.pop(0)
+        return receive(wait)
+
+    try:
+        receive()
+        execute('qmp_capabilities')
+    except BaseException:
         connection.close()
-
-    execute('qmp_capabilities')
-    execute.close = close
+        raise
+    execute.close = connection.close
+    execute.next_event = next_event
     return execute
 
 

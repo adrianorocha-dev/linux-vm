@@ -2,8 +2,8 @@
 import re
 import statistics
 
-EVENT = re.compile(r'(?P<device>event\d+)\s+(?P<kind>[A-Z][A-Z_]+)\s+\+?(?P<time>\d+(?:\.\d+)?)s\s*(?P<data>.*)')
-AXIS = re.compile(r'(vert|horiz)\s+(-?\d+(?:\.\d+)?)(?:/(-?\d+(?:\.\d+)?))?')
+EVENT = re.compile(r'(?P<device>event\d+)\s+(?P<kind>[A-Z][A-Z_]+)\s+(?:\d+\s+)?\+?(?P<time>\d+(?:\.\d+)?)s\s*(?P<data>.*)')
+AXIS = re.compile(r'(vert|horiz)\s+([+-]?\d+(?:\.\d+)?)(?:/([+-]?\d+(?:\.\d+)?))?')
 
 
 def parse_debug(text, offset=0):
@@ -21,7 +21,15 @@ def parse_debug(text, offset=0):
 def analyze(recording, gap_seconds=.1, scroll_gap_seconds=.25):
     if isinstance(recording, str):
         recording = {'devices': [{'debug_events': recording}], 'evdev': []}
-    events = sorted([e for d in recording['devices'] for e in parse_debug(d['debug_events'], d.get('start_offset_seconds', 0))], key=lambda e: e['time'])
+    # debug-events uses the first hardware event as its per-process time origin,
+    # not process startup. Align independent device readers with raw evdev time.
+    origins = {}
+    for event in recording.get('evdev', []):
+        if 'time' in event:
+            origins[event['device']] = min(origins.get(event['device'], event['time']), event['time'])
+    events = sorted([e for d in recording['devices'] for e in parse_debug(
+        d['debug_events'], d.get('debug_time_origin_seconds', origins.get(d.get('path'), d.get('start_offset_seconds', 0))))],
+        key=lambda e: e['time'])
     scrolls, pinches, swipes, anomalies, gaps = [], [], [], [], []
     active_scroll, active_pinch, active_swipe = {}, {}, {}
     previous = {}
@@ -109,4 +117,5 @@ def analyze(recording, gap_seconds=.1, scroll_gap_seconds=.25):
             'limits': ['Gaps can be intentional pauses; they are not proof of dropped events.',
                        'Only contacts observed during capture are known; start with all fingers lifted.',
                        'A gesture interrupted by the capture boundary may appear unbalanced.',
-                       'Scroll distance is libinput debug-events output units; not physical Mac travel.']}
+                       'Scroll distance is libinput debug-events output units; not physical Mac travel.',
+                       'Per-device debug clocks are approximately aligned to their first observed raw event.']}

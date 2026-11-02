@@ -2,6 +2,7 @@
 import argparse
 import contextlib
 import functools
+import fcntl
 import http.server
 import importlib.util
 import json
@@ -13,6 +14,7 @@ import signal
 import shlex
 import shutil
 import threading
+import tempfile
 import time
 import uuid
 
@@ -26,6 +28,7 @@ def seed(public_key, password_hash, port):
         "curtin in-target -- sh -c 'echo \"tester ALL=(ALL) NOPASSWD:ALL\" > /etc/sudoers.d/90-tester && chmod 440 /etc/sudoers.d/90-tester'",
         "curtin in-target -- sh -c 'printf \"[daemon]\\nAutomaticLoginEnable=true\\nAutomaticLogin=tester\\n\" > /etc/gdm3/custom.conf'",
         "curtin in-target -- touch /var/lib/linuxvm-harness-installed",
+        "sync",
         f"wget -q -O /dev/null http://10.0.2.2:{port}/installation-complete",
     ]
     return '\n'.join([
@@ -38,6 +41,8 @@ def seed(public_key, password_hash, port):
         '    - ' + json.dumps("sh -c 'setsid tail -F /var/log/installer/subiquity-server-debug.log > /dev/ttyAMA0 2>&1 < /dev/null &'"),
         '  storage:', '    layout:', '      name: direct',
         '  late-commands:', *['    - ' + json.dumps(command) for command in late],
+        '  error-commands:',
+        '    - ' + json.dumps("sh -c 'echo HARNESS_INSTALLER_FAILED > /dev/ttyAMA0; tail -n 100 /var/log/installer/subiquity-server-debug.log > /dev/ttyAMA0'"),
         '  shutdown: reboot', '',
     ])
 
@@ -61,13 +66,15 @@ def cleanup(directory):
         run([CTL, 'stop', vm_id], check=False)
         try:
             serial = folder / 'logs/serial.log'
-            booted = serial.exists() and 'Linux version' in serial.read_text(errors='replace')
+            progress = json.loads((directory / 'summary.json').read_text()).get('phases', {}) if (directory / 'summary.json').exists() else {}
+            booted = 'install' in progress or (serial.exists() and 'Linux version' in serial.read_text(errors='replace'))
             wait_for('graceful shutdown', stopped, 90 if booted else 10, folder / 'logs')
         except TimeoutError:
             run([CTL, 'stop', vm_id, '--force'])
             wait_for('forced shutdown', stopped, 30, folder / 'logs')
     if (folder / 'logs').exists():
-        shutil.copytree(folder / 'logs', directory / 'vm-logs', dirs_exist_ok=True)
+        destination = directory / ('vm-logs-final' if (directory / 'vm-logs').exists() else 'vm-logs')
+        shutil.copytree(folder / 'logs', destination, dirs_exist_ok=True)
     shutil.rmtree(folder)  # Deliberately bypass Trash, but only after stop + ownership checks.
     summary_path = directory / 'summary.json'
     if summary_path.exists():
@@ -89,8 +96,17 @@ def main():
     parser.add_argument('--boot-timeout', type=int, default=600)
     parser.add_argument('--run-dir', type=Path)
     args = parser.parse_args()
+    if args.install_timeout <= 0 or args.boot_timeout <= 0:
+        parser.error('phase timeouts must be positive')
     if not args.iso.is_file() or (args.deb and not args.deb.is_file()):
         parser.error('ISO/deb does not exist')
+    # Serialize harness launches across worktrees on this Mac. Keep the lock
+    # file descriptor alive until main returns; do not unlink a locked inode.
+    host_lock = open(Path(tempfile.gettempdir()) / f'linuxvm-harness-{os.getuid()}.lock', 'a')
+    try:
+        fcntl.flock(host_lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
+    except BlockingIOError:
+        parser.error('Another fresh-install harness is already running')
     # Fail closed rather than starting alongside a user VM, including a UTM QEMU.
     processes = run(['ps', '-axo', 'comm=']).stdout
     if any('qemu-system-' in line for line in processes.splitlines()):
@@ -100,7 +116,7 @@ def main():
     directory.chmod(0o700)
     summary = {'run_dir': str(directory), 'phases': {}, 'success': False}
     started = time.monotonic()
-    server = thread = execute = None
+    server = thread = execute = http_log = None
     owned = False
     log = (directory / 'host.log').open('a', buffering=1)
     def say(message):
@@ -114,7 +130,9 @@ def main():
             yield
         except Exception as error:
             if hasattr(error, 'stderr'):
-                (directory / (name + '-error.log')).write_text((error.stdout or '') + (error.stderr or ''))
+                output = [(part.decode(errors='replace') if isinstance(part, bytes) else part or '')
+                          for part in (error.stdout, error.stderr)]
+                (directory / (name + '-error.log')).write_text(''.join(output))
             raise
         finally:
             summary['phases'][name] = round(time.monotonic() - before, 3)
@@ -183,7 +201,7 @@ def main():
                 execute('send-key', keys=qmp_type.character(char), **{'hold-time': 40})
                 time.sleep(.08)
             time.sleep(2)
-            # Strip ANSI movement/formatting, preserve the raw evidence too.
+            # Reconstruct the editor's cursor-addressed screen and wrapped line.
             edited = serial_text()
             (directory / 'grub-edit.log').write_text(edited)
             edited_line = editor_linux_line(edited)
@@ -191,13 +209,52 @@ def main():
             if kernel_args.strip() not in edited_line:
                 raise RuntimeError(f'Could not verify GRUB linux arguments; inspect {directory / "grub-edit.log"}')
             execute('send-key', keys=qmp_type.chord('ctrl-x'), **{'hold-time': 80})
+            # Keep this connection to observe the real reset event. Close it
+            # before linuxvmctl needs the same single-client control socket.
+        with phase('install'):
+            def target_installed():
+                text = serial_text()
+                if 'Kernel panic - not syncing' in text or re.search(r'(?m)^HARNESS_INSTALLER_FAILED\r?$', text):
+                    raise RuntimeError(f'Installer failed; inspect {serial}')
+                if 'GET /installation-complete ' in (directory / 'http.log').read_text():
+                    return True
+                try:
+                    event = execute.next_event(.01)
+                    with (directory / 'qmp-events.jsonl').open('a') as out:
+                        out.write(json.dumps(event) + '\n')
+                    if event.get('event') == 'RESET':
+                        raise RuntimeError(f'Unexpected reset before installation completed; inspect {serial}')
+                except TimeoutError:
+                    pass
+                return False
+            wait_for('installer late commands', target_installed, args.install_timeout, serial)
+        with phase('installer_reboot'):
+            deadline = time.monotonic() + args.boot_timeout
+            removal_prompt = False
+            while True:
+                if 'Kernel panic - not syncing' in serial_text():
+                    raise RuntimeError(f'Installer kernel panic; inspect {serial}')
+                if 'Please remove the installation medium' in serial_text():
+                    removal_prompt = True
+                    break
+                try:
+                    event = execute.next_event(1)
+                    with (directory / 'qmp-events.jsonl').open('a') as out:
+                        out.write(json.dumps(event) + '\n')
+                    if event.get('event') == 'RESET':
+                        break
+                except TimeoutError:
+                    pass
+                if time.monotonic() > deadline:
+                    raise TimeoutError(f'Installer reboot timed out; inspect {serial}')
             execute.close()
             execute = None
-        with phase('install'):
-            wait_for('installer late commands', lambda: 'GET /installation-complete ' in (directory / 'http.log').read_text(), args.install_timeout, serial)
-            # The final late command is after target installation/configuration. Eject
-            # now, before reboot; the running installer is already resident in RAM.
             run([CTL, 'eject', vm_id])
+            if removal_prompt:
+                execute = qmp_type.qmp(qmp_type.control_socket(vm_id))
+                execute('send-key', keys=qmp_type.chord('ret'), **{'hold-time': 80})
+                execute.close()
+                execute = None
         with phase('first_boot'):
             def installed():
                 result = guest.ssh('test -f /var/lib/linuxvm-harness-installed', check=False, timeout=15)
@@ -237,6 +294,8 @@ done
                 (directory / 'session.log').write_text(result.stdout + result.stderr)
                 return result.returncode == 0 and bool(re.search(r'State: ACTIVE', result.stdout))
             wait_for('GNOME Wayland and integration services', ready, 180, directory / 'session.log')
+            environment = guest.ssh(SESSION + 'cat /etc/os-release; uname -a; gnome-shell --version; dpkg-query -W linuxvm-guest libinput10 libgtk-4-1')
+            (directory / 'guest-environment.txt').write_text(environment.stdout + environment.stderr)
             summary['success'] = True
             say('Fresh install passed; GNOME Wayland and guest integration are active.')
     except BaseException as error:
@@ -247,9 +306,11 @@ done
         if execute:
             execute.close()
         if server:
-            server.shutdown()
+            if thread and thread.is_alive():
+                server.shutdown()
+                thread.join(timeout=5)
             server.server_close()
-            thread.join(timeout=5)
+        if http_log:
             http_log.close()
         if owned:
             try:

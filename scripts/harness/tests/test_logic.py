@@ -21,7 +21,7 @@ class SeedTests(unittest.TestCase):
         late = [json.loads(line[6:]) for line in text.splitlines() if line.startswith('    - ')]
         self.assertTrue(any('AutomaticLogin=tester' in c for c in late))
         self.assertTrue(any('NOPASSWD:ALL' in c for c in late))
-        self.assertTrue(late[-1].endswith('http://10.0.2.2:12345/installation-complete'))
+        self.assertTrue(any(c.endswith('http://10.0.2.2:12345/installation-complete') for c in late))
 
 
 class TimingTests(unittest.TestCase):
@@ -74,6 +74,36 @@ class AnalyzerTests(unittest.TestCase):
         self.assertEqual([a['type'] for a in result['anomalies']], ['button_during_gesture', 'pointer_motion_during_pinch'])
         self.assertEqual(result['contacts_down_at_end'][0]['tracking_id'], 99)
         self.assertTrue(result['timing_gaps'])
+
+    def test_captured_qmp_scroll_and_pinches(self):
+        # Ubuntu 26.04.1 / libinput 1.31.1, captured on this Mac's harness VM.
+        recording = json.loads((HERE / 'fixtures/input-mtt.json').read_text())
+        result = analyze(recording)
+        self.assertEqual(result['event_count'], 118)
+        self.assertEqual(result['scroll_sequence_count'], 1)
+        scroll = result['scroll_sequences'][0]
+        self.assertEqual(scroll['event_count'], 36)
+        self.assertTrue(scroll['ends_with_scroll_stop'])
+        self.assertEqual(scroll['axis_mix'], ['vert'])
+        self.assertAlmostEqual(scroll['total_distance']['vert'], 110.25)
+        self.assertGreater(scroll['start_time'], 2)  # aligned to raw, not process start
+        self.assertAlmostEqual(scroll['duration_seconds'], 1.110)
+        self.assertEqual(result['gesture_counts']['pinch_begin'], 2)
+        self.assertEqual(result['gesture_counts']['pinch_update'], 72)
+        self.assertEqual(result['gesture_counts']['pinch_end'], 2)
+        self.assertTrue(result['pinch_balanced'])
+        self.assertEqual(result['anomalies'], [])
+        self.assertEqual(result['contacts_down_at_end'], [])
+
+    def test_swipe_lifecycle(self):
+        result = analyze('event5 GESTURE_SWIPE_BEGIN +0.000s 3\n'
+                         'event5 GESTURE_SWIPE_UPDATE +0.020s 3 1.00/2.00\n'
+                         'event5 GESTURE_SWIPE_END +0.030s 3 cancelled')
+        self.assertEqual(result['gesture_counts']['swipe_begin'], 1)
+        self.assertEqual(result['gesture_counts']['swipe_update'], 1)
+        self.assertEqual(result['gesture_counts']['swipe_end'], 1)
+        self.assertTrue(result['swipe_balanced'])
+        self.assertTrue(result['swipe_sequences'][0]['cancelled'])
 
     def test_missing_begin_is_unbalanced(self):
         result = analyze('event5 GESTURE_PINCH_END +0.100s 2')
