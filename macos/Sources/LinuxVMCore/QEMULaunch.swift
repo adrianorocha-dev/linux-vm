@@ -50,11 +50,16 @@ public struct QEMULaunch: Sendable {
         let logs = library.logsDirectory(for: configuration.id)
         let cpus = configuration.cpuCount
         let display = configuration.display
+        // Development aid: LINUXVM_DEBUG_QEMU_ACCEL replaces the accelerator
+        // options, for example "hvf,kernel-irqchip=off".
+        let accel = ProcessInfo.processInfo.environment["LINUXVM_DEBUG_QEMU_ACCEL"]
+            .flatMap { $0.range(of: #"^hvf(,[a-z-]+=[a-z0-9]+)*$"#, options: .regularExpression) != nil ? $0 : nil }
+            ?? "hvf"
 
         var arguments: [String] = [
             "-name", configuration.name,
             "-machine", "virt,gic-version=3",
-            "-accel", "hvf",
+            "-accel", accel,
             "-cpu", "host,pmu=off",
             "-smp", "\(cpus),sockets=1,cores=\(cpus),threads=1",
             "-m", "\(configuration.memoryMiB)M",

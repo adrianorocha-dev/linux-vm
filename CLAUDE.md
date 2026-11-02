@@ -14,6 +14,8 @@ Read `README.md` for the layout, then `docs/milestone-2-plan.md` for the current
 - **Screenshots:** QMP `screendump` is black under VirGL. Check the guest from inside instead: `scripts/ssh-vm.sh 2222 …` for the imported "Ubuntu" VM, plus `scripts/guest-diagnostics.sh`.
 - **App UI:** check it with the app's own window snapshots: `LINUXVM_SNAPSHOT=/tmp/prefix` with `LINUXVM_SNAPSHOT_TAB`, `LINUXVM_SNAPSHOT_SHEET`, `LINUXVM_SNAPSHOT_HEIGHT` and `LINUXVM_SNAPSHOT_SCROLL=end`. Point `LINUXVM_LIBRARY` and `LINUXVM_CONTENTS` at a throwaway folder to show made-up VMs and reports. The agent has no Screen Recording or Accessibility permission.
 - **Mac sleep without sleeping:** start the supervisor with `LINUXVM_DEBUG_SLEEP_SIGNALS=1`; then SIGUSR1 simulates the Mac going to sleep and SIGUSR2 its wake.
+- **Other QEMU accelerator options:** `LINUXVM_DEBUG_QEMU_ACCEL=hvf,kernel-irqchip=off` on `linuxvmctl start` replaces `-accel hvf`, for example to compare QEMU's own interrupt controller with the macOS one.
+- **Presentation timing:** measure with the VM window in front and the Mac awake. Another app in front can change the result, and with the display off it is always bad. Turn off the guest's screen blanking first (`gsettings set org.gnome.desktop.session idle-delay 0`), or runs after five idle minutes record nothing.
 - **Typing into a VM:** use `scripts/qmp-type.py`.
 - **Host resources:** this Mac has 16 GB. Do not run two 8 GB VMs at once.
 - **Test VMs:** shut them down and delete them when you are done. Never modify the user's UTM VMs.

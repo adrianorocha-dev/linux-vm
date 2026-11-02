@@ -84,6 +84,24 @@ First presentation measurements (harness run `20261102-124520`, an 800×600 GTK 
 
 The guest paces frames better when it is busy than when it is idle. Slow vCPU wakeups or macOS scheduling QEMU's threads on efficiency cores are the first suspects.
 
+#### Idle pacing investigation (2 November 2026)
+
+Harness run `m2-idle-pacing`: a fresh 4-CPU VM, 25 cold boots, the same 15-second workload. A timer test (`cyclictest`, 4 ms, one thread per vCPU) ran beside it.
+
+- **With the VM window in front and the Mac awake, idle pacing is good.** In 18 boots like that, no run had more than 6% late frames, and most had under 1%.
+- **With the Mac's display off, pacing is always bad.** All three boots after display sleep had 56–74% late frames, with Linux's timer wake-ups 2–15 ms late. Nobody sees these frames.
+- **Three times it was bad with the display on.** The first boot had 50–56% late frames with the VM window behind T3 Code and Ghostty. A later boot had 55%, with the window's state not recorded. One run with T3 Code in front had 27%. This case matters, for example a VM on a second display, and it is not yet reproduced on demand.
+- **In the bad state every frame is late, not just some.** Presentations fall off the 120 Hz grid, 21–23 ms after the frame began instead of 16.7 ms. Late frames go with late guest timer wake-ups, and busy vCPUs avoid them.
+
+What did not change the bad state:
+
+- **QEMU's own interrupt controller** (`kernel-irqchip=off`). It is also worse in other ways: 4 KiB direct reads run at 26 MB/s instead of 69 MB/s, and an idle VM uses more Mac CPU (16.5% of a core instead of 13%). QEMU 11.1's `virt` machine uses the macOS controller (`hvf-arm-gicv3`), and the app keeps it.
+- **Lowest latency and throughput tiers** for the QEMU process (`taskpolicy -l 0 -t 0`).
+- **vCPU threads at user-interactive QoS** (a patched runtime). This lowered the median timer wake-up from about 0.55 ms to 0.36 ms with the window in front. It did not help with the display off. It is not shipped: vCPU threads at that class would compete with the Mac's own interface under load. The patch and its build are kept in the run directory.
+- **Busy efficiency cores on the Mac** (two or four background loops). Idle pacing stayed good.
+
+Also found: a VM window covered by another window paced well in one boot, so covering alone is not the cause. Runs with the window hidden (⌘H) coincided with the guest's own screen blanking and say nothing.
+
 ### At the Mac (2 November 2026)
 
 The user's "Ubuntu" VM was upgraded from guest tools 0.1.0 to 0.2.0 with `./install.sh`; after the next login it reported 0.2.0, GNOME 50.1 and an active extension.
@@ -94,7 +112,7 @@ The user's "Ubuntu" VM was upgraded from guest tools 0.1.0 to 0.2.0 with `./inst
 ### Next
 
 - With the user at the Mac: scrolling, pinch, swipe and cursor compared with Try Omarchy and macOS; window resizes, full-screen transitions and an external display; starting a VM from the app.
-- Presentation: explain the idle pacing (full screen against window, idle against load, QEMU thread QoS) before tuning anything.
+- Presentation: reproduce idle pacing with the VM window visible and another app in front. This needs someone at the Mac. If it reproduces, compare user-interactive vCPUs and an `NSActivityLatencyCritical` activity. Then check full screen and a second display.
 - Trackpad lifecycle checks with QMP replay: stuck contacts across pause, resume and focus loss.
 - Storage that disappears.
 - VirGL's `GL_ARB_draw_instanced` and the helper's "Omarchy" log lines.
