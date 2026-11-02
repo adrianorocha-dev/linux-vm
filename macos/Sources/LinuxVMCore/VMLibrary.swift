@@ -231,11 +231,12 @@ public struct VMLibrary: Sendable {
         return try QMPClient(socketPath: socket)
     }
 
-    /// Asks Linux to shut down, as the power button would.
+    /// Asks Linux to shut down, as the power button would. It stays a
+    /// request: Linux may wait for unsaved work, and pressing it again must
+    /// not stop QEMU. The supervisor's own SIGTERM path is the one with a
+    /// deadline.
     public func requestShutdown(id: String) throws {
-        guard let pid = status(id: id).run?.supervisorPID, pid > 1, kill(pid, SIGTERM) == 0 else {
-            throw LibraryError.failed("The VM supervisor is not running.")
-        }
+        try control(id: id).execute("system_powerdown")
     }
 
     /// Stops QEMU at once. Unsaved guest data is lost.
