@@ -1,5 +1,27 @@
+diff --git a/macos/Sources/OmarchyVMHelper/main.swift b/macos/Sources/OmarchyVMHelper/main.swift
+index f199020..9287d26 100644
+--- a/macos/Sources/OmarchyVMHelper/main.swift
++++ b/macos/Sources/OmarchyVMHelper/main.swift
+@@ -124,7 +124,7 @@ do {
+             source.resume()
+             terminationSignalSources.append(source)
+         }
+-        fputs("[audio-bridge] Host audio devices are available inside Omarchy.\n", stderr)
++        fputs("[audio-bridge] Host audio devices are available inside the VM.\n", stderr)
+         try bridge.run()
+         exit(0)
+     }
+@@ -147,7 +147,7 @@ do {
+             source.resume()
+             terminationSignalSources.append(source)
+         }
+-        fputs("[clipboard-bridge] The Mac clipboard is shared with Omarchy.\n", stderr)
++        fputs("[clipboard-bridge] The Mac clipboard is shared with the VM.\n", stderr)
+         try bridge.run()
+         exit(0)
+     }
 diff --git a/macos/build-qemu-gpu-runtime.sh b/macos/build-qemu-gpu-runtime.sh
-index e2a7110..5b0a540 100755
+index e2a7110..8ce4a07 100755
 --- a/macos/build-qemu-gpu-runtime.sh
 +++ b/macos/build-qemu-gpu-runtime.sh
 @@ -65,6 +65,7 @@ pause_ownership_patch="$native_dir/patches/qemu-cocoa-pause-ownership.patch"
@@ -10,7 +32,15 @@ index e2a7110..5b0a540 100755
  iso_swap_patch="$native_dir/patches/qemu-cocoa-iso-section-grave-swap.patch"
  injected_text_patch="$native_dir/patches/qemu-cocoa-injected-text.patch"
  command_chord_patch="$native_dir/patches/qemu-cocoa-command-chord-hold.patch"
-@@ -96,7 +97,10 @@ qemu_commit=c3d48b7d1e89604920e5b81b91140c2ad39a1943
+@@ -89,6 +90,7 @@ udp_patch="$native_dir/patches/libslirp-ipv4-udp-translation.patch"
+ fence_poll_patch="$native_dir/patches/qemu-darwin-gpu-fence-poll.patch"
+ virgl_native_patch="$native_dir/patches/virgl-native-opengl.patch"
+ virgl_upload_flush_patch="$native_dir/patches/virgl-ctx0-upload-flush.patch"
++virgl_instance_id_patch="$native_dir/patches/virgl-core-instance-id.patch"
+ prepare_runtime="$native_dir/prepare-qemu-gpu-runtime.sh"
+ pinned_bottles="$native_dir/pinned-runtime-bottles.sh"
+ 
+@@ -96,7 +98,10 @@ qemu_commit=c3d48b7d1e89604920e5b81b91140c2ad39a1943
  qemu_root="qemu-$qemu_commit"
  qemu_archive_name="$qemu_root.tar.gz"
  qemu_url="https://gitlab.com/qemu-project/qemu/-/archive/$qemu_commit/$qemu_archive_name"
@@ -22,7 +52,7 @@ index e2a7110..5b0a540 100755
  
  texture_patch_sha256=b8e107ecd82813854bac7f6bb110722f52937d64b6f98611c4dd02842977fc2f
  gpu_fix_patch_sha256=b554e1ef9910d0891d69ee0fe84e479559c057dc28291e36e1524031808fc69f
-@@ -109,6 +113,7 @@ pause_ownership_patch_sha256=1a5729b36eb3e437395d41883a10c3c652df71d289d5df84d95
+@@ -109,6 +114,7 @@ pause_ownership_patch_sha256=1a5729b36eb3e437395d41883a10c3c652df71d289d5df84d95
  pinch_patch_sha256=618c17eef1c2ab97d48ed82b58d9fa2b727ea3f26a0d30225199ac97985a9f06
  precise_scroll_patch_sha256=54252b3b19358aa7e2c75d5f50775a7f488ef2d8b4db8723ba4768b56316a78f
  touch_scroll_patch_sha256=e4aa6c3661ee9265724a6236153630ed3870ef5e6f21e5cfe7af3023b6c870e4
@@ -30,7 +60,15 @@ index e2a7110..5b0a540 100755
  iso_swap_patch_sha256=57f33a5fb08fb90a7813b13bb7037a13198e4d7db230085b1faa28b284cf2387
  injected_text_patch_sha256=18d64d52f715d0cf1b2b6d1761059371e1859ee61faf3cc4800e2effc1ed4dd1
  command_chord_patch_sha256=d2a6cc3827ddac15f5baa063b36ab857b9571221ca1ce4ef25896cae914ff9f6
-@@ -149,7 +154,9 @@ keycodemap_commit=f5772a62ec52591ff6870b7e8ef32482371f22c6
+@@ -122,6 +128,7 @@ mapped_sections_patch_sha256=2991378d565faeaf114bb5948bfa9ad05c39b078e4e1f4c2a67
+ fence_poll_patch_sha256=1ac407bdb617dfc52d004d0ebd0d07641d920f7d3a9756223c6426a207fb1499
+ virgl_native_patch_sha256=692ed73cf88780b4c0e04c56e3cfb21cec761768dea909d755624e07d82fc60c
+ virgl_upload_flush_patch_sha256=e5de1617bfeeb2e0ea0fa5cc5c4192f34c896c86efc51e0f68cfa14057afcac0
++virgl_instance_id_patch_sha256=9a66c9d1b420660579c3facf013766d01573a41a2f0afc2342bc0dd938ed55b9
+ strchrnul_patch_sha256=ec1048dd0e8ebe53bf7e8a3bca9bf2f5f4336cd607d4cd077437470e9a32094a
+ usb_exact_bus_patch_sha256=5e39159171295c566d014a1ef2744130f80fa02b742c349fa47373b00ae697ec
+ minimum_guest_size_patch_sha256=f01e20999bf87821639c93f3489eb093b292c48b107a14ba4fbdad5cbf5840a5
+@@ -149,7 +156,9 @@ keycodemap_commit=f5772a62ec52591ff6870b7e8ef32482371f22c6
  keycodemap_root="keycodemapdb-$keycodemap_commit"
  keycodemap_archive_name="$keycodemap_root.tar.gz"
  keycodemap_url="https://gitlab.com/qemu-project/keycodemapdb/-/archive/$keycodemap_commit/$keycodemap_archive_name"
@@ -41,7 +79,7 @@ index e2a7110..5b0a540 100755
  
  dtc_commit=b6910bec11614980a21e46fbccc35934b671bd81
  dtc_root="dtc-$dtc_commit"
-@@ -502,6 +509,8 @@ verify_file_sha "Try Omarchy Cocoa precise-scroll patch" \
+@@ -502,6 +511,8 @@ verify_file_sha "Try Omarchy Cocoa precise-scroll patch" \
    "$precise_scroll_patch" "$precise_scroll_patch_sha256"
  verify_file_sha "Try Omarchy Cocoa touch-scroll patch" \
    "$touch_scroll_patch" "$touch_scroll_patch_sha256"
@@ -50,7 +88,7 @@ index e2a7110..5b0a540 100755
  verify_file_sha "Try Omarchy Cocoa ISO Section/Grave swap patch" \
    "$iso_swap_patch" "$iso_swap_patch_sha256"
  verify_file_sha "Try Omarchy Cocoa injected-text patch" \
-@@ -573,6 +582,7 @@ patch -d "$source_dir" -p1 -f -i "$main_loop_qos_patch"
+@@ -573,6 +584,7 @@ patch -d "$source_dir" -p1 -f -i "$main_loop_qos_patch"
  patch -d "$source_dir" -p1 -f -i "$notch_patch"
  patch -d "$source_dir" -p1 -f -i "$command_chord_patch"
  patch -d "$source_dir" -p1 -f -i "$touch_scroll_patch"
@@ -58,6 +96,15 @@ index e2a7110..5b0a540 100755
  patch -d "$source_dir" -p1 -f -i "$korean_caps_lock_patch"
  patch -d "$source_dir" -p1 -f -i "$pointer_mapping_patch"
  
+@@ -694,6 +706,8 @@ verify_file_sha "Native OpenGL browser compatibility patch" "$virgl_native_patch
+ patch -d "$virgl_source" -p1 -f -i "$virgl_native_patch"
+ verify_file_sha "Context 0 upload flush patch" "$virgl_upload_flush_patch" "$virgl_upload_flush_patch_sha256"
+ patch -d "$virgl_source" -p1 -f -i "$virgl_upload_flush_patch"
++verify_file_sha "Ubuntu prototype instance-ID shader patch" "$virgl_instance_id_patch" "$virgl_instance_id_patch_sha256"
++patch -d "$virgl_source" -p1 -f -i "$virgl_instance_id_patch"
+ virgl_build="$virgl_source/build"
+ meson="$tool_root/$meson_root/meson.py"
+ # Optimize the graphics command path while retaining assertions and diagnostics.
 diff --git a/macos/patches/qemu-cocoa-touch-scroll-scale.patch b/macos/patches/qemu-cocoa-touch-scroll-scale.patch
 new file mode 100644
 index 0000000..6194fb3
@@ -159,3 +206,31 @@ index 0000000..6194fb3
 +                    cocoa_touch_scroll_gain(points);
 + 
 +     if (!scroll->started) {
+diff --git a/macos/patches/virgl-core-instance-id.patch b/macos/patches/virgl-core-instance-id.patch
+new file mode 100644
+index 0000000..e1d1c89
+--- /dev/null
++++ b/macos/patches/virgl-core-instance-id.patch
+@@ -0,0 +1,22 @@
++From: Ubuntu prototype
++Subject: [PATCH] vrend: no GL_ARB_draw_instanced directive from GLSL 1.40
++
++Core-profile hosts get GLSL 1.40 or later, where gl_InstanceID is built in.
++macOS's GLSL 4.10 compiler rejects "#extension GL_ARB_draw_instanced : require",
++so every shader that reads gl_InstanceID failed to compile and its draws were
++dropped. Skip the directive as the loop already does for ARB_texture_rectangle.
++
++--- a/src/vrend/vrend_shader.c
+++++ b/src/vrend/vrend_shader.c
++@@ -6362,6 +6362,11 @@
++          if (shader_req_table[i].key == SHADER_REQ_SAMPLER_RECT && ctx->glsl_ver_required >= 140)
++             continue;
++ 
+++         /* gl_InstanceID is core from GLSL 1.40. macOS's GLSL 4.10 compiler
+++          * rejects the extension directive, and the draws are lost. */
+++         if (shader_req_table[i].key == SHADER_REQ_INSTANCE_ID && ctx->glsl_ver_required >= 140)
+++            continue;
+++
++          if (ctx->shader_req_bits & shader_req_table[i].key) {
++             emit_ext(glsl_strbufs, shader_req_table[i].string, "require");
++          }

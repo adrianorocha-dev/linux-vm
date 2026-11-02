@@ -3,8 +3,10 @@
 The app bundles Try Omarchy's patched QEMU runtime with our changes on top. `try-omarchy-v1.3.0.diff` applies to Try Omarchy at tag `v1.3.0` (commit `13d63df`, MIT):
 
 - **`macos/patches/qemu-cocoa-touch-scroll-scale.patch`:** scales the touch-scroll contacts' travel. The scale is read from `TRYOMARCHY_TOUCH_SCROLL_SCALE_FILE` at every landing, so it can be tuned while a VM runs.
+- **`macos/Sources/OmarchyVMHelper/main.swift`:** the clipboard and audio bridges' startup log lines say "the VM" instead of "Omarchy".
+- **`macos/patches/virgl-core-instance-id.patch`:** virglrenderer no longer writes `#extension GL_ARB_draw_instanced : require` into shaders for GLSL 1.40 and later, where `gl_InstanceID` is built in. macOS's GLSL 4.10 compiler rejected the directive, so any guest shader reading `gl_InstanceID` failed on the Mac and its draws were lost.
 - **`macos/build-qemu-gpu-runtime.sh`:**
-  - applies that patch;
+  - applies those two patches;
   - re-pins the QEMU and keycodemapdb archives. gitlab.com archives sit behind a Cloudflare challenge, so they are built with `git archive` from the GitHub mirrors at the same pinned commits. Upstream's checksums are kept in comments.
 
 ## Building
