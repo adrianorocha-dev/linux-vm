@@ -10,7 +10,9 @@ if [ "$1" = configure ]; then
     systemctl enable linuxvm-timezone.service linuxvm-share-mount.service linuxvm-clock-recovery.service linuxvm-clock-recovery.timer
     if [ -d /run/systemd/system ]; then
         systemctl daemon-reload
-        systemctl start linuxvm-share-mount.service linuxvm-timezone.service linuxvm-clock-recovery.service linuxvm-clock-recovery.timer
+        systemctl start linuxvm-share-mount.service linuxvm-timezone.service linuxvm-clock-recovery.timer
+        # One failed clock check must not fail the install; the timer retries.
+        systemctl start linuxvm-clock-recovery.service || true
     fi
     echo 'LinuxVM guest tools installed. Log out and back in to load the clipboard extension and user services.'
 fi
