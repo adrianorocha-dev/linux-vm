@@ -1,0 +1,3 @@
+#!/opt/homebrew/bin/python3.14
+from soak import main
+main()

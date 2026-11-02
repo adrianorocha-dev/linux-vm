@@ -172,6 +172,31 @@ feedback can resemble stalls; inspect frame counters and missing-feedback counts
 The app has a wall-time
 watchdog for hidden windows/no ticks; keep its stderr with the JSON.
 
+## Lifecycle soak
+
+```sh
+scripts/harness/soak --run "$run" --rounds 5
+```
+
+Repeats, on the run's kept VM: start, guest reboot, a simulated Mac sleep (the supervisor's `LINUXVM_DEBUG_SLEEP_SIGNALS` path, 30 s paused by default) and shutdown. Each boot must reach the desktop with the clipboard extension and the guest tools' units active, and must send a fresh guest status report. The guest clock must be within 1.5 s of the Mac's, both after each boot and within 30 s of the simulated wake. It flags failed `linuxvm` units, ext4 recovery or orphan messages (a clean shutdown leaves none), a supervisor or QEMU change across the guest reboot, forced stops and bridge restarts in `supervisor.log`, and a QEMU exit status other than 0. Results go to `soak.json` and `soak.log` in the run directory. `LINUXVMCTL` chooses the build under test; `linuxvmctl start` then runs that build's supervisor. The tool only touches the run's own `harness-` VM.
+
+## Touchpad contact lifecycle
+
+```sh
+scripts/harness/touch-lifecycle --run "$run" --sleep-signals --reboot
+```
+
+Replays two-finger contacts through QMP `input-send-event` while the guest records them with `record-input`, then checks the `analyze-input` result. A scenario fails if contacts are still down at the end, if begins and ends are unbalanced, if a button event arrives during a gesture, or if a scroll ends without a stop. The scenarios:
+
+- a baseline scroll and pinch;
+- a pause in the middle of a scroll, with the lift sent while paused (QEMU refuses input then, as Cocoa's lifts are lost): through QMP `stop`/`cont`, and with `--sleep-signals` through the supervisor's sleep path (the VM must have been started with `LINUXVM_DEBUG_SLEEP_SIGNALS=1`);
+- a scroll that continues after a pause;
+- 15 quick scroll and pinch cycles;
+- a scroll that turns into a pinch without lifting. This one is informational: libinput keeps it a scroll, and Cocoa never sends it because it ends the scroll's contacts before a pinch.
+- with `--reboot`, a guest reboot with contacts down, then a fresh scroll.
+
+QMP bypasses the Mac trackpad, Cocoa's gesture translation and focus handling. Focus loss and real gestures still need a person.
+
 ## Tests and recorded validation
 
 ```sh

@@ -14,7 +14,7 @@ A macOS app that runs Ubuntu on Apple Silicon with Mac-quality trackpad, display
 - `docs/milestone-2-plan.md`: the next milestone.
 - `runtime/`: our changes to Try Omarchy v1.3.0's QEMU runtime build, and how to build it.
 - `scripts/build-app.sh`: assembles `build/Linux VM.app`. `scripts/ssh-vm.sh`, `scripts/qmp-type.py` and `scripts/guest-diagnostics.sh` are test helpers.
-- `scripts/harness/`: the test harness. It installs a fresh VM unattended and captures monitor state, screenshots, touchpad input and frame timing from inside the guest ([README](scripts/harness/README.md)).
+- `scripts/harness/`: the test harness. It installs a fresh VM unattended and captures monitor state, screenshots, touchpad input and frame timing from inside the guest. It also repeats a VM's start, reboot, sleep and shutdown (`soak`), and replays touchpad contacts across pauses and reboots (`touch-lifecycle`) ([README](scripts/harness/README.md)).
 
 ## How a VM runs
 
