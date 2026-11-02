@@ -15,6 +15,7 @@ final class SupervisorStorage: @unchecked Sendable {
     private var pollPending = false
     private var lastPoll: TimeInterval = -.infinity
     private var stopped = false
+    private var discQueryFailing = false
 
     init(name: String, machine: StorageWatch, sharedFolder: StorageWatch?, qemu: Process, monitor: SupervisorMonitor,
          volumes: any StorageVolumeMonitoring, log: @escaping @Sendable (String) -> Void) {
@@ -69,6 +70,7 @@ final class SupervisorStorage: @unchecked Sendable {
     private func refreshDisc(removedVolume: StorageVolume? = nil) -> Bool {
         do {
             let blocks = try monitor.withClient(timeout: 0.5) { try $0.execute("query-block") as? [[String: Any]] ?? [] }
+            discQueryFailing = false
             let file = StoragePolicy.installerFile(in: blocks)
             if file == policy.discFile { return true }
             let path = file.map(canonicalStoragePath)
@@ -81,7 +83,9 @@ final class SupervisorStorage: @unchecked Sendable {
             if policy.updateDisc(file: file, resolved: resolved) { lostKinds.remove(.disc) }
             return true
         } catch {
-            log("Cannot query the installer disc: \(error.localizedDescription)")
+            // The once-a-second check fails while QEMU starts or is busy; say so once.
+            if !discQueryFailing { log("Cannot query the installer disc: \(error.localizedDescription)") }
+            discQueryFailing = true
             return false
         }
     }
