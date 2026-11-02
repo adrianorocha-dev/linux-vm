@@ -3,7 +3,7 @@
 # Assembles build/Linux VM.app from:
 #   - this package's app and supervisor (swift build);
 #   - Try Omarchy v1.3.0's patched QEMU runtime and bridge helper, built in
-#     ../ubuntu-qemu-prototype/try-omarchy-src (with our touch-scroll scale patch);
+#     .deps/try-omarchy (see runtime/README.md);
 #   - edk2 firmware from the same pinned QEMU source archive;
 #   - the guest tools disc from guest/dist.
 #
@@ -12,9 +12,9 @@
 set -euo pipefail
 
 root=$(cd "$(dirname "$0")/.." && pwd -P)
-omarchy="$root/../ubuntu-qemu-prototype/try-omarchy-src"
+omarchy="$root/.deps/try-omarchy"
 runtime_source="$omarchy/macos/.build/qemu-gpu-runtime"
-archives="$root/../ubuntu-qemu-prototype/source-archives"
+archives="$root/.deps/source-archives"
 qemu_commit=c3d48b7d1e89604920e5b81b91140c2ad39a1943
 qemu_archive="$archives/qemu-$qemu_commit.tar.gz"
 qemu_archive_sha256=db14020067babeb646ba35e3cffdf1f252a04157114684fa5c0f5da98015ffdf

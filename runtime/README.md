@@ -9,29 +9,32 @@ The app bundles Try Omarchy's patched QEMU runtime with our changes on top. `try
 
 ## Building
 
+The build inputs live in `.deps/`, which git ignores. From the repository root:
+
 ```sh
-git clone https://github.com/omacom/try-omarchy.git ../ubuntu-qemu-prototype/try-omarchy-src
-cd ../ubuntu-qemu-prototype/try-omarchy-src
-git checkout v1.3.0
-git apply ../../linux-vm/runtime/try-omarchy-v1.3.0.diff
+git clone https://github.com/omacom/try-omarchy.git .deps/try-omarchy
+git -C .deps/try-omarchy checkout v1.3.0
+git -C .deps/try-omarchy apply ../../runtime/try-omarchy-v1.3.0.diff
 ```
 
-Create the two source archives in `../ubuntu-qemu-prototype/source-archives/`:
+Create the two source archives in `.deps/source-archives/`:
 
 ```sh
+mkdir -p .deps/source-archives
 for spec in qemu:c3d48b7d1e89604920e5b81b91140c2ad39a1943 keycodemapdb:f5772a62ec52591ff6870b7e8ef32482371f22c6; do
   name=${spec%%:*}
   commit=${spec#*:}
   git init -q /tmp/$name
   git -C /tmp/$name fetch -q --depth 1 https://github.com/qemu/$name.git $commit
-  git -C /tmp/$name archive --format=tar --prefix=$name-$commit/ FETCH_HEAD | gzip -n > ../source-archives/$name-$commit.tar.gz
+  git -C /tmp/$name archive --format=tar --prefix=$name-$commit/ FETCH_HEAD | gzip -n > .deps/source-archives/$name-$commit.tar.gz
 done
 ```
 
-Then build with Python 3.11 or newer first on `PATH`; QEMU's configure needs `tomllib`:
+Then build. QEMU's configure needs Python 3.11 or newer with working venvs; `.deps/build-tools/python3` links to Homebrew's Python 3.14. The uv-managed standalone Pythons break venv creation.
 
 ```sh
-OMARCHY_DOWNLOAD_CACHE=$PWD/../source-archives ./macos/build-qemu-gpu-runtime.sh
+mkdir -p .deps/build-tools && ln -sf /opt/homebrew/bin/python3.14 .deps/build-tools/python3
+(cd .deps/try-omarchy && PATH="$PWD/../build-tools:$PATH" OMARCHY_DOWNLOAD_CACHE="$PWD/../source-archives" ./macos/build-qemu-gpu-runtime.sh)
 ```
 
-If your git or gzip writes different bytes, the build reports a checksum mismatch. The commits are what matter: re-pin the two `*_sha256` values in the build script to your archives. `scripts/build-app.sh` expects this layout.
+If your git or gzip writes different bytes, the build reports a checksum mismatch. The commits are what matter: re-pin the two `*_sha256` values in the build script to your archives. `scripts/build-app.sh` reads the runtime from `.deps/try-omarchy/macos/.build/qemu-gpu-runtime`.

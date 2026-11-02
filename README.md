@@ -10,8 +10,10 @@ A macOS app that runs Ubuntu on Apple Silicon with Mac-quality trackpad, display
   - `LinuxVM`: the SwiftUI app.
 - `guest/`: the Ubuntu guest tools package (`linuxvm-guest`) and the Guest Tools disc.
 - `docs/host-guest-contract.md`: the only interfaces between the Mac and the guest.
+- `docs/proposal.md`: the investigation and proposal, with Milestone 0 and 1 results. `docs/milestone-0-notes.md` and `docs/utm-ubuntu-report.md` hold the measurements behind it.
+- `docs/milestone-2-plan.md`: the next milestone.
 - `runtime/`: our changes to Try Omarchy v1.3.0's QEMU runtime build, and how to build it.
-- `scripts/build-app.sh`: assembles `build/Linux VM.app`.
+- `scripts/build-app.sh`: assembles `build/Linux VM.app`. `scripts/ssh-vm.sh`, `scripts/qmp-type.py` and `scripts/guest-diagnostics.sh` are test helpers.
 
 ## How a VM runs
 
