@@ -59,6 +59,39 @@ Everything else is measured with it.
 - **VirGL:** Apple's GLSL 4.10 rejects shaders that request `GL_ARB_draw_instanced`, and their draws are dropped. Find which apps hit this.
 - **Branding:** the bridge helper's log lines say "Omarchy". This is cosmetic and needs a helper patch.
 
+## Progress
+
+### First wave (2 November 2026)
+
+GPT-6.1-Sol built three modules against the updated [contract](host-guest-contract.md); Claude reviewed, fixed and integrated them, added the app UI and verified them on fresh VMs installed by the harness.
+
+- **Test harness** ([scripts/harness](../scripts/harness/README.md)). `fresh-install` installs Ubuntu unattended, with automatic GNOME login and the guest tools, in about 13½ minutes (4 GB, 4 CPUs). It refuses to run beside another VM, removes only VMs it created, and cleans up on Ctrl-C. Guest-side tools capture Mutter's monitor state and EDID, a PNG through the screenshot portal, libinput and evdev recordings with an analyzer, and frame timing. QMP multi-touch events reach the virtual touchpad, so scroll and pinch can be replayed without a person.
+- **Mac sleep.** The supervisor pauses a running VM when the Mac sleeps, unless its new "Pause while the Mac sleeps" setting is off, and resumes only a pause it made. After every wake it prompts Linux, which steps its clock forward from the RTC when it is more than 5 seconds behind. The shutdown deadline no longer counts Mac sleep. Verified with simulated sleep (`LINUXVM_DEBUG_SLEEP_SIGNALS`): after 40 seconds paused, the guest clock was within 0.1 s of the Mac's a second after wake, and with the setting off the VM kept running and still got its wake. A real Mac sleep is not yet verified.
+- **Guest status.** Guest tools 0.2.0 report their version, Ubuntu and GNOME versions and the clipboard extension's state on `dev.linuxvm.status`. The supervisor keeps the last report in `guest.json`; the app's new Guest Tools section and `linuxvmctl status` show it and say when the disc is newer. Verified live, including the extension being turned off and on.
+- **Upgrade.** A fresh VM with guest tools 0.1.0 sent no report, and the app worked without one. `./install.sh` from the new disc upgraded it to 0.2.0: the system units started at once, and after the next login the extension was active again and a 0.2.0 report arrived. Until that login the clipboard is off, as the installer says. Removing and purging the package left no units or state behind.
+- **GNOME version policy.** The extension lists only tested GNOME versions. After an untested GNOME upgrade the report says `outdated` and the app says so; updates ship on the disc.
+- **Carried over from Milestone 1.** The disc now has Rock Ridge, and `./install.sh` runs from it. The clipboard D-Bus interface accepts only the clipboard agent's unit; other callers get `AccessDenied`. Mac → guest text still crossed through the agent.
+
+Fixed during verification: GNOME's version was missing from the first status report after login; Ubuntu 26.04 runs chrony, not systemd-timesyncd, so the clock recovery failed after a successful step; the app's Shut Down had been routed through the supervisor's deadline signal.
+
+First presentation measurements (harness run `20261102-124520`, an 800×600 GTK animation in a 2240×1260 window at 120 Hz and scale 1.67). They observe the guest compositor's presentation feedback, not the Mac's display:
+
+| Run | Median | p95 | Intervals over 1.5 frames |
+|---|---|---|---|
+| Right after first login | 14.3 ms | 35.9 ms | 61% |
+| Idle, repeated | 8.9 ms | 18.5 ms | 34% |
+| Four busy guest processes | 8.0 ms | 10.1 ms | 2% |
+
+The guest paces frames better when it is busy than when it is idle. Slow vCPU wakeups or macOS scheduling QEMU's threads on efficiency cores are the first suspects.
+
+### Next
+
+- With the user at the Mac: a real sleep and wake; guest → Mac clipboard; scrolling, pinch, swipe and cursor compared with Try Omarchy and macOS; window resizes, full-screen transitions and an external display; starting a VM from the app.
+- Presentation: explain the idle pacing (full screen against window, idle against load, QEMU thread QoS) before tuning anything.
+- Trackpad lifecycle checks with QMP replay: stuck contacts across pause, resume and focus loss.
+- Storage that disappears; Power Nap wakes, which may resume a VM while the screen stays off.
+- VirGL's `GL_ARB_draw_instanced` and the helper's "Omarchy" log lines.
+
 ## How the work is split
 
 - **GPT-6.1-Sol** takes well-defined, non-UI modules with a written contract and tests: the test harness scripts, the sleep and storage handling in `LinuxVMCore`, guest package changes and the disc builder.
