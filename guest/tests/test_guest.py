@@ -317,12 +317,13 @@ class PackageTests(unittest.TestCase):
         fields = dict(line.split(': ', 1) for line in archives['control']['control'].decode().splitlines()
                       if line and not line.startswith(' '))
         self.assertEqual(fields['Package'], 'linuxvm-guest')
-        self.assertEqual(fields['Version'], '0.1.0')
+        self.assertEqual(fields['Version'], '0.2.0')
         self.assertEqual(fields['Architecture'], 'all')
         self.assertEqual(fields['Depends'], 'python3, python3-gi, pulseaudio-utils, gnome-shell, systemd')
-        expected = ['usr/lib/linuxvm/' + name + '.py' for name in ['clipboard', 'audio', 'timezone', 'share', 'common']]
-        expected += ['usr/lib/systemd/user/linuxvm-' + name + '.service' for name in ['clipboard', 'audio', 'share-link']]
-        expected += ['usr/lib/systemd/system/linuxvm-' + name + '.service' for name in ['timezone', 'share-mount']]
+        expected = ['usr/lib/linuxvm/' + name + '.py' for name in ['clipboard', 'audio', 'timezone', 'share', 'common', 'clock', 'status', 'version']]
+        expected += ['usr/lib/systemd/user/linuxvm-' + name + '.service' for name in ['clipboard', 'audio', 'share-link', 'status']]
+        expected += ['usr/lib/systemd/system/linuxvm-' + name + '.service' for name in ['timezone', 'share-mount', 'clock-recovery']]
+        expected += ['usr/lib/systemd/system/linuxvm-clock-recovery.timer']
         expected += ['usr/lib/udev/rules.d/70-linuxvm-ports.rules', 'usr/share/libinput/90-linuxvm.quirks',
                      'usr/share/glib-2.0/schemas/90_linuxvm.gschema.override',
                      'usr/share/doc/linuxvm-guest/copyright',
@@ -333,6 +334,7 @@ class PackageTests(unittest.TestCase):
             digest, name = line.split('  ', 1)
             self.assertEqual(hashlib.md5(archives['data'][name], usedforsecurity=False).hexdigest(), digest)
         self.assertEqual(len(archives['control']['md5sums'].decode().splitlines()), len(expected))
+        self.assertEqual(archives['data']['usr/lib/linuxvm/version.py'], b"VERSION = '0.2.0'\n")
         self.assertNotIn('conffiles', archives['control'])  # All configuration lives under /usr.
         self.assertIn(b'Copyright (c) 2026 Try Omarchy contributors', archives['data']['usr/share/doc/linuxvm-guest/copyright'])
 

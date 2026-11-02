@@ -1,6 +1,6 @@
 linuxvm-guest includes code adapted from Try Omarchy v1.3.0:
 clipboard protocol and ClipboardSync, pactl audio mirror, time zone validation,
-9p mount options, and libinput quirk.
+9p mount options, libinput quirk, and forward-only guest clock recovery.
 Source: https://github.com/omacom/try-omarchy
 
 MIT License

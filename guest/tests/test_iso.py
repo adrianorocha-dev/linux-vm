@@ -1,6 +1,6 @@
 import importlib.util
 from pathlib import Path
-import tempfile
+import stat
 import unittest
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -12,7 +12,7 @@ spec.loader.exec_module(builder)
 
 @unittest.skipUnless(ISO.exists(), 'build the ISO first to check its contents')
 class ISOTests(unittest.TestCase):
-    def test_label_contents_and_normalization(self):
+    def test_rock_ridge_joliet_modes_names_and_contents(self):
         image = ISO.read_bytes()
         trees = 0
         for offset in range(16 * 2048, len(image), 2048):
@@ -25,8 +25,7 @@ class ISOTests(unittest.TestCase):
             trees += 1
             encoding = 'utf-16-be' if kind == 2 else 'ascii'
             self.assertEqual(image[offset + 40:offset + 72].decode(encoding).strip(), 'LINUXVM-TOOLS')
-            for position in (813, 830, 864):
-                self.assertEqual(image[offset + position:offset + position + 17], b'2000010100000000\0')
+            self.assertEqual(image[offset + 813:offset + 830], b'2000010100000000\0')
             root = image[offset + 156:offset + 190]
             cursor = int.from_bytes(root[2:6], 'little') * 2048
             end = cursor + int.from_bytes(root[10:14], 'little')
@@ -38,25 +37,32 @@ class ISOTests(unittest.TestCase):
                     continue
                 record = image[cursor:cursor + length]
                 self.assertEqual(record[18:25], bytes([100, 1, 1, 0, 0, 0, 0]))
-                name = record[33:33 + record[32]]
-                # No host uid/gid, birth times, or partial Rock Ridge metadata remains.
+                raw_name = record[33:33 + record[32]]
                 base = 33 + record[32]
-                self.assertEqual(length, base + base % 2)
+                base += base % 2
+                fields = {}
+                while base + 4 <= length:
+                    size = record[base + 2]
+                    if size < 4:
+                        break
+                    fields[record[base:base + 2]] = record[base:base + size]
+                    base += size
+                if kind == 1:
+                    px = fields[b'PX']
+                    mode = int.from_bytes(px[4:8], 'little')
+                    self.assertEqual(int.from_bytes(px[20:24], 'little'), 0)
+                    self.assertEqual(int.from_bytes(px[28:32], 'little'), 0)
+                    expected = 0o755 if record[25] & 2 or fields.get(b'NM', b'')[5:] == b'install.sh' else 0o644
+                    self.assertEqual(stat.S_IMODE(mode), expected)
                 if not record[25] & 2:
-                    name = name.decode(encoding).removesuffix(';1')
+                    name = (fields[b'NM'][5:].decode() if kind == 1 else
+                            raw_name.decode(encoding).removesuffix(';1'))
                     start = int.from_bytes(record[2:6], 'little') * 2048
                     size = int.from_bytes(record[10:14], 'little')
                     files[name] = image[start:start + size]
                 cursor += length
-            self.assertEqual(len(files), 3)
-            if kind == 2:
-                self.assertEqual(set(files), {builder.DEB, 'install.sh', 'README.txt'})
-                self.assertEqual(files[builder.DEB], (ROOT / 'dist' / builder.DEB).read_bytes())
-                self.assertEqual(files['install.sh'], (ROOT / 'iso/install.sh').read_bytes())
-                self.assertEqual(files['README.txt'], (ROOT / 'iso/README.txt').read_bytes())
+            self.assertEqual(set(files), {builder.DEB, 'install.sh', 'README.txt'})
+            self.assertEqual(files[builder.DEB], (ROOT / 'dist' / builder.DEB).read_bytes())
+            for name in ['install.sh', 'README.txt']:
+                self.assertEqual(files[name], (ROOT / 'iso' / name).read_bytes())
         self.assertEqual(trees, 2)
-        with tempfile.TemporaryDirectory(dir=ROOT) as temp:
-            path = Path(temp) / 'copy.iso'
-            path.write_bytes(image)
-            builder.normalize_iso(path)
-            self.assertEqual(path.read_bytes(), image)

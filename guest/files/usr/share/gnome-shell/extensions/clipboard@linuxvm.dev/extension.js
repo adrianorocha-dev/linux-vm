@@ -24,8 +24,30 @@ const XML = `<node>
   </interface>
 </node>`;
 
+// Match the exact unit component, never a similarly named scope or child unit.
+export function agentCgroup(text) {
+    return text.split('\n').some(line => {
+        const match = /^0::(.*)$/.exec(line);
+        if (!match)
+            return false;
+        return /^\/user\.slice\/user-[0-9]+\.slice\/user@[0-9]+\.service\/(?:[^/]+\/)*linuxvm-clipboard\.service$/.test(match[1]);
+    });
+}
+
 export default class ClipboardExtension extends Extension {
     enable() {
+        this._callers = new Map();
+        this._callerGeneration = new Map();
+        this._nameChanged = Gio.DBus.session.signal_subscribe(
+            'org.freedesktop.DBus', 'org.freedesktop.DBus', 'NameOwnerChanged',
+            '/org/freedesktop/DBus', null, Gio.DBusSignalFlags.NONE,
+            (_bus, _sender, _path, _iface, _signal, parameters) => {
+                const [name] = parameters.deepUnpack();
+                if (this._callerGeneration?.has(name)) {
+                    this._callers?.delete(name);
+                    this._callerGeneration.set(name, this._callerGeneration.get(name) + 1);
+                }
+            });
         this._clipboard = St.Clipboard.get_default();
         this._selection = global.display.get_selection();
         this._generation = 0;
@@ -42,7 +64,52 @@ export default class ClipboardExtension extends Extension {
         });
     }
 
-    GetSelectionAsync(_parameters, invocation) {
+    async _authorize(invocation) {
+        const sender = invocation.get_sender();
+        const cache = this._callers;
+        const generations = this._callerGeneration;
+        if (!generations.has(sender))
+            generations.set(sender, 0);
+        const generation = generations.get(sender);
+        let allowed = cache.get(sender);
+        if (allowed === undefined) {
+            allowed = false;
+            try {
+                const credentials = await new Promise((resolve, reject) => {
+                    Gio.DBus.session.call('org.freedesktop.DBus', '/org/freedesktop/DBus',
+                        'org.freedesktop.DBus', 'GetConnectionCredentials',
+                        new GLib.Variant('(s)', [sender]), new GLib.VariantType('(a{sv})'),
+                        Gio.DBusCallFlags.NONE, 5000, null, (bus, result) => {
+                            try { resolve(bus.call_finish(result).deepUnpack()[0]); }
+                            catch (error) { reject(error); }
+                        });
+                });
+                const uid = credentials.UnixUserID?.unpack();
+                const pid = credentials.ProcessID?.unpack();
+                if (uid === Gio.Credentials.new().get_unix_user() && Number.isInteger(pid) && pid > 0) {
+                    const [ok, bytes] = GLib.file_get_contents(`/proc/${pid}/cgroup`);
+                    allowed = ok && agentCgroup(new TextDecoder().decode(bytes));
+                }
+            } catch (_error) {
+                allowed = false;
+            }
+            // Never retain a result after disable or a name-owner change.
+            if (this._callers !== cache || (generations.get(sender) ?? 0) !== generation)
+                allowed = false;
+            else
+                cache.set(sender, allowed);
+        }
+        if (!allowed || !this._clipboard) {
+            invocation.return_dbus_error('dev.linuxvm.Clipboard.Error.AccessDenied',
+                'Only linuxvm-clipboard.service may access the clipboard');
+            return false;
+        }
+        return true;
+    }
+
+    async GetSelectionAsync(_parameters, invocation) {
+        if (!await this._authorize(invocation))
+            return;
         const generation = this._generation;
         const finish = (mime = '', data = new Uint8Array()) => {
             const timeout = this._pending?.get(invocation);
@@ -86,7 +153,9 @@ export default class ClipboardExtension extends Extension {
         }
     }
 
-    SetSelectionAsync([mime, data], invocation) {
+    async SetSelectionAsync([mime, data], invocation) {
+        if (!await this._authorize(invocation))
+            return;
         try {
             if ((mime !== TEXT && mime !== PNG) || data.length === 0 || data.length > LIMIT)
                 throw new Error('Unsupported clipboard format or size');
@@ -101,6 +170,11 @@ export default class ClipboardExtension extends Extension {
     }
 
     disable() {
+        if (this._nameChanged)
+            Gio.DBus.session.signal_unsubscribe(this._nameChanged);
+        this._nameChanged = 0;
+        this._callers = null;
+        this._callerGeneration = null;
         if (this._changed)
             this._selection.disconnect(this._changed);
         this._changed = 0;

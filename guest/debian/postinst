@@ -6,11 +6,11 @@ if [ "$1" = configure ]; then
         udevadm trigger --subsystem-match=virtio-ports --action=change || true
     fi
     glib-compile-schemas /usr/share/glib-2.0/schemas
-    systemctl --global enable linuxvm-clipboard.service linuxvm-audio.service linuxvm-share-link.service
-    systemctl enable linuxvm-timezone.service linuxvm-share-mount.service
+    systemctl --global enable linuxvm-clipboard.service linuxvm-audio.service linuxvm-share-link.service linuxvm-status.service
+    systemctl enable linuxvm-timezone.service linuxvm-share-mount.service linuxvm-clock-recovery.service linuxvm-clock-recovery.timer
     if [ -d /run/systemd/system ]; then
         systemctl daemon-reload
-        systemctl start linuxvm-share-mount.service linuxvm-timezone.service
+        systemctl start linuxvm-share-mount.service linuxvm-timezone.service linuxvm-clock-recovery.service linuxvm-clock-recovery.timer
     fi
     echo 'LinuxVM guest tools installed. Log out and back in to load the clipboard extension and user services.'
 fi

@@ -6,6 +6,7 @@ from pathlib import Path
 import select
 import subprocess
 import sys
+import time
 
 from common import Lines, read_credential, save_json, zone_path
 
@@ -62,6 +63,21 @@ def decode_zone(line: bytes) -> str | None:
     return message['zone']
 
 
+class WakeRecovery:
+    def __init__(self, clock=time.monotonic, run=subprocess.run):
+        self.clock, self.run = clock, run
+        self.last = float('-inf')
+
+    def wake(self):
+        now = self.clock()
+        if now - self.last < 5:
+            return False
+        self.run(['/usr/bin/systemctl', 'start', '--no-block',
+                  'linuxvm-clock-recovery.service'], check=True, timeout=5)
+        self.last = now
+        return True
+
+
 def current_zone() -> str:
     result = subprocess.run(['/usr/bin/timedatectl', 'show', '--property=Timezone', '--value'],
                             capture_output=True, text=True, check=True, timeout=10)
@@ -76,6 +92,7 @@ def apply_zone(zone: str) -> None:
 
 def main() -> int:
     follower = TimeZoneFollower()
+    recovery = WakeRecovery()
     try:
         initial = read_credential().get('timezone')
         if initial is not None:
@@ -95,6 +112,8 @@ def main() -> int:
                 raise RuntimeError('host timezone bridge disconnected')
             for line in lines.feed(chunk):
                 zone = decode_zone(line)
+                if zone is None:
+                    recovery.wake()
                 if zone is not None:
                     follower.synchronize(zone, current_zone(), apply_zone)
 
