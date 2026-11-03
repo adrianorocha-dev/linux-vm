@@ -58,6 +58,43 @@ For the app to update itself through Sparkle, step 2 also needs `LINUXVM_UPDATE_
 
 Recipients need an Apple Silicon Mac with macOS 15 or later. Without `LINUXVM_NOTARY_PROFILE`, step 3 only signs the image, to check the steps; any signing identity works for that.
 
+## Releasing
+
+Complete the certificate and notary setup in [Sharing the app](#sharing-the-app).
+Install GitHub CLI (`brew install gh`) and sign in with `gh auth login`.
+Create a public releases repository with an initial README commit and no app source.
+Set its owner/name in `scripts/release-config.json`.
+The script derives the feed URL as `https://github.com/<owner>/<name>/releases/latest/download/appcast.xml`.
+
+Run `.deps/sparkle-2.10.0/bin/generate_keys` once to create the EdDSA key in your login keychain.
+If needed, unpack [Sparkle 2.10.0](https://github.com/sparkle-project/Sparkle/releases/download/2.10.0/Sparkle-2.10.0.tar.xz) there after verifying its SHA-256 is `c2bf58aa8387266ac179357b1415d6f2635f044da8be41042af32425dae6da0c`.
+Put the printed public key in the config's `public_key`.
+Back up the private key securely.
+The release script fetches and verifies absent tools.
+
+Set `source_archive_directory` to a durable absolute folder outside the repository, or set `LINUXVM_RELEASE_SOURCE_DIR` on this Mac.
+Set `offer_contact` in `licenses/manifest.json` to your source-offer contact.
+Commit these settings; placeholders block a release.
+
+For each release, set `CFBundleShortVersionString` in `macos/Resources/Info.plist` to `MAJOR.MINOR.PATCH` and raise the integer `CFBundleVersion` above every published build.
+Add `docs/releases/VERSION.md` using the [notes format](docs/releases/README.md).
+Build the Guest Tools disc using [Building](#building).
+Commit and push these changes, then run from a clean `main` equal to `origin/main`:
+
+```sh
+LINUXVM_SIGN_IDENTITY="Developer ID Application: <name> (<team ID>)" python3 scripts/release.py VERSION
+```
+
+The script builds, signs, notarizes, and retains source before asking to publish.
+It uses `linuxvm-notary` unless `LINUXVM_NOTARY_PROFILE` names another profile.
+Review the summary and back up the retained source archive before typing `publish`.
+Keep that archive for at least three years after the version's last distribution.
+The script pushes an annotated source tag, creates a public draft release, publishes it, and checks the public bytes.
+Artifacts stay in `build/release/VERSION/`, including `LinuxVM-VERSION.dmg` and `appcast.xml`.
+Use `--dry-run` to do all preparation, including signing and notarization, without tagging, pushing, or publishing.
+Repeated attempts need another source archive directory because retained archives are never overwritten.
+If publication fails partway through, inspect the origin tag and public release before retrying.
+
 ## Command line
 
 ```
