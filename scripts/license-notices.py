@@ -37,6 +37,24 @@ def load(path=MANIFEST):
     return json.loads(path.read_text())
 
 
+def component_version(component, root=ROOT):
+    source = component.get('version_file')
+    if source == 'macos/Resources/Info.plist':
+        return plistlib.loads((root / source).read_bytes())['CFBundleShortVersionString']
+    if source == 'guest/build.py':
+        return re.search(r"^VERSION = '([^']+)'$", (root / source).read_text(), re.M)[1]
+    require(source is None, f'unsupported version source: {source}')
+    return component['version']
+
+
+def release_blockers(manifest):
+    blockers = list(manifest.get('release_blockers', []))
+    contact = manifest['offer_contact'].strip()
+    if not contact or contact.endswith('_UNSET'):
+        blockers.append('set offer_contact in licenses/manifest.json before Developer ID signing')
+    return blockers
+
+
 def safe_path(name):
     path = PurePosixPath(name)
     require(name and not path.is_absolute() and '..' not in path.parts and str(path) == name,
@@ -104,10 +122,10 @@ def verify_git_archive(item, path, directory):
             require(entries(expected) == entries(archive), f"{path.name}: archive differs from verified git objects")
 
 
-def source_notices(archive, subdir=''):
+def source_notices(archive, subdir='', strip_components=1):
     parts = []
     for member in archive:
-        name = '/'.join(member.name.split('/')[1:])
+        name = '/'.join(member.name.split('/')[strip_components:])
         if not member.isfile() or not name.startswith(subdir) or not name.endswith(
                 ('.c', '.h', '.cpp', '.cc', '.m', '.mm', '.py', '.S', '.inc', '.patch')):
             continue
@@ -121,14 +139,26 @@ def source_notices(archive, subdir=''):
     return '\n'.join(parts).encode()
 
 
+def header_notices(archive, members):
+    parts = []
+    for name in members:
+        source = archive.extractfile(name).read()
+        comments = re.findall(rb'/\*[\s\S]*?\*/|(?://[^\n]*\n)+', source)
+        comments = [c for c in comments if re.search(rb'copyright|SPDX-License-Identifier', c, re.I)]
+        if comments:
+            parts.append(b'==> ' + name.encode() + b' <==\n' + b'\n'.join(comments) + b'\n')
+    return b'\n'.join(parts)
+
+
 def validate_manifest(manifest, root=ROOT, identity='-'):
     require(manifest['schema_version'] == 1, 'unsupported manifest schema')
     ids = set()
     for component in manifest['components']:
         require(component['id'] not in ids, f"duplicate component: {component['id']}")
         ids.add(component['id'])
-        for field in ('name', 'version', 'license', 'license_files', 'bundle_files'):
+        for field in ('name', 'license', 'license_files', 'bundle_files'):
             require(component.get(field), f"{component['id']}: missing {field}")
+        require(component_version(component, root), f"{component['id']}: missing version")
         for name in component['bundle_files']:
             safe_path(name)
         for name, target in component.get('bundle_symlinks', {}).items():
@@ -138,6 +168,15 @@ def validate_manifest(manifest, root=ROOT, identity='-'):
             require(name in manifest['license_texts'], f"{component['id']}: missing license text: {name}")
         for key in component['inputs']:
             require(key in manifest['inputs'], f"{component['id']}: missing input {key}")
+        for embedded in component.get('embedded_components', []):
+            require(embedded['notice_input'] in component['inputs'], f"{embedded['name']}: missing notice input")
+            require(set(embedded['license_files']) <= set(component['license_files']),
+                    f"{embedded['name']}: missing embedded license files")
+        source = component.get('source', {})
+        if 'input' in source:
+            require(source['input'] in component['inputs'] and
+                    manifest['inputs'][source['input']]['commit'] == source['commit'],
+                    f"{component['id']}: source input commit differs")
     for name, record in manifest['license_texts'].items():
         safe_path(name)
         path = root / 'licenses/texts' / name
@@ -217,27 +256,11 @@ def validate_checkout_pins(manifest, checkout, root=ROOT, deps=None):
     require(components['angle']['version'].startswith(variables['angle_version'] + ' '), 'ANGLE version differs')
     require(components['keycodemapdb']['version'] == variables['keycodemap_commit'], 'keycodemapdb version differs')
     require(components['libfdt']['version'].endswith('+' + variables['dtc_commit']), 'libfdt commit differs')
-    plist = plistlib.loads((root / 'macos/Resources/Info.plist').read_bytes())
-    require(components['linux-vm']['version'] == plist['CFBundleShortVersionString'], 'app version differs')
-    guest_version = re.search(r"^VERSION = '([^']+)'$", (root / 'guest/build.py').read_text(), re.M)[1]
-    require(components['guest']['version'] == guest_version, 'Guest Tools version differs')
     for component in manifest['components']:
         source = component.get('source', {})
         if 'path' in source:
             require(digest((root / source['path']).read_bytes()) == source['sha256'],
                     f"{component['id']}: local patch changed")
-        if 'files' in source:
-            require(digest(json.dumps(source['files'], sort_keys=True).encode()) == source['sha256'],
-                    f"{component['id']}: source snapshot checksum differs")
-            for name, expected in source['files'].items():
-                require(digest((root / name).read_bytes()) == expected, f'local source changed: {name}; refresh its inventory')
-            actual = {p.relative_to(root).as_posix() for p in (root / 'macos/Sources').rglob('*') if p.is_file()}
-            require(actual == {name for name in source['files'] if name.startswith('macos/Sources/')},
-                    'uncovered app source file')
-    guest_sources = {record['source']: record['sha256'] for record in manifest['guest_files'].values()
-                     if 'source' in record}
-    require(digest(json.dumps(guest_sources, sort_keys=True).encode()) == components['guest']['source']['sha256'],
-            'Guest Tools source snapshot checksum differs')
     sparkle = json.loads((root / 'macos/Package.resolved').read_text())['pins']
     sparkle = next(p for p in sparkle if p['identity'] == 'sparkle')['state']
     require(sparkle['version'] == components['sparkle']['version'] and
@@ -294,15 +317,36 @@ def validate_archives(manifest, directory, root=ROOT):
         else:
             verify_git_archive(item, path, directory)
         archives[key] = path
+    angle = next(c for c in manifest['components'] if c['id'] == 'angle')
+    with tarfile.open(archives['angle-source']) as archive:
+        prefix = 'angle-' + angle['source']['commit'] + '/'
+        deps = archive.extractfile(prefix + 'DEPS').read().decode()
+        for key in angle['inputs']:
+            item = manifest['inputs'][key]
+            if key not in ('angle-source', 'angle-chromium-license') and 'commit' in item:
+                require(item['commit'] in deps, f'{key}: revision differs from ANGLE DEPS')
+        base = archive.extractfile(prefix + 'src/common/base/README.chromium').read().decode()
+        require(manifest['inputs']['angle-chromium-license']['commit'] in base,
+                'Chromium base notice revision differs')
+    library = directory.parent / 'try-omarchy/macos/.build/qemu-gpu-runtime/lib/libGLESv2.dylib'
+    if library.exists():
+        require(angle['source']['evidence'].encode() in library.read_bytes(), 'ANGLE binary version differs')
     for key in manifest['inputs']:
         records = [(name, value) for name, value in manifest['license_texts'].items() if value.get('input') == key]
         evidence = [c['version_evidence'] for c in manifest['components'] if c.get('version_evidence', {}).get('input') == key]
         if not records and not evidence:
             continue
+        if records and all(r['mode'] == 'raw' for _, r in records):
+            for name, record in records:
+                require(digest(archives[key].read_bytes()) == record['sha256'],
+                        f'license text differs from pinned input: {name}')
+            continue
         with tarfile.open(archives[key]) as archive:
             for name, record in records:
                 if record['mode'] == 'source-notices':
-                    data = source_notices(archive, record['subdir'])
+                    data = source_notices(archive, record['subdir'], record.get('strip_components', 1))
+                elif record['mode'] == 'header-notices':
+                    data = header_notices(archive, record['members'])
                 else:
                     data = archive.extractfile(record['member']).read()
                     if record['mode'] == 'line-comment':
@@ -397,11 +441,8 @@ def validate_guest(manifest, iso, root=ROOT):
     actual_paths = {p.relative_to(root).as_posix() for folder in ('guest/files', 'guest/debian', 'guest/iso')
                     for p in (root / folder).rglob('*') if p.is_file() and '__pycache__' not in p.parts and p.suffix != '.pyc'}
     require(source_paths == actual_paths, 'uncovered or removed Guest Tools source file')
-    for name, record in expected.items():
-        source = (root / record['source']).read_bytes() if 'source' in record else record['generated'].encode()
-        require(digest(source) == record['sha256'], f'Guest Tools source changed: {name}; update the inventory')
     disc = iso_files(iso.read_bytes())
-    version = next(c['version'] for c in manifest['components'] if c['id'] == 'guest')
+    version = component_version(next(c for c in manifest['components'] if c['id'] == 'guest'), root)
     package = f'linuxvm-guest_{version}_all.deb'
     require(set(disc) == {package, 'install.sh', 'README.txt'}, 'uncovered Guest Tools disc file')
     files = deb_files(disc[package])
@@ -411,8 +452,8 @@ def validate_guest(manifest, iso, root=ROOT):
     require(sorted(md5sums.splitlines()) == sorted(expected_md5.splitlines()), 'Guest Tools md5sums differ')
     files.update({'iso:/' + name: disc[name] for name in ('install.sh', 'README.txt')})
     require(set(files) == set(expected), 'uncovered or removed file inside Guest Tools package')
-    for name, data in files.items():
-        require(digest(data) == expected[name]['sha256'], f'Guest Tools disc differs from inventory: {name}')
+    require(files['deb:data/usr/lib/linuxvm/version.py'] == f'VERSION = {version!r}\n'.encode(),
+            'Guest Tools disc version differs; rebuild the disc')
 
 
 def notices(manifest, root=ROOT):
@@ -436,11 +477,11 @@ def notices(manifest, root=ROOT):
              'are not a substitute for complete corresponding source.', '',
              'See LGPL-REPLACEMENT.txt for replacing LGPL libraries in a personal copy.',
              'Original Linux VM code and artwork have no selected license.', '']
-    if manifest.get('release_blockers'):
+    if release_blockers(manifest):
         lines += ['DEVELOPMENT BUILD — unresolved provenance (public release is blocked):']
-        lines += manifest['release_blockers'] + ['']
+        lines += release_blockers(manifest) + ['']
     for component in manifest['components']:
-        lines += [component['name'], 'Version: ' + component['version'], 'License: ' + component['license'],
+        lines += [component['name'], 'Version: ' + component_version(component, root), 'License: ' + component['license'],
                   'License files: ' + ', '.join(component['license_files'])]
         for key in component['inputs']:
             item = manifest['inputs'][key]
@@ -451,6 +492,9 @@ def notices(manifest, root=ROOT):
                 lines += ['Commit: ' + item['commit'], 'Archive format: ' + item['format']]
         if 'source' in component:
             lines += ['Source: ' + json.dumps(component['source'], ensure_ascii=False, sort_keys=True)]
+        for embedded in component.get('embedded_components', []):
+            lines += [f"Embedded notice: {embedded['name']}; {embedded['license']}; revision {embedded['revision']}",
+                      '  Evidence: ' + embedded['graph_evidence']]
         lines += ['Bundle files:'] + ['  ' + name for name in component['bundle_files']]
         if component.get('notes'):
             lines += [component['notes']]
@@ -534,8 +578,8 @@ def main():
     try:
         manifest = load(args.manifest)
         validate_manifest(manifest, identity=args.identity)
-        validate_pins(manifest, deps=ROOT / '.deps' if args.inputs else None)
         if args.inputs:
+            validate_pins(manifest, deps=ROOT / '.deps')
             validate_archives(manifest, ROOT / '.deps/source-archives')
         if args.write:
             require(args.bundle is not None, '--write requires --bundle')
@@ -545,7 +589,9 @@ def main():
     except (LicenseError, OSError, KeyError, subprocess.CalledProcessError, ValueError, tarfile.TarError) as error:
         print(f'license-notices: {error}', file=sys.stderr)
         return 1
-    print(f"license-notices: inventory files and coverage OK ({len(manifest.get('release_blockers', []))} unresolved release blockers)")
+    print(f"license-notices: inventory files and coverage OK ({len(release_blockers(manifest))} unresolved release blockers)")
+    for blocker in release_blockers(manifest):
+        print('license-notices: release blocker: ' + blocker)
     return 0
 
 

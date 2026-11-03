@@ -11,7 +11,10 @@ The old Try Omarchy and firmware notices remain at their original paths too.
 
 Run `python3 scripts/license-notices.py --inputs` to check the installed dependency inputs.
 Run `python3 scripts/license-notices.py --bundle "build/Linux VM.app"` to check a bundle.
-The build runs both checks before signing and checks the complete bundle again afterward.
+Ad hoc builds check local license hashes and coverage before signing and check the complete bundle again afterward.
+Developer ID builds also run `--inputs` before compilation.
+Tests run the full pin and archive checks.
+The ordinary path does not clone a repository or download an archive.
 Every bundle file needs an exact manifest path.
 The checker also rejects unlisted directories and symlinks.
 Only the outer app's exact XML code-signature metadata path is exempt.
@@ -44,13 +47,14 @@ Sparkle lists its framework files individually, including the nested updater app
 Record framework symlinks in the component's `bundle_symlinks` map, from bundle path to relative target.
 The checker verifies each target and rejects links that escape the bundle.
 
-When original app sources change, update the app component's `source.files` path-to-SHA-256 map.
-Its aggregate `source.sha256` is the SHA-256 of `json.dumps(files, sort_keys=True).encode()`.
-When Guest Tools change, update the explicit `guest_files` entries and their SHA-256 values.
-The guest component's aggregate source checksum uses the same JSON format over its source path-to-SHA-256 map.
-Review those changes for new third-party code before updating the checksums.
-Update component versions when the corresponding app, guest, source or bottle version changes.
-Rebuild the disc after guest changes.
+Original app and Guest Tools source files have no manifest checksums or aggregate snapshot.
+The notices read the app version from `macos/Resources/Info.plist` and the Guest Tools version from `guest/build.py`.
+Changing our code or versions does not require a manifest edit.
+Every file in the bundle, disc and package still needs an inventory entry.
+Add new Guest Tools member paths to `guest_files` and rebuild the disc after guest changes.
+The package's internal md5sums and generated version are checked for consistency.
+Review changes for new third-party code and update its pins and notices when needed.
+Third-party source, patch, archive, package and license checks remain enforced by `--inputs` and tests.
 Run the test commands in the root README and build the app.
 
 For patches, the manifest records our diff checksum and the upstream source archive checksum.
@@ -70,14 +74,19 @@ It promises complete corresponding source at no more than physical distribution 
 It covers GPL and LGPL source, patches, interface definitions and build and installation scripts.
 The distributor must actually retain and provide those materials.
 
-ANGLE remains a provenance blocker.
-Its bottle's verified formula source fetches moving ANGLE and dependency revisions and leaves `commit.txt` empty.
-The tag formula also has a source checksum mismatch.
-See [the audit](ANGLE-AUDIT.md) for the exact evidence and what is missing.
+ANGLE is pinned to the commit recorded in its shipped library.
+Its full license and embedded dependency notices come from immutable source revisions.
+External notice revisions are the ones that commit's DEPS names, while the bottle fetched moving build-day heads.
+These libraries impose no corresponding-source distribution obligation.
+The Bison generated parser exception also permits this larger work without such an obligation.
+ANGLE is no longer a release blocker.
+The bottle's tag/formula checksum mismatch remains a finding.
+See [the audit](ANGLE-AUDIT.md) for the graph, revisions, licenses and remaining provenance limits.
 Zstandard's checksum-pinned 1.5.7 source establishes xxHash and libdivsufsort-lite notices.
 The library and CLI retain those notices and the full source copyright collection.
 The app icon is original artwork drawn with paths and has no SF Symbols blocker.
-An ad hoc build reports the remaining ANGLE gap in its notices.
+The unset source-offer contact is the only current release blocker.
+An ad hoc build reports it in its notices.
 The checker cannot prove that an opaque prebuilt bottle contains only the subcomponents declared by its producer.
 
 ## Retaining release source
@@ -94,7 +103,10 @@ Keep it through at least three years after that version's last distribution.
 Back it up somewhere durable before distributing the binary.
 A successful complete run is required before answering a source request from this archive.
 
-The collector retains all manifest archives, including bottles and build tools.
+The collector requires all copyleft source and build inputs, including bottle formulas, resources and patches.
+It also retains manifest archives, including bottles and build tools.
+ANGLE source and its permissive notice reference inputs are best effort.
+Failures for those inputs are recorded separately and do not hide a missing required input.
 It retains every pinned git source and recursively follows its submodule commits.
 It includes the full Linux VM checkout at the release commit, including our diffs, patches, guest sources, build scripts and installation scripts.
 It extracts each bottle's exact formula and fetches its checksum-pinned upstream source and resources.
@@ -115,8 +127,9 @@ Its download and git cache defaults to `build/source-retention-cache/`.
 `--inputs` selects the read-only bottle and runtime input directory.
 That directory must contain the release's pinned bottles so their formulas can be checked.
 
-The full run currently exits before downloading because ANGLE's exact source revisions are unknown.
-It must not produce a misleading complete-source archive.
+A full run requires a clean committed checkout and marks its index `complete: true` only after every required source succeeds.
+The index preserves provenance findings and any optional ANGLE failures.
+The final archive's reported size is the measured size, not an estimate.
 To test a small subset, use:
 
 ```sh
@@ -125,9 +138,7 @@ python3 scripts/retain-release-source.py --subset keycodemap,zstd-source,bottle-
 
 A subset always has `complete: false` in its index.
 It is a test artifact and cannot fulfill the written offer.
-The tested subset is about 23 MB and includes nine artifacts plus formulas and integrity metadata.
-The full size is unknown until ANGLE's exact dependency set is recovered.
-The collector reports actual bytes rather than estimating missing sources.
+See [verification](VERIFICATION.md) for measured build overhead, test results and the retained archive result.
 
 ## Legal review points
 

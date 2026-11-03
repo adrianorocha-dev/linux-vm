@@ -32,6 +32,19 @@ def run(*args, **kwargs):
     return subprocess.run(args, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, **kwargs).stdout
 
 
+def retention_required(manifest, key, item):
+    if item.get('retention') != 'best-effort':
+        return True
+    components = [c for c in manifest['components'] if key in c['inputs']]
+    def copyleft(component):
+        # Bison's generated parser exception permits this larger work under chosen terms.
+        expression = component['license'].replace('GPL-3.0-or-later WITH Bison-exception-2.2', '')
+        return re.search(r'\b(?:A?GPL|LGPL)-', expression)
+    notices.require(components and all(not copyleft(c) for c in components),
+                    f'{key}: copyleft or unowned input cannot use best-effort retention')
+    return False
+
+
 def formula_sources(manifest, plan, cache):
     bottles = {key for key, item in manifest['inputs'].items() if 'bottle' in item['archive']}
     notices.require(bottles == set(plan['bottles']), 'source plan does not cover every bottle')
@@ -155,7 +168,7 @@ def collect(args):
     requested = set(args.subset.split(',')) if args.subset else None
     items = dict(manifest['inputs'])
     expected_git = {c['id']: {k: c['source'][k] for k in ('url', 'commit')}
-                    for c in manifest['components'] if 'commit' in c.get('source', {})}
+                    for c in manifest['components'] if 'commit' in c.get('source', {}) and 'input' not in c['source']}
     notices.require(expected_git == {key: {k: item[k] for k in ('url', 'commit')}
                                     for key, item in plan['extra_sources'].items()}, 'component git source plan differs')
     for key, value in plan['extra_sources'].items():
@@ -181,20 +194,29 @@ def collect(args):
         stage = Path(directory) / 'release-source'
         stage.mkdir()
         collector = Collector(stage, args.cache)
+        optional_failures = {}
         for key, item in items.items():
             if requested and key not in requested:
                 continue
-            if 'commit' in item:
-                prefix = item.get('archive', '').removesuffix('.tar.gz')
-                local = args.inputs / 'git' / (prefix + '.git')
-                if key == 'source-try-omarchy':
-                    local = ROOT / '.deps/try-omarchy'
-                collector.git(key, item, local)
-            else:
-                existing = args.inputs / item['archive']
-                if not existing.exists():
-                    existing = ROOT / 'build/license-inputs' / item['archive']
-                collector.download(key, item, existing)
+            required = retention_required(manifest, key, item)
+            print(f'retain-release-source: collecting {key}', file=sys.stderr, flush=True)
+            try:
+                if 'commit' in item and 'sha256' not in item:
+                    prefix = item.get('archive', '').removesuffix('.tar.gz')
+                    local = args.inputs / 'git' / (prefix + '.git')
+                    if key == 'source-try-omarchy':
+                        local = ROOT / '.deps/try-omarchy'
+                    collector.git(key, item, local)
+                else:
+                    existing = args.inputs / item['archive']
+                    if not existing.exists():
+                        existing = ROOT / 'build/license-inputs' / item['archive']
+                    collector.download(key, item, existing)
+            except (OSError, ValueError, subprocess.CalledProcessError) as error:
+                if required:
+                    raise
+                optional_failures[key] = str(error)
+                print(f'retain-release-source: optional {key}: {error}', file=sys.stderr)
         formula_dir = stage / 'bottle-formulas'
         formula_dir.mkdir()
         for key, data in formulas.items():
@@ -207,7 +229,8 @@ def collect(args):
         for name in ('manifest.json', 'source-inputs.json'):
             shutil.copyfile(ROOT / 'licenses' / name, stage / name)
         report = {'complete': requested is None, 'revision': revision, 'subset': sorted(requested) if requested else None,
-                  'gaps': plan['gaps'], 'artifacts': collector.artifacts,
+                  'gaps': plan['gaps'], 'findings': plan.get('findings', []),
+                  'optional_failures': optional_failures, 'artifacts': collector.artifacts,
                   'artifact_bytes': sum(a['bytes'] for a in collector.artifacts.values()),
                   'retention': 'Keep through at least three years after the last distribution of this version.'}
         (stage / 'SOURCE-INDEX.json').write_text(json.dumps(report, indent=2) + '\n')

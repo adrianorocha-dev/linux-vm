@@ -6,6 +6,7 @@ import tempfile
 import io
 import tarfile
 import unittest
+from unittest.mock import patch
 
 ROOT = Path(__file__).resolve().parents[2]
 SPEC = importlib.util.spec_from_file_location('license_notices', ROOT / 'scripts/license-notices.py')
@@ -22,14 +23,38 @@ class LicenseTests(unittest.TestCase):
         with self.assertRaisesRegex(notices.LicenseError, 'offer_contact'):
             notices.validate_manifest(self.manifest, identity='Developer ID Application: test')
         self.manifest['offer_contact'] = 'source@example.invalid'
+        notices.validate_manifest(self.manifest, identity='Developer ID Application: test')
+        self.manifest['release_blockers'] = ['test unresolved source']
         with self.assertRaisesRegex(notices.LicenseError, 'unresolved license provenance'):
             notices.validate_manifest(self.manifest, identity='Developer ID Application: test')
         self.manifest['release_blockers'] = []
+        self.manifest['components'][0]['license_status'] = 'incomplete test evidence'
         with self.assertRaisesRegex(notices.LicenseError, 'incomplete license evidence'):
             notices.validate_manifest(self.manifest, identity='Developer ID Application: test')
         for component in self.manifest['components']:
             component.pop('license_status', None)
         notices.validate_manifest(self.manifest, identity='Developer ID Application: test')
+
+    def test_versions_follow_sources_without_manifest_changes(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            for name in ('macos/Resources/Info.plist', 'guest/build.py'):
+                target = root / name
+                target.parent.mkdir(parents=True, exist_ok=True)
+                shutil.copyfile(ROOT / name, target)
+                target.write_text(target.read_text().replace('0.1.0', '9.8.7').replace("VERSION = '0.2.1'", "VERSION = '6.5.4'"))
+            with patch.object(notices.subprocess, 'check_output', return_value='test-revision\n'):
+                text = notices.notices(self.manifest, root)
+            self.assertIn('Version: 9.8.7', text)
+            self.assertIn('Version: 6.5.4', text)
+            self.assertNotIn('version', next(c for c in self.manifest['components'] if c['id'] == 'guest'))
+
+    def test_fast_cli_does_not_fetch_or_verify_archives(self):
+        with patch('sys.argv', ['license-notices.py']), patch.object(notices, 'validate_pins') as pins, \
+                patch.object(notices, 'validate_archives') as archives:
+            self.assertEqual(notices.main(), 0)
+        pins.assert_not_called()
+        archives.assert_not_called()
 
     def test_upstream_pins_with_local_diff_and_build_app_pins(self):
         notices.validate_pins(self.manifest, deps=ROOT / '.deps')
@@ -116,6 +141,10 @@ class LicenseTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
             shutil.copytree(ROOT / 'licenses', root / 'licenses')
+            for name in ('macos/Resources/Info.plist', 'guest/build.py'):
+                target = root / name
+                target.parent.mkdir(parents=True, exist_ok=True)
+                shutil.copyfile(ROOT / name, target)
             name = self.manifest['components'][0]['license_files'][0]
             (root / 'licenses/texts' / name).unlink()
             with self.assertRaisesRegex(notices.LicenseError, 'missing license text'):

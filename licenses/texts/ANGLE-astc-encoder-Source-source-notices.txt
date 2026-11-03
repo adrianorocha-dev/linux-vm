@@ -1,0 +1,1393 @@
+==> Source/Fuzzers/fuzz_astc_physical_to_symbolic.cpp <==
+// SPDX-License-Identifier: Apache-2.0
+// ----------------------------------------------------------------------------
+// Copyright 2020-2021 Arm Limited
+//
+// Licensed under the Apache License, Version 2.0 (the "License"); you may not
+// use this file except in compliance with the License. You may obtain a copy
+// of the License at:
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+// WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+// License for the specific language governing permissions and limitations
+// under the License.
+// ----------------------------------------------------------------------------
+
+/**
+ * @brief Fuzz target for physical_to_symbolic().
+ *
+ * This function is the first entrypoint for decompressing a 16 byte block of
+ * input ASTC data from disk. The 16 bytes can contain arbitrary data; they
+ * are read from an external source, but the block size used must be a valid
+ * ASTC block footprint.
+ */
+
+==> Source/ThirdParty/tinyexr.h <==
+/*
+Copyright (c) 2014 - 2019, Syoyo Fujita and many contributors.
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:
+    * Redistributions of source code must retain the above copyright
+      notice, this list of conditions and the following disclaimer.
+    * Redistributions in binary form must reproduce the above copyright
+      notice, this list of conditions and the following disclaimer in the
+      documentation and/or other materials provided with the distribution.
+    * Neither the name of the Syoyo Fujita nor the
+      names of its contributors may be used to endorse or promote products
+      derived from this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL <COPYRIGHT HOLDER> BE LIABLE FOR ANY
+DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+*/
+
+// TinyEXR contains some OpenEXR code, which is licensed under ------------
+
+///////////////////////////////////////////////////////////////////////////
+//
+// Copyright (c) 2002, Industrial Light & Magic, a division of Lucas
+// Digital Ltd. LLC
+//
+// All rights reserved.
+//
+// Redistribution and use in source and binary forms, with or without
+// modification, are permitted provided that the following conditions are
+// met:
+// *       Redistributions of source code must retain the above copyright
+// notice, this list of conditions and the following disclaimer.
+// *       Redistributions in binary form must reproduce the above
+// copyright notice, this list of conditions and the following disclaimer
+// in the documentation and/or other materials provided with the
+// distribution.
+// *       Neither the name of Industrial Light & Magic nor the names of
+// its contributors may be used to endorse or promote products derived
+// from this software without specific prior written permission.
+//
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+// "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+// LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+// A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+// OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+// SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+// LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+// DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+// THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+//
+///////////////////////////////////////////////////////////////////////////
+
+// End of OpenEXR license -------------------------------------------------
+
+==> Source/UnitTest/test_decode.cpp <==
+// SPDX-License-Identifier: Apache-2.0
+// ----------------------------------------------------------------------------
+// Copyright 2023 Arm Limited
+//
+// Licensed under the Apache License, Version 2.0 (the "License"); you may not
+// use this file except in compliance with the License. You may obtain a copy
+// of the License at:
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+// WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+// License for the specific language governing permissions and limitations
+// under the License.
+// ----------------------------------------------------------------------------
+
+/**
+ * @brief Unit tests for the vectorized SIMD functionality.
+ */
+
+==> Source/UnitTest/test_simd.cpp <==
+// SPDX-License-Identifier: Apache-2.0
+// ----------------------------------------------------------------------------
+// Copyright 2020-2025 Arm Limited
+//
+// Licensed under the Apache License, Version 2.0 (the "License"); you may not
+// use this file except in compliance with the License. You may obtain a copy
+// of the License at:
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+// WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+// License for the specific language governing permissions and limitations
+// under the License.
+// ----------------------------------------------------------------------------
+
+/**
+ * @brief Unit tests for the vectorized SIMD functionality.
+ */
+
+==> Source/UnitTest/test_softfloat.cpp <==
+// SPDX-License-Identifier: Apache-2.0
+// ----------------------------------------------------------------------------
+// Copyright 2021 Arm Limited
+//
+// Licensed under the Apache License, Version 2.0 (the "License"); you may not
+// use this file except in compliance with the License. You may obtain a copy
+// of the License at:
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+// WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+// License for the specific language governing permissions and limitations
+// under the License.
+// ----------------------------------------------------------------------------
+
+/**
+ * @brief Unit tests for the software half-float library.
+ */
+
+==> Source/astcenc.h <==
+// SPDX-License-Identifier: Apache-2.0
+// ----------------------------------------------------------------------------
+// Copyright 2020-2025 Arm Limited
+//
+// Licensed under the Apache License, Version 2.0 (the "License"); you may not
+// use this file except in compliance with the License. You may obtain a copy
+// of the License at:
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+// WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+// License for the specific language governing permissions and limitations
+// under the License.
+// ----------------------------------------------------------------------------
+
+/**
+ * @brief The core astcenc codec library interface.
+ *
+ * This interface is the entry point to the core astcenc codec. It aims to be easy to use for
+ * non-experts, but also to allow experts to have fine control over the compressor heuristics if
+ * needed. The core codec only handles compression and decompression, transferring all inputs and
+ * outputs via memory buffers. To catch obvious input/output buffer sizing issues, which can cause
+ * security and stability problems, all transfer buffers are explicitly sized.
+ *
+ * While the aim is that we keep this interface mostly stable, it should be viewed as a mutable
+ * interface tied to a specific source version. We are not trying to maintain backwards
+ * compatibility across codec versions.
+ *
+ * The API state management is based around an explicit context object, which is the context for all
+ * allocated memory resources needed to compress and decompress a single image. A context can be
+ * used to sequentially compress multiple images using the same configuration, allowing setup
+ * overheads to be amortized over multiple images, which is particularly important when images are
+ * small.
+ *
+ * Multi-threading can be used two ways.
+ *
+ *     * An application wishing to process multiple images in parallel can allocate multiple
+ *       contexts and assign each context to a thread.
+ *     * An application wishing to process a single image in using multiple threads can configure
+ *       contexts for multi-threaded use, and invoke astcenc_compress/decompress() once per thread
+ *       for faster processing. The caller is responsible for creating the worker threads, and
+ *       synchronizing between images.
+ *
+ * Extended instruction set support
+ * ================================
+ *
+ * This library supports use of extended instruction sets, such as SSE4.1 and AVX2. These are
+ * enabled at compile time when building the library. There is no runtime checking in the core
+ * library that the instruction sets used are actually available. Checking compatibility is the
+ * responsibility of the calling code.
+ *
+ * Threading
+ * =========
+ *
+ * In pseudo-code, the usage for manual user threading looks like this:
+ *
+ *     // Configure the compressor run
+ *     astcenc_config my_config;
+ *     astcenc_config_init(..., &my_config);
+ *
+ *     // Power users can tweak <my_config> settings here ...
+ *
+ *     // Allocate working state given config and thread_count
+ *     astcenc_context* my_context;
+ *     astcenc_context_alloc(&my_config, thread_count, &my_context);
+ *
+ *     // Compress each image using these config settings
+ *     foreach image:
+ *         // For each thread in the thread pool
+ *         for i in range(0, thread_count):
+ *             astcenc_compress_image(my_context, &my_input, my_output, i);
+ *
+ *         astcenc_compress_reset(my_context);
+ *
+ *     // Clean up
+ *     astcenc_context_free(my_context);
+ *
+ * Images
+ * ======
+ *
+ * The codec supports compressing single images, which can be either 2D images or volumetric 3D
+ * images. Calling code is responsible for any handling of aggregate types, such as mipmap chains,
+ * texture arrays, or sliced 3D textures.
+ *
+ * Images are passed in as an astcenc_image structure. Inputs can be either 8-bit unorm, 16-bit
+ * half-float, or 32-bit float, as indicated by the data_type field.
+ *
+ * Images can be any dimension; there is no requirement to be a multiple of the ASTC block size.
+ *
+ * Data is always passed in as 4 color components, and accessed as an array of 2D image slices. Data
+ * within an image slice is always tightly packed without padding. Addressing looks like this:
+ *
+ *     data[z_coord][y_coord * x_dim * 4 + x_coord * 4    ]   // Red
+ *     data[z_coord][y_coord * x_dim * 4 + x_coord * 4 + 1]   // Green
+ *     data[z_coord][y_coord * x_dim * 4 + x_coord * 4 + 2]   // Blue
+ *     data[z_coord][y_coord * x_dim * 4 + x_coord * 4 + 3]   // Alpha
+ *
+ * Common compressor usage
+ * =======================
+ *
+ * One of the most important things for coding image quality is to align the input data component
+ * count with the ASTC color endpoint mode. This avoids wasting bits encoding components you don't
+ * actually need in the endpoint colors.
+ *
+ *         | Input data   | Encoding swizzle | Sampling swizzle |
+ *         | ------------ | ---------------- | ---------------- |
+ *         | 1 component  | RRR1             | .[rgb]           |
+ *         | 2 components | RRRG             | .[rgb]a          |
+ *         | 3 components | RGB1             | .rgb             |
+ *         | 4 components | RGBA             | .rgba            |
+ *
+ * The 1 and 2 component modes recommend sampling from "g" to recover the luminance value as this
+ * provide best compatibility with other texture formats where the green component may be stored at
+ * higher precision than the others, such as RGB565. For ASTC any of the RGB components can be used;
+ * the luminance endpoint component will be returned for all three.
+ *
+ * When using the normal map compression mode ASTC will store normals as a two component X+Y map.
+ * Input images must contain unit-length normalized and should be passed in using a two component
+ * swizzle. The astcenc command line tool defaults to an RRRG swizzle, but some developers prefer
+ * to use GGGR for compatability with BC5n which will work just as well. The Z component can be
+ * recovered programmatically in shader code, using knowledge that the vector is unit length and
+ * that Z must be positive for a tangent-space normal map.
+ *
+ * Decompress-only usage
+ * =====================
+ *
+ * For some use cases it is useful to have a cut-down context and/or library which supports
+ * decompression but not compression.
+ *
+ * A context can be made decompress-only using the ASTCENC_FLG_DECOMPRESS_ONLY flag when the context
+ * is allocated. These contexts have lower dynamic memory footprint than a full context.
+ *
+ * The entire library can be made decompress-only by building the files with the define
+ * ASTCENC_DECOMPRESS_ONLY set. In this build the context will be smaller, and the library will
+ * exclude the functionality which is only needed for compression. This reduces the binary size by
+ * ~180KB. For these builds contexts must be created with the ASTCENC_FLG_DECOMPRESS_ONLY flag.
+ *
+ * Note that context structures returned by a library built as decompress-only are incompatible with
+ * a library built with compression included, and visa versa, as they have different sizes and
+ * memory layout.
+ *
+ * Self-decompress-only usage
+ * ==========================
+ *
+ * ASTC is a complex format with a large search space. The parts of this search space that are
+ * searched is determined by heuristics that are, in part, tied to the quality level used when
+ * creating the context.
+ *
+ * A normal context is capable of decompressing any ASTC texture, including those generated by other
+ * compressors with unknown heuristics. This is the most flexible implementation, but forces the
+ * data tables used by the codec to include entries that are not needed during compression. This
+ * can slow down context creation by a significant amount, especially for the faster compression
+ * modes where few data table entries are actually used. To optimize this use case the context can
+ * be created with the ASTCENC_FLG_SELF_DECOMPRESS_ONLY flag. This tells the compressor that it will
+ * only be asked to decompress images that it compressed itself, allowing the data tables to
+ * exclude entries that are not needed by the current compression configuration. This reduces the
+ * size of the context data tables in memory and improves context creation performance. Note that,
+ * as of the 3.6 release, this flag no longer affects compression performance.
+ *
+ * Using this flag while attempting to decompress an valid image which was created by another
+ * compressor, or even another astcenc compressor version or configuration, may result in blocks
+ * returning as solid magenta or NaN value error blocks.
+ */
+
+==> Source/astcenc_averages_and_directions.cpp <==
+// SPDX-License-Identifier: Apache-2.0
+// ----------------------------------------------------------------------------
+// Copyright 2011-2023 Arm Limited
+//
+// Licensed under the Apache License, Version 2.0 (the "License"); you may not
+// use this file except in compliance with the License. You may obtain a copy
+// of the License at:
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+// WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+// License for the specific language governing permissions and limitations
+// under the License.
+// ----------------------------------------------------------------------------
+
+/**
+ * @brief Functions for finding dominant direction of a set of colors.
+ */
+
+==> Source/astcenc_block_sizes.cpp <==
+// SPDX-License-Identifier: Apache-2.0
+// ----------------------------------------------------------------------------
+// Copyright 2011-2023 Arm Limited
+//
+// Licensed under the Apache License, Version 2.0 (the "License"); you may not
+// use this file except in compliance with the License. You may obtain a copy
+// of the License at:
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+// WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+// License for the specific language governing permissions and limitations
+// under the License.
+// ----------------------------------------------------------------------------
+
+/**
+ * @brief Functions to generate block size descriptor and decimation tables.
+ */
+
+==> Source/astcenc_color_quantize.cpp <==
+// SPDX-License-Identifier: Apache-2.0
+// ----------------------------------------------------------------------------
+// Copyright 2011-2023 Arm Limited
+//
+// Licensed under the Apache License, Version 2.0 (the "License"); you may not
+// use this file except in compliance with the License. You may obtain a copy
+// of the License at:
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+// WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+// License for the specific language governing permissions and limitations
+// under the License.
+// ----------------------------------------------------------------------------
+
+==> Source/astcenc_color_unquantize.cpp <==
+// SPDX-License-Identifier: Apache-2.0
+// ----------------------------------------------------------------------------
+// Copyright 2011-2023 Arm Limited
+//
+// Licensed under the Apache License, Version 2.0 (the "License"); you may not
+// use this file except in compliance with the License. You may obtain a copy
+// of the License at:
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+// WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+// License for the specific language governing permissions and limitations
+// under the License.
+// ----------------------------------------------------------------------------
+
+==> Source/astcenc_compress_symbolic.cpp <==
+// SPDX-License-Identifier: Apache-2.0
+// ----------------------------------------------------------------------------
+// Copyright 2011-2025 Arm Limited
+//
+// Licensed under the Apache License, Version 2.0 (the "License"); you may not
+// use this file except in compliance with the License. You may obtain a copy
+// of the License at:
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+// WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+// License for the specific language governing permissions and limitations
+// under the License.
+// ----------------------------------------------------------------------------
+
+==> Source/astcenc_compute_variance.cpp <==
+// SPDX-License-Identifier: Apache-2.0
+// ----------------------------------------------------------------------------
+// Copyright 2011-2022 Arm Limited
+//
+// Licensed under the Apache License, Version 2.0 (the "License"); you may not
+// use this file except in compliance with the License. You may obtain a copy
+// of the License at:
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+// WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+// License for the specific language governing permissions and limitations
+// under the License.
+// ----------------------------------------------------------------------------
+
+==> Source/astcenc_decompress_symbolic.cpp <==
+// SPDX-License-Identifier: Apache-2.0
+// ----------------------------------------------------------------------------
+// Copyright 2011-2024 Arm Limited
+//
+// Licensed under the Apache License, Version 2.0 (the "License"); you may not
+// use this file except in compliance with the License. You may obtain a copy
+// of the License at:
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+// WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+// License for the specific language governing permissions and limitations
+// under the License.
+// ----------------------------------------------------------------------------
+
+/**
+ * @brief Functions to decompress a symbolic block.
+ */
+
+==> Source/astcenc_diagnostic_trace.cpp <==
+// SPDX-License-Identifier: Apache-2.0
+// ----------------------------------------------------------------------------
+// Copyright 2021-2023 Arm Limited
+//
+// Licensed under the Apache License, Version 2.0 (the "License"); you may not
+// use this file except in compliance with the License. You may obtain a copy
+// of the License at:
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+// WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+// License for the specific language governing permissions and limitations
+// under the License.
+// ----------------------------------------------------------------------------
+
+/**
+ * @brief Functions for the library entrypoint.
+ */
+
+==> Source/astcenc_diagnostic_trace.h <==
+// SPDX-License-Identifier: Apache-2.0
+// ----------------------------------------------------------------------------
+// Copyright 2021-2022 Arm Limited
+//
+// Licensed under the Apache License, Version 2.0 (the "License"); you may not
+// use this file except in compliance with the License. You may obtain a copy
+// of the License at:
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+// WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+// License for the specific language governing permissions and limitations
+// under the License.
+// ----------------------------------------------------------------------------
+
+/**
+ * @brief This module provides a set of diagnostic tracing utilities.
+ *
+ * Overview
+ * ========
+ *
+ * The built-in diagnostic trace tool generates a hierarchical JSON tree structure. The tree
+ * hierarchy contains three levels:
+ *
+ *    - block
+ *        - pass
+ *           - candidate
+ *
+ * One block node exists for each compressed block in the image. One pass node exists for each major
+ * pass (N partition, M planes, O components) applied to a block. One candidate node exists for each
+ * encoding candidate trialed for a pass.
+ *
+ * Each node contains both the hierarchy but also a number of attributes which explain the behavior.
+ * For example, the block node contains the block coordinates in the image, the pass explains the
+ * pass configuration, and the candidate will explain the candidate encoding such as weight
+ * decimation, refinement error, etc.
+ *
+ * Trace Nodes are designed as scope-managed C++ objects with stack-like push/pop behavior.
+ * Constructing a trace node on the stack will automatically add it to the current node as a child,
+ * and then make it the current node. Destroying the current node will pop the stack and set the
+ * parent to the current node. This provides a robust mechanism for ensuring reliable nesting in the
+ * tree structure.
+ *
+ * A set of utility macros are provided to add attribute annotations to the current trace node.
+ *
+ * Usage
+ * =====
+ *
+ * Create Trace Nodes on the stack using the @c TRACE_NODE() macro. This will compile-out completely
+ * in builds with diagnostics disabled.
+ *
+ * Add annotations to the current trace node using the @c trace_add_data() macro. This will
+ * similarly compile out completely in builds with diagnostics disabled.
+ *
+ * If you need to add additional code to support diagnostics-only behavior wrap
+ * it in preprocessor guards:
+ *
+ *     #if defined(ASTCENC_DIAGNOSTICS)
+ *     #endif
+ */
+
+==> Source/astcenc_entry.cpp <==
+// SPDX-License-Identifier: Apache-2.0
+// ----------------------------------------------------------------------------
+// Copyright 2011-2025 Arm Limited
+//
+// Licensed under the Apache License, Version 2.0 (the "License"); you may not
+// use this file except in compliance with the License. You may obtain a copy
+// of the License at:
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+// WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+// License for the specific language governing permissions and limitations
+// under the License.
+// ----------------------------------------------------------------------------
+
+/**
+ * @brief Functions for the library entrypoint.
+ */
+
+==> Source/astcenc_find_best_partitioning.cpp <==
+// SPDX-License-Identifier: Apache-2.0
+// ----------------------------------------------------------------------------
+// Copyright 2011-2024 Arm Limited
+//
+// Licensed under the Apache License, Version 2.0 (the "License"); you may not
+// use this file except in compliance with the License. You may obtain a copy
+// of the License at:
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+// WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+// License for the specific language governing permissions and limitations
+// under the License.
+// ----------------------------------------------------------------------------
+
+==> Source/astcenc_ideal_endpoints_and_weights.cpp <==
+// SPDX-License-Identifier: Apache-2.0
+// ----------------------------------------------------------------------------
+// Copyright 2011-2024 Arm Limited
+//
+// Licensed under the Apache License, Version 2.0 (the "License"); you may not
+// use this file except in compliance with the License. You may obtain a copy
+// of the License at:
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+// WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+// License for the specific language governing permissions and limitations
+// under the License.
+// ----------------------------------------------------------------------------
+
+==> Source/astcenc_image.cpp <==
+// SPDX-License-Identifier: Apache-2.0
+// ----------------------------------------------------------------------------
+// Copyright 2011-2024 Arm Limited
+//
+// Licensed under the Apache License, Version 2.0 (the "License"); you may not
+// use this file except in compliance with the License. You may obtain a copy
+// of the License at:
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+// WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+// License for the specific language governing permissions and limitations
+// under the License.
+// ----------------------------------------------------------------------------
+
+/**
+ * @brief Functions for creating in-memory ASTC image structures.
+ */
+
+==> Source/astcenc_integer_sequence.cpp <==
+// SPDX-License-Identifier: Apache-2.0
+// ----------------------------------------------------------------------------
+// Copyright 2011-2024 Arm Limited
+//
+// Licensed under the Apache License, Version 2.0 (the "License"); you may not
+// use this file except in compliance with the License. You may obtain a copy
+// of the License at:
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+// WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+// License for the specific language governing permissions and limitations
+// under the License.
+// ----------------------------------------------------------------------------
+
+/**
+ * @brief Functions for encoding/decoding Bounded Integer Sequence Encoding.
+ */
+
+==> Source/astcenc_internal.h <==
+// SPDX-License-Identifier: Apache-2.0
+// ----------------------------------------------------------------------------
+// Copyright 2011-2024 Arm Limited
+//
+// Licensed under the Apache License, Version 2.0 (the "License"); you may not
+// use this file except in compliance with the License. You may obtain a copy
+// of the License at:
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+// WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+// License for the specific language governing permissions and limitations
+// under the License.
+// ----------------------------------------------------------------------------
+
+/**
+ * @brief Functions and data declarations.
+ */
+
+==> Source/astcenc_internal_entry.h <==
+// SPDX-License-Identifier: Apache-2.0
+// ----------------------------------------------------------------------------
+// Copyright 2011-2025 Arm Limited
+//
+// Licensed under the Apache License, Version 2.0 (the "License"); you may not
+// use this file except in compliance with the License. You may obtain a copy
+// of the License at:
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+// WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+// License for the specific language governing permissions and limitations
+// under the License.
+// ----------------------------------------------------------------------------
+
+/**
+ * @brief Functions and data declarations for the outer context.
+ *
+ * The outer context includes thread-pool management, which is slower to
+ * compile due to increased use of C++ stdlib. The inner context used in the
+ * majority of the codec library does not include this.
+ */
+
+==> Source/astcenc_mathlib.cpp <==
+// SPDX-License-Identifier: Apache-2.0
+// ----------------------------------------------------------------------------
+// Copyright 2011-2021 Arm Limited
+//
+// Licensed under the Apache License, Version 2.0 (the "License"); you may not
+// use this file except in compliance with the License. You may obtain a copy
+// of the License at:
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+// WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+// License for the specific language governing permissions and limitations
+// under the License.
+// ----------------------------------------------------------------------------
+
+==> Source/astcenc_mathlib.h <==
+// SPDX-License-Identifier: Apache-2.0
+// ----------------------------------------------------------------------------
+// Copyright 2011-2024 Arm Limited
+//
+// Licensed under the Apache License, Version 2.0 (the "License"); you may not
+// use this file except in compliance with the License. You may obtain a copy
+// of the License at:
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+// WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+// License for the specific language governing permissions and limitations
+// under the License.
+// ----------------------------------------------------------------------------
+
+/*
+ * This module implements a variety of mathematical data types and library
+ * functions used by the codec.
+ */
+
+==> Source/astcenc_mathlib_softfloat.cpp <==
+// SPDX-License-Identifier: Apache-2.0
+// ----------------------------------------------------------------------------
+// Copyright 2011-2021 Arm Limited
+//
+// Licensed under the Apache License, Version 2.0 (the "License"); you may not
+// use this file except in compliance with the License. You may obtain a copy
+// of the License at:
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+// WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+// License for the specific language governing permissions and limitations
+// under the License.
+// ----------------------------------------------------------------------------
+
+/**
+ * @brief Soft-float library for IEEE-754.
+ */
+
+==> Source/astcenc_partition_tables.cpp <==
+// SPDX-License-Identifier: Apache-2.0
+// ----------------------------------------------------------------------------
+// Copyright 2011-2023 Arm Limited
+//
+// Licensed under the Apache License, Version 2.0 (the "License"); you may not
+// use this file except in compliance with the License. You may obtain a copy
+// of the License at:
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+// WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+// License for the specific language governing permissions and limitations
+// under the License.
+// ----------------------------------------------------------------------------
+
+/**
+ * @brief Functions for generating partition tables on demand.
+ */
+
+==> Source/astcenc_percentile_tables.cpp <==
+// SPDX-License-Identifier: Apache-2.0
+// ----------------------------------------------------------------------------
+// Copyright 2011-2022 Arm Limited
+//
+// Licensed under the Apache License, Version 2.0 (the "License"); you may not
+// use this file except in compliance with the License. You may obtain a copy
+// of the License at:
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+// WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+// License for the specific language governing permissions and limitations
+// under the License.
+// ----------------------------------------------------------------------------
+
+/**
+ * @brief Percentile data tables for different block encodings.
+ *
+ * To reduce binary size the tables are stored using a packed differential encoding.
+ */
+
+==> Source/astcenc_pick_best_endpoint_format.cpp <==
+// SPDX-License-Identifier: Apache-2.0
+// ----------------------------------------------------------------------------
+// Copyright 2011-2024 Arm Limited
+//
+// Licensed under the Apache License, Version 2.0 (the "License"); you may not
+// use this file except in compliance with the License. You may obtain a copy
+// of the License at:
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+// WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+// License for the specific language governing permissions and limitations
+// under the License.
+// ----------------------------------------------------------------------------
+
+==> Source/astcenc_quantization.cpp <==
+// SPDX-License-Identifier: Apache-2.0
+// ----------------------------------------------------------------------------
+// Copyright 2011-2023 Arm Limited
+//
+// Licensed under the Apache License, Version 2.0 (the "License"); you may not
+// use this file except in compliance with the License. You may obtain a copy
+// of the License at:
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+// WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+// License for the specific language governing permissions and limitations
+// under the License.
+// ----------------------------------------------------------------------------
+
+/**
+ * @brief Functions and data tables for numeric quantization..
+ */
+
+==> Source/astcenc_symbolic_physical.cpp <==
+// SPDX-License-Identifier: Apache-2.0
+// ----------------------------------------------------------------------------
+// Copyright 2011-2023 Arm Limited
+//
+// Licensed under the Apache License, Version 2.0 (the "License"); you may not
+// use this file except in compliance with the License. You may obtain a copy
+// of the License at:
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+// WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+// License for the specific language governing permissions and limitations
+// under the License.
+// ----------------------------------------------------------------------------
+
+/**
+ * @brief Functions for converting between symbolic and physical encodings.
+ */
+
+==> Source/astcenc_vecmathlib.h <==
+// SPDX-License-Identifier: Apache-2.0
+// ----------------------------------------------------------------------------
+// Copyright 2019-2024 Arm Limited
+// Copyright 2008 Jose Fonseca
+//
+// Licensed under the Apache License, Version 2.0 (the "License"); you may not
+// use this file except in compliance with the License. You may obtain a copy
+// of the License at:
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+// WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+// License for the specific language governing permissions and limitations
+// under the License.
+// ----------------------------------------------------------------------------
+
+/*
+ * This module implements vector support for floats, ints, and vector lane
+ * control masks. It provides access to both explicit vector width types, and
+ * flexible N-wide types where N can be determined at compile time.
+ *
+ * The design of this module encourages use of vector length agnostic code, via
+ * the vint, vfloat, and vmask types. These will take on the widest SIMD vector
+ * with that is available at compile time. The current vector width is
+ * accessible for e.g. loop strides via the ASTCENC_SIMD_WIDTH constant.
+ *
+ * Explicit scalar types are accessible via the vint1, vfloat1, vmask1 types.
+ * These are provided primarily for prototyping and algorithm debug of VLA
+ * implementations.
+ *
+ * Explicit 4-wide types are accessible via the vint4, vfloat4, and vmask4
+ * types. These are provided for use by VLA code, but are also expected to be
+ * used as a fixed-width type and will supported a reference C++ fallback for
+ * use on platforms without SIMD intrinsics.
+ *
+ * Explicit 8-wide types are accessible via the vint8, vfloat8, and vmask8
+ * types. These are provide for use by VLA code, and are not expected to be
+ * used as a fixed-width type in normal code. No reference C implementation is
+ * provided on platforms without underlying SIMD intrinsics.
+ *
+ * With the current implementation ISA support is provided for:
+ *
+ *     * 1-wide for scalar reference
+ *     * 4-wide for Armv8-A NEON
+ *     * 4-wide for x86-64 SSE2
+ *     * 4-wide for x86-64 SSE4.1
+ *     * 8-wide for Armv8-A SVE
+ *     * 8-wide for x86-64 AVX2
+ */
+
+==> Source/astcenc_vecmathlib_avx2_8.h <==
+// SPDX-License-Identifier: Apache-2.0
+// ----------------------------------------------------------------------------
+// Copyright 2019-2024 Arm Limited
+//
+// Licensed under the Apache License, Version 2.0 (the "License"); you may not
+// use this file except in compliance with the License. You may obtain a copy
+// of the License at:
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+// WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+// License for the specific language governing permissions and limitations
+// under the License.
+// ----------------------------------------------------------------------------
+
+/**
+ * @brief 8x32-bit vectors, implemented using AVX2.
+ *
+ * This module implements 8-wide 32-bit float, int, and mask vectors for x86
+ * AVX2.
+ *
+ * There is a baseline level of functionality provided by all vector widths and
+ * implementations. This is implemented using identical function signatures,
+ * modulo data type, so we can use them as substitutable implementations in VLA
+ * code.
+ */
+
+==> Source/astcenc_vecmathlib_common_4.h <==
+// SPDX-License-Identifier: Apache-2.0
+// ----------------------------------------------------------------------------
+// Copyright 2020-2024 Arm Limited
+//
+// Licensed under the Apache License, Version 2.0 (the "License"); you may not
+// use this file except in compliance with the License. You may obtain a copy
+// of the License at:
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+// WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+// License for the specific language governing permissions and limitations
+// under the License.
+// ----------------------------------------------------------------------------
+
+/**
+ * @brief Generic 4x32-bit vector functions.
+ *
+ * This module implements generic 4-wide vector functions that are valid for
+ * all instruction sets, typically implemented using lower level 4-wide
+ * operations that are ISA-specific.
+ */
+
+==> Source/astcenc_vecmathlib_neon_4.h <==
+// SPDX-License-Identifier: Apache-2.0
+// ----------------------------------------------------------------------------
+// Copyright 2019-2024 Arm Limited
+//
+// Licensed under the Apache License, Version 2.0 (the "License"); you may not
+// use this file except in compliance with the License. You may obtain a copy
+// of the License at:
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+// WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+// License for the specific language governing permissions and limitations
+// under the License.
+// ----------------------------------------------------------------------------
+
+/**
+ * @brief 4x32-bit vectors, implemented using Armv8-A NEON.
+ *
+ * This module implements 4-wide 32-bit float, int, and mask vectors for
+ * Armv8-A NEON.
+ *
+ * There is a baseline level of functionality provided by all vector widths and
+ * implementations. This is implemented using identical function signatures,
+ * modulo data type, so we can use them as substitutable implementations in VLA
+ * code.
+ *
+ * The 4-wide vectors are also used as a fixed-width type, and significantly
+ * extend the functionality above that available to VLA code.
+ */
+
+==> Source/astcenc_vecmathlib_none_4.h <==
+// SPDX-License-Identifier: Apache-2.0
+// ----------------------------------------------------------------------------
+// Copyright 2019-2024 Arm Limited
+//
+// Licensed under the Apache License, Version 2.0 (the "License"); you may not
+// use this file except in compliance with the License. You may obtain a copy
+// of the License at:
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+// WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+// License for the specific language governing permissions and limitations
+// under the License.
+// ----------------------------------------------------------------------------
+
+/**
+ * @brief 4x32-bit vectors, implemented using plain C++.
+ *
+ * This module implements 4-wide 32-bit float, int, and mask vectors. This
+ * module provides a scalar fallback for VLA code, primarily useful for
+ * debugging VLA algorithms without the complexity of handling SIMD. Only the
+ * baseline level of functionality needed to support VLA is provided.
+ *
+ * Note that the vector conditional operators implemented by this module are
+ * designed to behave like SIMD conditional operators that generate lane masks.
+ * Rather than returning 0/1 booleans like normal C++ code they will return
+ * 0/-1 to give a full lane-width bitmask.
+ *
+ * Note that the documentation for this module still talks about "vectors" to
+ * help developers think about the implied VLA behavior when writing optimized
+ * paths.
+ */
+
+==> Source/astcenc_vecmathlib_sse_4.h <==
+// SPDX-License-Identifier: Apache-2.0
+// ----------------------------------------------------------------------------
+// Copyright 2019-2024 Arm Limited
+//
+// Licensed under the Apache License, Version 2.0 (the "License"); you may not
+// use this file except in compliance with the License. You may obtain a copy
+// of the License at:
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+// WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+// License for the specific language governing permissions and limitations
+// under the License.
+// ----------------------------------------------------------------------------
+
+/**
+ * @brief 4x32-bit vectors, implemented using SSE.
+ *
+ * This module implements 4-wide 32-bit float, int, and mask vectors for x86
+ * SSE. The implementation requires at least SSE2, but higher levels of SSE can
+ * be selected at compile time to improve performance.
+ *
+ * There is a baseline level of functionality provided by all vector widths and
+ * implementations. This is implemented using identical function signatures,
+ * modulo data type, so we can use them as substitutable implementations in VLA
+ * code.
+ *
+ * The 4-wide vectors are also used as a fixed-width type, and significantly
+ * extend the functionality above that available to VLA code.
+ */
+
+==> Source/astcenc_vecmathlib_sve_8.h <==
+// SPDX-License-Identifier: Apache-2.0
+// ----------------------------------------------------------------------------
+// Copyright 2019-2024 Arm Limited
+//
+// Licensed under the Apache License, Version 2.0 (the "License"); you may not
+// use this file except in compliance with the License. You may obtain a copy
+// of the License at:
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+// WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+// License for the specific language governing permissions and limitations
+// under the License.
+// ----------------------------------------------------------------------------
+
+/**
+ * @brief 8x32-bit vectors, implemented using SVE.
+ *
+ * This module implements 8-wide 32-bit float, int, and mask vectors for Arm
+ * SVE.
+ *
+ * There is a baseline level of functionality provided by all vector widths and
+ * implementations. This is implemented using identical function signatures,
+ * modulo data type, so we can use them as substitutable implementations in VLA
+ * code.
+ */
+
+==> Source/astcenc_weight_align.cpp <==
+// SPDX-License-Identifier: Apache-2.0
+// ----------------------------------------------------------------------------
+// Copyright 2011-2024 Arm Limited
+//
+// Licensed under the Apache License, Version 2.0 (the "License"); you may not
+// use this file except in compliance with the License. You may obtain a copy
+// of the License at:
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+// WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+// License for the specific language governing permissions and limitations
+// under the License.
+// ----------------------------------------------------------------------------
+
+==> Source/astcenc_weight_quant_xfer_tables.cpp <==
+// SPDX-License-Identifier: Apache-2.0
+// ----------------------------------------------------------------------------
+// Copyright 2011-2021 Arm Limited
+//
+// Licensed under the Apache License, Version 2.0 (the "License"); you may not
+// use this file except in compliance with the License. You may obtain a copy
+// of the License at:
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+// WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+// License for the specific language governing permissions and limitations
+// under the License.
+// ----------------------------------------------------------------------------
+
+/**
+ * @brief Data tables for quantization transfer.
+ */
+
+==> Source/astcenccli_entry.cpp <==
+// SPDX-License-Identifier: Apache-2.0
+// ----------------------------------------------------------------------------
+// Copyright 2020-2024 Arm Limited
+//
+// Licensed under the Apache License, Version 2.0 (the "License"); you may not
+// use this file except in compliance with the License. You may obtain a copy
+// of the License at:
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+// WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+// License for the specific language governing permissions and limitations
+// under the License.
+// ----------------------------------------------------------------------------
+
+/**
+ * @brief Application entry point.
+ *
+ * This module contains the first command line entry point veneer, used to
+ * validate that the host extended ISA availability matches the tool build.
+ * It is compiled without any extended ISA support so it's guaranteed to be
+ * executable without any invalid instruction errors.
+ */
+
+==> Source/astcenccli_entry2.cpp <==
+// SPDX-License-Identifier: Apache-2.0
+// ----------------------------------------------------------------------------
+// Copyright 2024 Arm Limited
+//
+// Licensed under the Apache License, Version 2.0 (the "License"); you may not
+// use this file except in compliance with the License. You may obtain a copy
+// of the License at:
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+// WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+// License for the specific language governing permissions and limitations
+// under the License.
+// ----------------------------------------------------------------------------
+
+/**
+ * @brief Application entry point second veneer.
+ *
+ * This module contains the second command line entry point veneer, used to
+ * validate that Arm SVE vector width matches the tool build. When used, it is
+ * compiled with SVE ISA support but without any vector legnth override, so it
+ * will see the native SVE vector length exposed to the application.
+ */
+
+==> Source/astcenccli_error_metrics.cpp <==
+// SPDX-License-Identifier: Apache-2.0
+// ----------------------------------------------------------------------------
+// Copyright 2011-2022 Arm Limited
+//
+// Licensed under the Apache License, Version 2.0 (the "License"); you may not
+// use this file except in compliance with the License. You may obtain a copy
+// of the License at:
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+// WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+// License for the specific language governing permissions and limitations
+// under the License.
+// ----------------------------------------------------------------------------
+
+/**
+ * @brief Functions for computing image error metrics.
+ */
+
+==> Source/astcenccli_image.cpp <==
+// SPDX-License-Identifier: Apache-2.0
+// ----------------------------------------------------------------------------
+// Copyright 2011-2022 Arm Limited
+//
+// Licensed under the Apache License, Version 2.0 (the "License"); you may not
+// use this file except in compliance with the License. You may obtain a copy
+// of the License at:
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+// WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+// License for the specific language governing permissions and limitations
+// under the License.
+// ----------------------------------------------------------------------------
+
+/**
+ * @brief Functions for creating in-memory ASTC image structures.
+ */
+
+==> Source/astcenccli_image_external.cpp <==
+// SPDX-License-Identifier: Apache-2.0
+// ----------------------------------------------------------------------------
+// Copyright 2011-2023 Arm Limited
+//
+// Licensed under the Apache License, Version 2.0 (the "License"); you may not
+// use this file except in compliance with the License. You may obtain a copy
+// of the License at:
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+// WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+// License for the specific language governing permissions and limitations
+// under the License.
+// ----------------------------------------------------------------------------
+
+/**
+ * @brief Functions for building the implementation of stb_image and tinyexr.
+ */
+
+==> Source/astcenccli_image_load_store.cpp <==
+// SPDX-License-Identifier: Apache-2.0
+// ----------------------------------------------------------------------------
+// Copyright 2011-2023 Arm Limited
+//
+// Licensed under the Apache License, Version 2.0 (the "License"); you may not
+// use this file except in compliance with the License. You may obtain a copy
+// of the License at:
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+// WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+// License for the specific language governing permissions and limitations
+// under the License.
+// ----------------------------------------------------------------------------
+
+/**
+ * @brief Functions for loading/storing uncompressed and compressed images.
+ */
+
+==> Source/astcenccli_internal.h <==
+// SPDX-License-Identifier: Apache-2.0
+// ----------------------------------------------------------------------------
+// Copyright 2011-2023 Arm Limited
+//
+// Licensed under the Apache License, Version 2.0 (the "License"); you may not
+// use this file except in compliance with the License. You may obtain a copy
+// of the License at:
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+// WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+// License for the specific language governing permissions and limitations
+// under the License.
+// ----------------------------------------------------------------------------
+
+/**
+ * @brief Functions and data declarations.
+ */
+
+==> Source/astcenccli_platform_dependents.cpp <==
+// SPDX-License-Identifier: Apache-2.0
+// ----------------------------------------------------------------------------
+// Copyright 2011-2024 Arm Limited
+//
+// Licensed under the Apache License, Version 2.0 (the "License"); you may not
+// use this file except in compliance with the License. You may obtain a copy
+// of the License at:
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+// WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+// License for the specific language governing permissions and limitations
+// under the License.
+// ----------------------------------------------------------------------------
+
+/**
+ * @brief Platform-specific function implementations.
+ *
+ * This module contains functions with strongly OS-dependent implementations:
+ *
+ *  * CPU count queries
+ *  * Threading
+ *  * Time
+ *
+ * In addition to the basic thread abstraction (which is native pthreads on
+ * all platforms, except Windows where it is an emulation of pthreads), a
+ * utility function to create N threads and wait for them to complete a batch
+ * task has also been provided.
+ */
+
+==> Source/astcenccli_toplevel.cpp <==
+// SPDX-License-Identifier: Apache-2.0
+// ----------------------------------------------------------------------------
+// Copyright 2011-2024 Arm Limited
+//
+// Licensed under the Apache License, Version 2.0 (the "License"); you may not
+// use this file except in compliance with the License. You may obtain a copy
+// of the License at:
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+// WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+// License for the specific language governing permissions and limitations
+// under the License.
+// ----------------------------------------------------------------------------
+
+/**
+ * @brief Functions for codec library front-end.
+ */
+
+==> Source/astcenccli_toplevel_help.cpp <==
+// SPDX-License-Identifier: Apache-2.0
+// ----------------------------------------------------------------------------
+// Copyright 2011-2024 Arm Limited
+//
+// Licensed under the Apache License, Version 2.0 (the "License"); you may not
+// use this file except in compliance with the License. You may obtain a copy
+// of the License at:
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+// WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+// License for the specific language governing permissions and limitations
+// under the License.
+// ----------------------------------------------------------------------------
+
+/**
+ * @brief Functions for printing build info and help messages.
+ */

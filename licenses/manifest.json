@@ -276,6 +276,149 @@
       "sha256": "f1b6c6c047714a023c89412b736408e3e28d7b5beffc29d577fc69bf460b6e85",
       "pin_file": "supplemental",
       "component": "angle"
+    },
+    "angle-astc-encoder": {
+      "url": "https://codeload.github.com/ARM-software/astc-encoder/tar.gz/2319d9c4d4af53a7fc7c52985e264ce6e8a02a9b",
+      "commit": "2319d9c4d4af53a7fc7c52985e264ce6e8a02a9b",
+      "archive": "angle-astc-encoder-2319d9c4d4af53a7fc7c52985e264ce6e8a02a9b.tar.gz",
+      "sha256": "8b5068ef28a8db1cb354d89d9cefd19d43eddfc72c3468fce7ebb92b2431d4c4",
+      "pin_file": "supplemental",
+      "component": "angle",
+      "scope": "permissive ANGLE notice reference; external revisions are DEPS references, not recovered bottle build revisions",
+      "format": "commit-pinned upstream download with SHA-256",
+      "retention": "best-effort"
+    },
+    "angle-glslang": {
+      "url": "https://codeload.github.com/KhronosGroup/glslang/tar.gz/5ed4003a18a10a9d1bd7e43aaf1664499abffa83",
+      "commit": "5ed4003a18a10a9d1bd7e43aaf1664499abffa83",
+      "archive": "angle-glslang-5ed4003a18a10a9d1bd7e43aaf1664499abffa83.tar.gz",
+      "sha256": "66ada8e61f1bd59faaddeff2f047d139fb6cb60ac17d7fcecaebe27a169ecb2f",
+      "pin_file": "supplemental",
+      "component": "angle",
+      "scope": "permissive ANGLE notice reference; external revisions are DEPS references, not recovered bottle build revisions",
+      "format": "commit-pinned upstream download with SHA-256",
+      "retention": "best-effort"
+    },
+    "angle-spirv-headers": {
+      "url": "https://codeload.github.com/KhronosGroup/SPIRV-Headers/tar.gz/ad9184e76a66b1001c29db9b0a3e87f646c64de0",
+      "commit": "ad9184e76a66b1001c29db9b0a3e87f646c64de0",
+      "archive": "angle-spirv-headers-ad9184e76a66b1001c29db9b0a3e87f646c64de0.tar.gz",
+      "sha256": "b5b7eba62453eb8c6f6a5fbf7155b71cde693bafe9cd5f03b79ed8c714816afe",
+      "pin_file": "supplemental",
+      "component": "angle",
+      "scope": "permissive ANGLE notice reference; external revisions are DEPS references, not recovered bottle build revisions",
+      "format": "commit-pinned upstream download with SHA-256",
+      "retention": "best-effort"
+    },
+    "angle-spirv-tools": {
+      "url": "https://codeload.github.com/KhronosGroup/SPIRV-Tools/tar.gz/aee3d20c3f083465f566fd6075a81822c3c4ae90",
+      "commit": "aee3d20c3f083465f566fd6075a81822c3c4ae90",
+      "archive": "angle-spirv-tools-aee3d20c3f083465f566fd6075a81822c3c4ae90.tar.gz",
+      "sha256": "ace693f6f148fdf278ba7b51ad5b5240da0853621a387f0d045bbf70951cd694",
+      "pin_file": "supplemental",
+      "component": "angle",
+      "scope": "permissive ANGLE notice reference; external revisions are DEPS references, not recovered bottle build revisions",
+      "format": "commit-pinned upstream download with SHA-256",
+      "retention": "best-effort"
+    },
+    "angle-vulkan-headers": {
+      "url": "https://codeload.github.com/KhronosGroup/Vulkan-Headers/tar.gz/f6a6f7ab165cedbfa2a7d0c93fe27a2d01ce09c8",
+      "commit": "f6a6f7ab165cedbfa2a7d0c93fe27a2d01ce09c8",
+      "archive": "angle-vulkan-headers-f6a6f7ab165cedbfa2a7d0c93fe27a2d01ce09c8.tar.gz",
+      "sha256": "b304659a4c06295df539719181ec11efd93b0197d8e8c146fa87eb4187f6c0a3",
+      "pin_file": "supplemental",
+      "component": "angle",
+      "scope": "permissive ANGLE notice reference; external revisions are DEPS references, not recovered bottle build revisions",
+      "format": "commit-pinned upstream download with SHA-256",
+      "retention": "best-effort"
+    },
+    "angle-vulkan-loader": {
+      "url": "https://codeload.github.com/KhronosGroup/Vulkan-Loader/tar.gz/15a84652b94e465e9a7b25eb507193929863bc2f",
+      "commit": "15a84652b94e465e9a7b25eb507193929863bc2f",
+      "archive": "angle-vulkan-loader-15a84652b94e465e9a7b25eb507193929863bc2f.tar.gz",
+      "sha256": "72273b09f69da612ec97e53694b6e99e8587eef5974d022eb4127fec62eff770",
+      "pin_file": "supplemental",
+      "component": "angle",
+      "scope": "permissive ANGLE notice reference; external revisions are DEPS references, not recovered bottle build revisions",
+      "format": "commit-pinned upstream download with SHA-256",
+      "retention": "best-effort"
+    },
+    "angle-vulkan-tools": {
+      "url": "https://codeload.github.com/KhronosGroup/Vulkan-Tools/tar.gz/7c46da2b39036a80ce088576d5794bf39e667f56",
+      "commit": "7c46da2b39036a80ce088576d5794bf39e667f56",
+      "archive": "angle-vulkan-tools-7c46da2b39036a80ce088576d5794bf39e667f56.tar.gz",
+      "sha256": "47948aa4c2e1983315a27822346a085a2fb07ea3104368d23cd20007533fca51",
+      "pin_file": "supplemental",
+      "component": "angle",
+      "scope": "permissive ANGLE notice reference; external revisions are DEPS references, not recovered bottle build revisions",
+      "format": "commit-pinned upstream download with SHA-256",
+      "retention": "best-effort"
+    },
+    "angle-vulkan-utility": {
+      "url": "https://codeload.github.com/KhronosGroup/Vulkan-Utility-Libraries/tar.gz/e2f236b273bfcd9c665306fdd53451b923d659ab",
+      "commit": "e2f236b273bfcd9c665306fdd53451b923d659ab",
+      "archive": "angle-vulkan-utility-e2f236b273bfcd9c665306fdd53451b923d659ab.tar.gz",
+      "sha256": "199bb2a4ae6fe554a4c96f63a6ba3d4344885294419f896ee88e763c1c2c2472",
+      "pin_file": "supplemental",
+      "component": "angle",
+      "scope": "permissive ANGLE notice reference; external revisions are DEPS references, not recovered bottle build revisions",
+      "format": "commit-pinned upstream download with SHA-256",
+      "retention": "best-effort"
+    },
+    "angle-vma": {
+      "url": "https://chromium.googlesource.com/external/github.com/GPUOpen-LibrariesAndSDKs/VulkanMemoryAllocator/+archive/cb0597213b0fcb999caa9ed08c2f88dc45eb7d50.tar.gz",
+      "commit": "cb0597213b0fcb999caa9ed08c2f88dc45eb7d50",
+      "archive": "angle-vma-cb0597213b0fcb999caa9ed08c2f88dc45eb7d50.tar.gz",
+      "sha256": "d04c9d5c4d734aeea4c561152ff68d1ffd3cee90a7f39563188f10b01e81a6a5",
+      "pin_file": "supplemental",
+      "component": "angle",
+      "scope": "permissive ANGLE notice reference; external revisions are DEPS references, not recovered bottle build revisions",
+      "format": "commit-pinned upstream download with SHA-256",
+      "retention": "best-effort"
+    },
+    "angle-spirv-cross": {
+      "url": "https://codeload.github.com/KhronosGroup/SPIRV-Cross/tar.gz/b8fcf307f1f347089e3c46eb4451d27f32ebc8d3",
+      "commit": "b8fcf307f1f347089e3c46eb4451d27f32ebc8d3",
+      "archive": "angle-spirv-cross-b8fcf307f1f347089e3c46eb4451d27f32ebc8d3.tar.gz",
+      "sha256": "4793754d72c89920321e4cf4576a8edab211d46e69309a827a95ebda4deb8881",
+      "pin_file": "supplemental",
+      "component": "angle",
+      "scope": "permissive ANGLE notice reference; external revisions are DEPS references, not recovered bottle build revisions",
+      "format": "commit-pinned upstream download with SHA-256",
+      "retention": "best-effort"
+    },
+    "angle-source": {
+      "url": "https://codeload.github.com/google/angle/tar.gz/bb9e1870521db37d5030103d74a9d3c9163ef7cc",
+      "commit": "bb9e1870521db37d5030103d74a9d3c9163ef7cc",
+      "archive": "angle-source-bb9e1870521db37d5030103d74a9d3c9163ef7cc.tar.gz",
+      "sha256": "34fae264a84526f7a42fd64044c697b47bb87c19b0be4eb2261d6ede968edbdd",
+      "pin_file": "supplemental",
+      "component": "angle",
+      "format": "commit-pinned upstream download with SHA-256",
+      "retention": "best-effort",
+      "scope": "permissive ANGLE notice reference; external revisions are DEPS references, not recovered bottle build revisions"
+    },
+    "angle-zlib": {
+      "url": "https://chromium.googlesource.com/chromium/src/third_party/zlib/+archive/89921383f1f51331f48a2dc843403779770ea3a9.tar.gz",
+      "commit": "89921383f1f51331f48a2dc843403779770ea3a9",
+      "archive": "angle-zlib-89921383f1f51331f48a2dc843403779770ea3a9.tar.gz",
+      "sha256": "6d1f13a74de4c9b9b5d6f5bb9940b8ebc82b1f6edd9c0b094264c23adeb76fa1",
+      "pin_file": "supplemental",
+      "component": "angle",
+      "format": "commit-pinned upstream download with SHA-256",
+      "retention": "best-effort",
+      "scope": "permissive ANGLE notice reference; external revisions are DEPS references, not recovered bottle build revisions"
+    },
+    "angle-chromium-license": {
+      "url": "https://raw.githubusercontent.com/chromium/chromium/28b5bbb227d331c01e6ff9b2f8729732135aadc7/LICENSE",
+      "commit": "28b5bbb227d331c01e6ff9b2f8729732135aadc7",
+      "archive": "angle-Chromium-LICENSE.txt",
+      "sha256": "845022e0c1db1abb41a6ba4cd3c4b674ec290f3359d9d3c78ae558d4c0ed9308",
+      "pin_file": "supplemental",
+      "component": "angle",
+      "format": "commit-pinned upstream download with SHA-256",
+      "retention": "best-effort",
+      "scope": "permissive ANGLE notice reference; external revisions are DEPS references, not recovered bottle build revisions"
     }
   },
   "license_texts": {
@@ -498,13 +641,265 @@
       "member": "./LICENSE",
       "mode": "file",
       "sha256": "389a4e4e9a32f059775b13a06e25a591445ba229d2838d26dd3e7c0c45127cfe"
+    },
+    "ANGLE-BSD.txt": {
+      "input": "angle-source",
+      "member": "angle-bb9e1870521db37d5030103d74a9d3c9163ef7cc/LICENSE",
+      "mode": "verbatim",
+      "sha256": "bf4da21bd20bcfb5b60b7ecc67fa864a79be049e21d6178076887f178dd6c71a"
+    },
+    "ANGLE-xxHash.txt": {
+      "input": "angle-source",
+      "member": "angle-bb9e1870521db37d5030103d74a9d3c9163ef7cc/src/common/third_party/xxhash/LICENSE",
+      "mode": "verbatim",
+      "sha256": "6ffedbc0f7878612d2b23589f1ff2ab15633e1df7963a5d9fc750ec5500c7e7a"
+    },
+    "ANGLE-volk.txt": {
+      "input": "angle-source",
+      "member": "angle-bb9e1870521db37d5030103d74a9d3c9163ef7cc/src/third_party/volk/LICENSE.md",
+      "mode": "verbatim",
+      "sha256": "336f505f8d5aa73ea40b4d798dde86953e9c1f6525757f1d7f18120fea09bb1d"
+    },
+    "ANGLE-ceval.txt": {
+      "input": "angle-source",
+      "member": "angle-bb9e1870521db37d5030103d74a9d3c9163ef7cc/src/third_party/ceval/LICENSE",
+      "mode": "verbatim",
+      "sha256": "0dd71b8a6d6db0db4dc38a983749e1b2f4bb57aba30141a168042042c4a7b6f8"
+    },
+    "ANGLE-libXNVCtrl.txt": {
+      "input": "angle-source",
+      "member": "angle-bb9e1870521db37d5030103d74a9d3c9163ef7cc/src/third_party/libXNVCtrl/LICENSE",
+      "mode": "verbatim",
+      "sha256": "31346421254a3e6e12687cf17f19f6357ee73a617fa7b3d3ccefdcbabe49bdd3"
+    },
+    "ANGLE-ETC-decoder.txt": {
+      "input": "angle-source",
+      "member": "angle-bb9e1870521db37d5030103d74a9d3c9163ef7cc/src/libANGLE/renderer/vulkan/shaders/src/third_party/etc_decoder/LICENSE",
+      "mode": "verbatim",
+      "sha256": "118be5792e5126839694ca2209c62c71d2d7cd49e7bbb43bbdee9b016fb06094"
+    },
+    "ANGLE-FidelityFX-SPD.txt": {
+      "input": "angle-source",
+      "member": "angle-bb9e1870521db37d5030103d74a9d3c9163ef7cc/src/libANGLE/renderer/vulkan/shaders/src/third_party/ffx_spd/LICENSE",
+      "mode": "verbatim",
+      "sha256": "09a7c3fbc0b4ae6a9ccc4ffdcbfa511c14b8647a24f24783838862cf6c226d4e"
+    },
+    "ANGLE-overlay-font.txt": {
+      "input": "angle-source",
+      "member": "angle-bb9e1870521db37d5030103d74a9d3c9163ef7cc/src/libANGLE/overlay/LICENSE.txt",
+      "mode": "verbatim",
+      "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30"
+    },
+    "ANGLE-ASTC-encoder.txt": {
+      "input": "angle-astc-encoder",
+      "member": "astc-encoder-2319d9c4d4af53a7fc7c52985e264ce6e8a02a9b/LICENSE.txt",
+      "mode": "verbatim",
+      "sha256": "494accc32e50eb523a0e384d0ae6d4b702db867a89d6971216760e92b240ee12"
+    },
+    "ANGLE-glslang.txt": {
+      "input": "angle-glslang",
+      "member": "glslang-5ed4003a18a10a9d1bd7e43aaf1664499abffa83/LICENSE.txt",
+      "mode": "verbatim",
+      "sha256": "17e70c676e1521ff3e4686f04a2053d93a7e28a33be8de7ec37ab0ff72feb677"
+    },
+    "ANGLE-SPIRV-Headers.txt": {
+      "input": "angle-spirv-headers",
+      "member": "SPIRV-Headers-ad9184e76a66b1001c29db9b0a3e87f646c64de0/LICENSE",
+      "mode": "verbatim",
+      "sha256": "ea43b1de38a6f90c488800d66dec1ed671e68cda530266bc96951fb5b6307613"
+    },
+    "ANGLE-SPIRV-Tools.txt": {
+      "input": "angle-spirv-tools",
+      "member": "SPIRV-Tools-aee3d20c3f083465f566fd6075a81822c3c4ae90/LICENSE",
+      "mode": "verbatim",
+      "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30"
+    },
+    "ANGLE-SPIRV-Cross.txt": {
+      "input": "angle-spirv-cross",
+      "member": "SPIRV-Cross-b8fcf307f1f347089e3c46eb4451d27f32ebc8d3/LICENSE",
+      "mode": "verbatim",
+      "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30"
+    },
+    "ANGLE-Vulkan-Headers.txt": {
+      "input": "angle-vulkan-headers",
+      "member": "Vulkan-Headers-f6a6f7ab165cedbfa2a7d0c93fe27a2d01ce09c8/LICENSE.md",
+      "mode": "verbatim",
+      "sha256": "ac24e5ea920e4318e4d02c4086ae51f53cfb03feed06c18df1019e7ada1ec7bc"
+    },
+    "ANGLE-Vulkan-Headers-1.txt": {
+      "input": "angle-vulkan-headers",
+      "member": "Vulkan-Headers-f6a6f7ab165cedbfa2a7d0c93fe27a2d01ce09c8/LICENSES/Apache-2.0.txt",
+      "mode": "verbatim",
+      "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30"
+    },
+    "ANGLE-Vulkan-Headers-2.txt": {
+      "input": "angle-vulkan-headers",
+      "member": "Vulkan-Headers-f6a6f7ab165cedbfa2a7d0c93fe27a2d01ce09c8/LICENSES/MIT.txt",
+      "mode": "verbatim",
+      "sha256": "1ca3502222d967f3be5751c55f6b7ee735b5383909c3b501495f54b216dbf227"
+    },
+    "ANGLE-Vulkan-Loader.txt": {
+      "input": "angle-vulkan-loader",
+      "member": "Vulkan-Loader-15a84652b94e465e9a7b25eb507193929863bc2f/LICENSE.txt",
+      "mode": "verbatim",
+      "sha256": "43c0a37e6a0fa7ff3c843b3ec5a4fac84b712558ddac103fbd4c1649662a9ece"
+    },
+    "ANGLE-Vulkan-Tools.txt": {
+      "input": "angle-vulkan-tools",
+      "member": "Vulkan-Tools-7c46da2b39036a80ce088576d5794bf39e667f56/LICENSE.txt",
+      "mode": "verbatim",
+      "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30"
+    },
+    "ANGLE-Vulkan-Utility-Libraries.txt": {
+      "input": "angle-vulkan-utility",
+      "member": "Vulkan-Utility-Libraries-e2f236b273bfcd9c665306fdd53451b923d659ab/LICENSE.md",
+      "mode": "verbatim",
+      "sha256": "69760673abf91cfd0280ae73739a29c078f493804d9016a122b3b189b48ad6e6"
+    },
+    "ANGLE-VulkanMemoryAllocator.txt": {
+      "input": "angle-vma",
+      "member": "LICENSE.txt",
+      "mode": "verbatim",
+      "sha256": "cdb520614db3ec62e667ece01e64e6afa21948fa51e85e748b1494597a7be907"
+    },
+    "ANGLE-zlib.txt": {
+      "input": "angle-zlib",
+      "member": "LICENSE",
+      "mode": "verbatim",
+      "sha256": "e32ff4e00d9d94930537635291da39e7e612703334bf6fde8c7f1686fe8a45a2"
+    },
+    "ANGLE-Chromium-BSD.txt": {
+      "input": "angle-chromium-license",
+      "mode": "raw",
+      "sha256": "845022e0c1db1abb41a6ba4cd3c4b674ec290f3359d9d3c78ae558d4c0ed9308"
+    },
+    "ANGLE-source-src-source-notices.txt": {
+      "input": "angle-source",
+      "mode": "source-notices",
+      "subdir": "src/",
+      "strip_components": 1,
+      "sha256": "d8c8a1e51816acb40f311dbee4d8b7b714b57138fbf6cf1479ff361e129d39e2"
+    },
+    "ANGLE-source-include-source-notices.txt": {
+      "input": "angle-source",
+      "mode": "source-notices",
+      "subdir": "include/",
+      "strip_components": 1,
+      "sha256": "2304286e93246ede619ead035e3973caccc984b7e4f79dee018d1bb78a778de5"
+    },
+    "ANGLE-astc-encoder-Source-source-notices.txt": {
+      "input": "angle-astc-encoder",
+      "mode": "source-notices",
+      "subdir": "Source/",
+      "strip_components": 1,
+      "sha256": "462d223f765e9a85f167ec5be1a81d89cf5478dd342041be7d52777caa9f5e8b"
+    },
+    "ANGLE-glslang-glslang-source-notices.txt": {
+      "input": "angle-glslang",
+      "mode": "source-notices",
+      "subdir": "glslang/",
+      "strip_components": 1,
+      "sha256": "42f441cc769af43a7acd551277cb23d7c3b7bd811266942df387aad306f16d61"
+    },
+    "ANGLE-spirv-headers-include-source-notices.txt": {
+      "input": "angle-spirv-headers",
+      "mode": "source-notices",
+      "subdir": "include/",
+      "strip_components": 1,
+      "sha256": "7609821bf7c9c595b46deec2e7af45842eb051864edf4daaac782433621dd2f4"
+    },
+    "ANGLE-spirv-tools-source-source-notices.txt": {
+      "input": "angle-spirv-tools",
+      "mode": "source-notices",
+      "subdir": "source/",
+      "strip_components": 1,
+      "sha256": "e5d7c4d1669a4f01571d1aff5b4d178e5c60b96f46607eebace89d6d6c29513a"
+    },
+    "ANGLE-vulkan-loader-loader-source-notices.txt": {
+      "input": "angle-vulkan-loader",
+      "mode": "source-notices",
+      "subdir": "loader/",
+      "strip_components": 1,
+      "sha256": "2574cd5859925e501a1100f4068a85b14db763ab8b304d47543beee572764765"
+    },
+    "ANGLE-zlib-all-source-notices.txt": {
+      "input": "angle-zlib",
+      "mode": "source-notices",
+      "subdir": "",
+      "strip_components": 0,
+      "sha256": "33963461d047d881c955856162a7624e3183b16d42f2b438820319d35bd8439e"
+    },
+    "ANGLE-Bison-GPL-3.0.txt": {
+      "input": "angle-source",
+      "member": "angle-bb9e1870521db37d5030103d74a9d3c9163ef7cc/tools/flex-bison/third_party/skeletons/LICENSE",
+      "mode": "verbatim",
+      "sha256": "8ceb4b9ee5adedde47b31e975c1d90c73ad27b6b165a1dcd80c7c545eb65b903"
+    },
+    "ANGLE-Khronos-header-notices.txt": {
+      "input": "angle-source",
+      "mode": "header-notices",
+      "members": [
+        "angle-bb9e1870521db37d5030103d74a9d3c9163ef7cc/include/CL/cl.h",
+        "angle-bb9e1870521db37d5030103d74a9d3c9163ef7cc/include/CL/cl_d3d10.h",
+        "angle-bb9e1870521db37d5030103d74a9d3c9163ef7cc/include/CL/cl_d3d11.h",
+        "angle-bb9e1870521db37d5030103d74a9d3c9163ef7cc/include/CL/cl_dx9_media_sharing.h",
+        "angle-bb9e1870521db37d5030103d74a9d3c9163ef7cc/include/CL/cl_dx9_media_sharing_intel.h",
+        "angle-bb9e1870521db37d5030103d74a9d3c9163ef7cc/include/CL/cl_egl.h",
+        "angle-bb9e1870521db37d5030103d74a9d3c9163ef7cc/include/CL/cl_ext.h",
+        "angle-bb9e1870521db37d5030103d74a9d3c9163ef7cc/include/CL/cl_ext_intel.h",
+        "angle-bb9e1870521db37d5030103d74a9d3c9163ef7cc/include/CL/cl_function_types.h",
+        "angle-bb9e1870521db37d5030103d74a9d3c9163ef7cc/include/CL/cl_gl.h",
+        "angle-bb9e1870521db37d5030103d74a9d3c9163ef7cc/include/CL/cl_gl_ext.h",
+        "angle-bb9e1870521db37d5030103d74a9d3c9163ef7cc/include/CL/cl_half.h",
+        "angle-bb9e1870521db37d5030103d74a9d3c9163ef7cc/include/CL/cl_icd.h",
+        "angle-bb9e1870521db37d5030103d74a9d3c9163ef7cc/include/CL/cl_layer.h",
+        "angle-bb9e1870521db37d5030103d74a9d3c9163ef7cc/include/CL/cl_platform.h",
+        "angle-bb9e1870521db37d5030103d74a9d3c9163ef7cc/include/CL/cl_va_api_media_sharing_intel.h",
+        "angle-bb9e1870521db37d5030103d74a9d3c9163ef7cc/include/CL/cl_version.h",
+        "angle-bb9e1870521db37d5030103d74a9d3c9163ef7cc/include/CL/opencl.h",
+        "angle-bb9e1870521db37d5030103d74a9d3c9163ef7cc/include/EGL/egl.h",
+        "angle-bb9e1870521db37d5030103d74a9d3c9163ef7cc/include/EGL/eglext.h",
+        "angle-bb9e1870521db37d5030103d74a9d3c9163ef7cc/include/EGL/eglext_angle.h",
+        "angle-bb9e1870521db37d5030103d74a9d3c9163ef7cc/include/EGL/eglplatform.h",
+        "angle-bb9e1870521db37d5030103d74a9d3c9163ef7cc/include/GLES/egl.h",
+        "angle-bb9e1870521db37d5030103d74a9d3c9163ef7cc/include/GLES/gl.h",
+        "angle-bb9e1870521db37d5030103d74a9d3c9163ef7cc/include/GLES/glext.h",
+        "angle-bb9e1870521db37d5030103d74a9d3c9163ef7cc/include/GLES/glplatform.h",
+        "angle-bb9e1870521db37d5030103d74a9d3c9163ef7cc/include/GLES2/gl2.h",
+        "angle-bb9e1870521db37d5030103d74a9d3c9163ef7cc/include/GLES2/gl2ext.h",
+        "angle-bb9e1870521db37d5030103d74a9d3c9163ef7cc/include/GLES2/gl2ext_angle.h",
+        "angle-bb9e1870521db37d5030103d74a9d3c9163ef7cc/include/GLES2/gl2platform.h",
+        "angle-bb9e1870521db37d5030103d74a9d3c9163ef7cc/include/GLES3/gl3.h",
+        "angle-bb9e1870521db37d5030103d74a9d3c9163ef7cc/include/GLES3/gl31.h",
+        "angle-bb9e1870521db37d5030103d74a9d3c9163ef7cc/include/GLES3/gl32.h",
+        "angle-bb9e1870521db37d5030103d74a9d3c9163ef7cc/include/GLES3/gl3platform.h",
+        "angle-bb9e1870521db37d5030103d74a9d3c9163ef7cc/include/GLSLANG/ShaderLang.h",
+        "angle-bb9e1870521db37d5030103d74a9d3c9163ef7cc/include/GLSLANG/ShaderVars.h",
+        "angle-bb9e1870521db37d5030103d74a9d3c9163ef7cc/include/GLX/glxext.h",
+        "angle-bb9e1870521db37d5030103d74a9d3c9163ef7cc/include/KHR/khrplatform.h",
+        "angle-bb9e1870521db37d5030103d74a9d3c9163ef7cc/include/WGL/wgl.h",
+        "angle-bb9e1870521db37d5030103d74a9d3c9163ef7cc/include/angle_cl.h",
+        "angle-bb9e1870521db37d5030103d74a9d3c9163ef7cc/include/angle_gl.h",
+        "angle-bb9e1870521db37d5030103d74a9d3c9163ef7cc/include/angle_windowsstore.h",
+        "angle-bb9e1870521db37d5030103d74a9d3c9163ef7cc/include/export.h",
+        "angle-bb9e1870521db37d5030103d74a9d3c9163ef7cc/include/platform/Feature.h",
+        "angle-bb9e1870521db37d5030103d74a9d3c9163ef7cc/include/platform/PlatformMethods.h",
+        "angle-bb9e1870521db37d5030103d74a9d3c9163ef7cc/include/platform/autogen/FeaturesD3D_autogen.h",
+        "angle-bb9e1870521db37d5030103d74a9d3c9163ef7cc/include/platform/autogen/FeaturesGL_autogen.h",
+        "angle-bb9e1870521db37d5030103d74a9d3c9163ef7cc/include/platform/autogen/FeaturesMtl_autogen.h",
+        "angle-bb9e1870521db37d5030103d74a9d3c9163ef7cc/include/platform/autogen/FeaturesVk_autogen.h",
+        "angle-bb9e1870521db37d5030103d74a9d3c9163ef7cc/include/platform/autogen/FeaturesWgpu_autogen.h",
+        "angle-bb9e1870521db37d5030103d74a9d3c9163ef7cc/include/platform/autogen/FrontendFeatures_autogen.h",
+        "angle-bb9e1870521db37d5030103d74a9d3c9163ef7cc/include/vulkan/vulkan_fuchsia_ext.h",
+        "angle-bb9e1870521db37d5030103d74a9d3c9163ef7cc/src/third_party/khronos/GL/wglext.h"
+      ],
+      "sha256": "f8284f96f678fb44b546afad1aefe840d5778ef9108d797ec3a9b6c02065cefa"
     }
   },
   "components": [
     {
       "id": "linux-vm",
       "name": "Linux VM app, supervisor and artwork",
-      "version": "0.1.0",
       "license": "LicenseRef-Linux-VM-Undecided",
       "bundle_files": [
         "Contents/MacOS/LinuxVM",
@@ -519,39 +914,13 @@
       ],
       "source": {
         "url": "https://github.com/adrianorocha-dev/linux-vm",
-        "kind": "local checkout; build revision recorded in NOTICES.txt",
-        "files": {
-          "macos/Package.swift": "25c850464f14893ffdde50110a2eff42426ac735a54343a2516752a6a70684d9",
-          "macos/Resources/AppIcon.icns": "74d205028ed83410a7bd90d1dccfb433ab8c64172cbe74b45727b7a15991f304",
-          "macos/Resources/Info.plist": "48eda977b262e52f7e4d4f09191d43fe783dc7e7592e4721f9e8be59cb9ebc0c",
-          "macos/Sources/LinuxVM/LibraryModel.swift": "6e028c8b365b393b0c1e88936402f9c8297155aec0e2a4137fa752f663c0c131",
-          "macos/Sources/LinuxVM/LinuxVMApp.swift": "a5a64eacb1df72ddc58244a1edba25a7fbf35fb403733971d218a3a1f88feb88",
-          "macos/Sources/LinuxVM/MachineDetailView.swift": "1f1de67693e25dcdecd3be2941707cd3a172569396dc0e1cf42365a4a1c59963",
-          "macos/Sources/LinuxVM/Sheets.swift": "dbccc5daffed22c2a1350e977ecc5e92faa6c549adcfb7f69ae95660e92d8818",
-          "macos/Sources/LinuxVM/WindowSnapshot.swift": "c735bf7b679de39123fa9eab2b212d2ace0fa2393b49c54c4c6a12f74e202c5d",
-          "macos/Sources/LinuxVMCore/GuestReport.swift": "68efbbf3d5009256b5c2002c9fc50e781df982b5bc11738b2f4eeea5d3e5f199",
-          "macos/Sources/LinuxVMCore/HostSleep.swift": "9ecf54368b187062facf38b55970b25a9bdbd7198b1903b57521b873873dab9c",
-          "macos/Sources/LinuxVMCore/QEMULaunch.swift": "172e304cb44c0f4174b7d846da547587e2cc2ac85a0697aaa83cbb8a906e2fff",
-          "macos/Sources/LinuxVMCore/QMPClient.swift": "c069cbfa10edabc689b321fc9af2738b6d6d64e2d021c6b40dbed9db62f325ba",
-          "macos/Sources/LinuxVMCore/Runtime.swift": "6693345b67b62a53c7e5d6cfb629accd30ccefd555e8c91d1852070cd10ca28e",
-          "macos/Sources/LinuxVMCore/StoragePolicy.swift": "9d6f9405d04dcf68ce4fecf3e083823f1e1176dee9ab76583d17672fb2ea906e",
-          "macos/Sources/LinuxVMCore/StorageVolumes.swift": "a6379f74cdd44c49c93e24a32f842dcb9cfce53408c3e610ad3c48b15b352739",
-          "macos/Sources/LinuxVMCore/Supervisor.swift": "78d3b2f41e5d2329f23f65d7b3e42950592cef21b76e260c69b7474ddff2191d",
-          "macos/Sources/LinuxVMCore/SupervisorStorage.swift": "619c6ee2041fdaf8ff963cb47fc58e6c869e91a4eb73f8d74814fbe79aec4058",
-          "macos/Sources/LinuxVMCore/VMConfiguration.swift": "f0d8b9cbc5638a7b9ac911861218ebc7092eb27317c8905d0f2f11c446a4c1b9",
-          "macos/Sources/LinuxVMCore/VMLibrary.swift": "df34f40f494707479b591fc07b85d206d0378bf064640d3ebb80e740e230f894",
-          "macos/Sources/linuxvmctl/main.swift": "0b4033d5985f6d299fc8d8b7044c10a7517eef563b365d11dc7d540fa94cb526",
-          "scripts/render-icon.swift": "68664cbd83fd9b8085abe0f9747bcaf1510514698f1b51712c531f622bdc7434",
-          "macos/Sources/LinuxVM/Updates.swift": "383597f28b5758902e554a5d9ac18f81378f1fae70edaa2d9d5cba2ff4bc8583",
-          "macos/Package.resolved": "ff1b4f5a7e9516e5b6afbb0b55c015c9e70830feb62187b635cba983c9495f30"
-        },
-        "sha256": "962c051add25dd4d1cb6d6432f2268c7efd27035b1b4d6f4be2e6067482e70c5",
-        "format": "SHA-256 of JSON path-to-SHA-256 map, sorted keys, default Python JSON separators"
+        "kind": "local checkout; build revision recorded in NOTICES.txt"
       },
       "optional_files": [
         "Contents/Resources/AppIcon.icns",
         "Contents/Resources/guest-tools-version"
-      ]
+      ],
+      "version_file": "macos/Resources/Info.plist"
     },
     {
       "id": "app-icon",
@@ -578,7 +947,6 @@
     {
       "id": "guest",
       "name": "Linux VM Guest Tools",
-      "version": "0.2.1",
       "license": "LicenseRef-Linux-VM-Undecided AND MIT",
       "bundle_files": [
         "Contents/Resources/guest-tools.iso"
@@ -593,10 +961,9 @@
       ],
       "source": {
         "url": "https://github.com/adrianorocha-dev/linux-vm",
-        "kind": "local guest/ source; exact disc and package member hashes below",
-        "sha256": "c0f3d007f15912868c2cb6ec67592093f9750dcb7c2c11f20d81f7b795db94cb",
-        "format": "SHA-256 of guest_files source path-to-SHA-256 map, sorted keys, default Python JSON separators"
-      }
+        "kind": "local guest/ source; disc and package paths inventoried in guest_files"
+      },
+      "version_file": "guest/build.py"
     },
     {
       "id": "try-omarchy",
@@ -917,22 +1284,300 @@
     {
       "id": "angle",
       "name": "ANGLE",
-      "version": "1.0.16 (tap bottle; source commit absent)",
-      "license": "BSD-2-Clause",
+      "version": "1.0.16 (tap bottle; ANGLE 2.1.27632, bb9e1870521db37d5030103d74a9d3c9163ef7cc)",
+      "license": "BSD-3-Clause AND BSD-2-Clause AND MIT AND Apache-2.0 AND Zlib AND LicenseRef-glslang AND (GPL-3.0-or-later WITH Bison-exception-2.2)",
       "bundle_files": [
         "Contents/Resources/runtime/lib/libEGL.dylib",
         "Contents/Resources/runtime/lib/libGLESv2.dylib"
       ],
       "inputs": [
         "angle",
-        "angle-build-source"
+        "angle-build-source",
+        "angle-astc-encoder",
+        "angle-glslang",
+        "angle-spirv-headers",
+        "angle-spirv-tools",
+        "angle-vulkan-headers",
+        "angle-vulkan-loader",
+        "angle-vulkan-tools",
+        "angle-vulkan-utility",
+        "angle-vma",
+        "angle-spirv-cross",
+        "angle-source",
+        "angle-zlib",
+        "angle-chromium-license"
       ],
       "license_files": [
         "ANGLE-bottle-metadata.json",
-        "ANGLE-header-notice.txt"
+        "ANGLE-header-notice.txt",
+        "ANGLE-BSD.txt",
+        "ANGLE-xxHash.txt",
+        "ANGLE-volk.txt",
+        "ANGLE-ceval.txt",
+        "ANGLE-libXNVCtrl.txt",
+        "ANGLE-ETC-decoder.txt",
+        "ANGLE-FidelityFX-SPD.txt",
+        "ANGLE-overlay-font.txt",
+        "ANGLE-ASTC-encoder.txt",
+        "ANGLE-glslang.txt",
+        "ANGLE-SPIRV-Headers.txt",
+        "ANGLE-SPIRV-Tools.txt",
+        "ANGLE-SPIRV-Cross.txt",
+        "ANGLE-Vulkan-Headers.txt",
+        "ANGLE-Vulkan-Headers-1.txt",
+        "ANGLE-Vulkan-Headers-2.txt",
+        "ANGLE-Vulkan-Loader.txt",
+        "ANGLE-Vulkan-Tools.txt",
+        "ANGLE-Vulkan-Utility-Libraries.txt",
+        "ANGLE-VulkanMemoryAllocator.txt",
+        "ANGLE-zlib.txt",
+        "ANGLE-Chromium-BSD.txt",
+        "ANGLE-source-src-source-notices.txt",
+        "ANGLE-source-include-source-notices.txt",
+        "ANGLE-astc-encoder-Source-source-notices.txt",
+        "ANGLE-glslang-glslang-source-notices.txt",
+        "ANGLE-spirv-headers-include-source-notices.txt",
+        "ANGLE-spirv-tools-source-source-notices.txt",
+        "ANGLE-vulkan-loader-loader-source-notices.txt",
+        "ANGLE-zlib-all-source-notices.txt",
+        "ANGLE-Bison-GPL-3.0.txt",
+        "ANGLE-Khronos-header-notices.txt"
       ],
-      "notes": "ANGLE: its verified bottle formula source (tap commit 97987d9531ea8feeaf0fcc126be2bd97ffdf6479) fetches ANGLE main and moving dependency heads, never sets ANGLE_COMMIT, and installs an empty commit.txt. Obtain the exact ANGLE and dependency commits plus build graph/logs to recover matching LICENSE and compiled third-party notices. See licenses/ANGLE-AUDIT.md for the v1.0.16 tag checksum mismatch.",
-      "license_status": "incomplete; see release_blockers"
+      "notes": "The binary version identifies ANGLE. External dependency notice revisions come from this commit's DEPS, not the bottle's unrecorded moving heads or build-day DEPS. All listed library terms are permissive and require notices, not corresponding-source distribution. Conservative notices include candidates outside the enabled graph. The tag/formula checksum mismatch remains a finding. See ANGLE-AUDIT.md. Generated Bison parsers carry GPL-3.0-or-later with Bison-exception-2.2, which permits this larger work under chosen terms and imposes no corresponding-source obligation.",
+      "license_status": "permissive notices verified at the recorded source revisions; external bottle build revisions were not recorded",
+      "source": {
+        "url": "https://github.com/google/angle",
+        "commit": "bb9e1870521db37d5030103d74a9d3c9163ef7cc",
+        "evidence": "ANGLE 2.1.27632 git hash: bb9e1870521d",
+        "evidence_command": "strings -a .deps/try-omarchy/macos/.build/qemu-gpu-runtime/lib/libGLESv2.dylib | rg 'ANGLE 2.1.27632 git hash: bb9e1870521d'",
+        "input": "angle-source"
+      },
+      "embedded_components": [
+        {
+          "name": "BSD",
+          "license": "BSD-3-Clause",
+          "revision": "bb9e1870521db37d5030103d74a9d3c9163ef7cc",
+          "notice_input": "angle-source",
+          "license_files": [
+            "ANGLE-BSD.txt"
+          ],
+          "graph_evidence": "BUILD.gn: libEGL and libGLESv2"
+        },
+        {
+          "name": "xxHash",
+          "license": "BSD-2-Clause",
+          "revision": "e626a72bc2321cd320e953a0ccf1584cad60f363",
+          "notice_input": "angle-source",
+          "license_files": [
+            "ANGLE-xxHash.txt"
+          ],
+          "graph_evidence": "BUILD.gn: angle_common_lib -> xxhash"
+        },
+        {
+          "name": "volk",
+          "license": "MIT",
+          "revision": "9767549a8bba5454555764ee0f3319bc5d205da9",
+          "notice_input": "angle-source",
+          "license_files": [
+            "ANGLE-volk.txt"
+          ],
+          "graph_evidence": "src/common/vulkan/BUILD.gn: shared loader branch; macOS defaults to static loader; included conservatively"
+        },
+        {
+          "name": "ceval",
+          "license": "MIT",
+          "revision": "1ed80ae78ba7bef1744b1ccdffc6c6802eeec8fa",
+          "notice_input": "angle-source",
+          "license_files": [
+            "ANGLE-ceval.txt"
+          ],
+          "graph_evidence": "src/libGLESv2.gni: capture sources; frame capture disabled, included conservatively"
+        },
+        {
+          "name": "libXNVCtrl",
+          "license": "MIT",
+          "revision": "ffa5183362ed4ace5b1cfd031a272f72e7d68c1b",
+          "notice_input": "angle-source",
+          "license_files": [
+            "ANGLE-libXNVCtrl.txt"
+          ],
+          "graph_evidence": "BUILD.gn: X11 only, excluded on macOS; included conservatively"
+        },
+        {
+          "name": "ETC-decoder",
+          "license": "MIT",
+          "revision": "cbc9cc966d2b3cae8906d2d30e761904342b5aba",
+          "notice_input": "angle-source",
+          "license_files": [
+            "ANGLE-ETC-decoder.txt"
+          ],
+          "graph_evidence": "Vulkan shaders: EtcToBc.comp includes third_party/etc_decoder"
+        },
+        {
+          "name": "FidelityFX-SPD",
+          "license": "MIT",
+          "revision": "0e82a6f4f491aa18adde62edc3f5c4ed20d92627",
+          "notice_input": "angle-source",
+          "license_files": [
+            "ANGLE-FidelityFX-SPD.txt"
+          ],
+          "graph_evidence": "Vulkan shaders: GenerateMipmap.comp includes third_party/ffx_spd"
+        },
+        {
+          "name": "overlay-font",
+          "license": "Apache-2.0",
+          "revision": "bb9e1870521db37d5030103d74a9d3c9163ef7cc",
+          "notice_input": "angle-source",
+          "license_files": [
+            "ANGLE-overlay-font.txt"
+          ],
+          "graph_evidence": "src/libGLESv2.gni: overlay font; included conservatively"
+        },
+        {
+          "name": "ASTC-encoder",
+          "license": "Apache-2.0",
+          "revision": "2319d9c4d4af53a7fc7c52985e264ce6e8a02a9b",
+          "notice_input": "angle-astc-encoder",
+          "license_files": [
+            "ANGLE-ASTC-encoder.txt"
+          ],
+          "graph_evidence": "BUILD.gn: angle_image_util -> third_party/astc-encoder:astcenc; binary contains ASTC encoder code"
+        },
+        {
+          "name": "glslang",
+          "license": "LicenseRef-glslang",
+          "revision": "5ed4003a18a10a9d1bd7e43aaf1664499abffa83",
+          "notice_input": "angle-glslang",
+          "license_files": [
+            "ANGLE-glslang.txt"
+          ],
+          "graph_evidence": "External fetched by bottle; tests/validation candidates included conservatively"
+        },
+        {
+          "name": "SPIRV-Headers",
+          "license": "MIT",
+          "revision": "ad9184e76a66b1001c29db9b0a3e87f646c64de0",
+          "notice_input": "angle-spirv-headers",
+          "license_files": [
+            "ANGLE-SPIRV-Headers.txt"
+          ],
+          "graph_evidence": "src/common/spirv and Vulkan shader translator includes"
+        },
+        {
+          "name": "SPIRV-Tools",
+          "license": "Apache-2.0",
+          "revision": "aee3d20c3f083465f566fd6075a81822c3c4ae90",
+          "notice_input": "angle-spirv-tools",
+          "license_files": [
+            "ANGLE-SPIRV-Tools.txt"
+          ],
+          "graph_evidence": "Vulkan OpenCL branch / validation candidates; included conservatively"
+        },
+        {
+          "name": "SPIRV-Cross",
+          "license": "Apache-2.0",
+          "revision": "b8fcf307f1f347089e3c46eb4451d27f32ebc8d3",
+          "notice_input": "angle-spirv-cross",
+          "license_files": [
+            "ANGLE-SPIRV-Cross.txt"
+          ],
+          "graph_evidence": "DEPS candidate; Metal translator is ANGLE code, included conservatively"
+        },
+        {
+          "name": "Vulkan-Headers",
+          "license": "Apache-2.0 OR MIT",
+          "revision": "f6a6f7ab165cedbfa2a7d0c93fe27a2d01ce09c8",
+          "notice_input": "angle-vulkan-headers",
+          "license_files": [
+            "ANGLE-Vulkan-Headers.txt",
+            "ANGLE-Vulkan-Headers-1.txt",
+            "ANGLE-Vulkan-Headers-2.txt"
+          ],
+          "graph_evidence": "src/common/vulkan:angle_vulkan_headers"
+        },
+        {
+          "name": "Vulkan-Loader",
+          "license": "Apache-2.0",
+          "revision": "15a84652b94e465e9a7b25eb507193929863bc2f",
+          "notice_input": "angle-vulkan-loader",
+          "license_files": [
+            "ANGLE-Vulkan-Loader.txt"
+          ],
+          "graph_evidence": "src/common/vulkan:angle_vulkan_entry_points -> libvulkan (static or data dependency)"
+        },
+        {
+          "name": "Vulkan-Tools",
+          "license": "Apache-2.0",
+          "revision": "7c46da2b39036a80ce088576d5794bf39e667f56",
+          "notice_input": "angle-vulkan-tools",
+          "license_files": [
+            "ANGLE-Vulkan-Tools.txt"
+          ],
+          "graph_evidence": "src/common/vulkan:angle_libvulkan -> VkICD_mock_icd data dependency; conservative"
+        },
+        {
+          "name": "Vulkan-Utility-Libraries",
+          "license": "Apache-2.0",
+          "revision": "e2f236b273bfcd9c665306fdd53451b923d659ab",
+          "notice_input": "angle-vulkan-utility",
+          "license_files": [
+            "ANGLE-Vulkan-Utility-Libraries.txt"
+          ],
+          "graph_evidence": "Vulkan loader transitive headers; conservative"
+        },
+        {
+          "name": "VulkanMemoryAllocator",
+          "license": "MIT",
+          "revision": "cb0597213b0fcb999caa9ed08c2f88dc45eb7d50",
+          "notice_input": "angle-vma",
+          "license_files": [
+            "ANGLE-VulkanMemoryAllocator.txt"
+          ],
+          "graph_evidence": "src/libANGLE/renderer/vulkan:angle_vk_mem_alloc_wrapper"
+        },
+        {
+          "name": "zlib",
+          "license": "Zlib",
+          "revision": "89921383f1f51331f48a2dc843403779770ea3a9",
+          "notice_input": "angle-zlib",
+          "license_files": [
+            "ANGLE-zlib.txt"
+          ],
+          "graph_evidence": "BUILD.gn: angle_compression -> compression_utils_portable -> zlib"
+        },
+        {
+          "name": "Chromium base helpers",
+          "license": "BSD-3-Clause",
+          "revision": "28b5bbb227d331c01e6ff9b2f8729732135aadc7",
+          "notice_input": "angle-chromium-license",
+          "license_files": [
+            "ANGLE-Chromium-BSD.txt"
+          ],
+          "graph_evidence": "src/common/base/README.chromium; angle_common and anglebase headers"
+        },
+        {
+          "name": "Bison generated parser skeleton",
+          "license": "GPL-3.0-or-later WITH Bison-exception-2.2",
+          "revision": "bb9e1870521db37d5030103d74a9d3c9163ef7cc",
+          "notice_input": "angle-source",
+          "license_files": [
+            "ANGLE-Bison-GPL-3.0.txt",
+            "ANGLE-source-src-source-notices.txt"
+          ],
+          "graph_evidence": "src/compiler/translator/glslang_tab_autogen.cpp and .h; larger-work exception permits distribution under chosen terms; no source obligation for ANGLE output"
+        },
+        {
+          "name": "Khronos EGL/GLES/KHR/WGL headers",
+          "license": "MIT AND Apache-2.0",
+          "revision": "bb9e1870521db37d5030103d74a9d3c9163ef7cc",
+          "notice_input": "angle-source",
+          "license_files": [
+            "ANGLE-Khronos-header-notices.txt",
+            "ANGLE-Vulkan-Headers-1.txt"
+          ],
+          "graph_evidence": "BUILD.gn includes and src/third_party/khronos; WGL included conservatively"
+        }
+      ]
     },
     {
       "id": "zstd",
@@ -1054,119 +1699,89 @@
   ],
   "guest_files": {
     "deb:data/usr/lib/linuxvm/audio.py": {
-      "source": "guest/files/usr/lib/linuxvm/audio.py",
-      "sha256": "b30fa5bf131ff221b64109de783068e2ff2905aafe3cd9d1cd18bb0c2e167052"
+      "source": "guest/files/usr/lib/linuxvm/audio.py"
     },
     "deb:data/usr/lib/linuxvm/clipboard.py": {
-      "source": "guest/files/usr/lib/linuxvm/clipboard.py",
-      "sha256": "da4d60a7a40972ba647af8310c4005d348852d0b26f842d39cdd8ccd2ca429da"
+      "source": "guest/files/usr/lib/linuxvm/clipboard.py"
     },
     "deb:data/usr/lib/linuxvm/clock.py": {
-      "source": "guest/files/usr/lib/linuxvm/clock.py",
-      "sha256": "620d6f56435e561d249cb0889c10a658c8267ac35b41a15ea8885764ff4d25dd"
+      "source": "guest/files/usr/lib/linuxvm/clock.py"
     },
     "deb:data/usr/lib/linuxvm/common.py": {
-      "source": "guest/files/usr/lib/linuxvm/common.py",
-      "sha256": "d40e135b592dee0f539fc25cd7acb29769c18921e103eefd773825e96db415da"
+      "source": "guest/files/usr/lib/linuxvm/common.py"
     },
     "deb:data/usr/lib/linuxvm/share.py": {
-      "source": "guest/files/usr/lib/linuxvm/share.py",
-      "sha256": "dbee2fe1cff544f6dac108c59f5172b001bf4ce855666beed67db6eb94d3b572"
+      "source": "guest/files/usr/lib/linuxvm/share.py"
     },
     "deb:data/usr/lib/linuxvm/status.py": {
-      "source": "guest/files/usr/lib/linuxvm/status.py",
-      "sha256": "be250b1edcc2cb019f385c253f7be7c7463ccc30dc4d8b5c37abb9cd31918fb0"
+      "source": "guest/files/usr/lib/linuxvm/status.py"
     },
     "deb:data/usr/lib/linuxvm/timezone.py": {
-      "source": "guest/files/usr/lib/linuxvm/timezone.py",
-      "sha256": "427ffe0d3847622bff57ce820402280acf884f345e79dca16ee0490451d0705e"
+      "source": "guest/files/usr/lib/linuxvm/timezone.py"
     },
     "deb:data/usr/lib/systemd/system/linuxvm-clock-recovery.service": {
-      "source": "guest/files/usr/lib/systemd/system/linuxvm-clock-recovery.service",
-      "sha256": "874e874c834631755bb939ac396a0446c03efb36b80f5ec0127bc3b47ee51fa6"
+      "source": "guest/files/usr/lib/systemd/system/linuxvm-clock-recovery.service"
     },
     "deb:data/usr/lib/systemd/system/linuxvm-clock-recovery.timer": {
-      "source": "guest/files/usr/lib/systemd/system/linuxvm-clock-recovery.timer",
-      "sha256": "b600770d38667633a4156f1a84f6fdff9efddca13b9d5d1d4d3ac5190d088ea5"
+      "source": "guest/files/usr/lib/systemd/system/linuxvm-clock-recovery.timer"
     },
     "deb:data/usr/lib/systemd/system/linuxvm-share-mount.service": {
-      "source": "guest/files/usr/lib/systemd/system/linuxvm-share-mount.service",
-      "sha256": "fffb4f905b45111c4ca8b4b973e077c2aa99f738d62435e404ab1bb537455e54"
+      "source": "guest/files/usr/lib/systemd/system/linuxvm-share-mount.service"
     },
     "deb:data/usr/lib/systemd/system/linuxvm-timezone.service": {
-      "source": "guest/files/usr/lib/systemd/system/linuxvm-timezone.service",
-      "sha256": "2a9a537942bfc29fea7795fe8c2c6d5f84b62a6b6e38d4aa52d980fd07b1e11f"
+      "source": "guest/files/usr/lib/systemd/system/linuxvm-timezone.service"
     },
     "deb:data/usr/lib/systemd/user/linuxvm-audio.service": {
-      "source": "guest/files/usr/lib/systemd/user/linuxvm-audio.service",
-      "sha256": "be91c556064a1f0b5abb5da17e51dbd443d2ed1cab0e46031d9d30f690859485"
+      "source": "guest/files/usr/lib/systemd/user/linuxvm-audio.service"
     },
     "deb:data/usr/lib/systemd/user/linuxvm-clipboard.service": {
-      "source": "guest/files/usr/lib/systemd/user/linuxvm-clipboard.service",
-      "sha256": "fcbd6a4f642c1a2b58d9b3e8caa38a9648a4379b87f1549ab3fd6d90b31e5694"
+      "source": "guest/files/usr/lib/systemd/user/linuxvm-clipboard.service"
     },
     "deb:data/usr/lib/systemd/user/linuxvm-share-link.service": {
-      "source": "guest/files/usr/lib/systemd/user/linuxvm-share-link.service",
-      "sha256": "d74a3035fd1b56cdd3d72196dcf9717d2ff4ef530d5feb7138f30cf93f0fb138"
+      "source": "guest/files/usr/lib/systemd/user/linuxvm-share-link.service"
     },
     "deb:data/usr/lib/systemd/user/linuxvm-status.service": {
-      "source": "guest/files/usr/lib/systemd/user/linuxvm-status.service",
-      "sha256": "df450d60c351ea87190b1ebfdf231e40c6f395d3d34c236c57b4eec6ec8c00f0"
+      "source": "guest/files/usr/lib/systemd/user/linuxvm-status.service"
     },
     "deb:data/usr/lib/udev/rules.d/70-linuxvm-ports.rules": {
-      "source": "guest/files/usr/lib/udev/rules.d/70-linuxvm-ports.rules",
-      "sha256": "14eb3382a499426c6d3d4c777e5a2c73af8b0d9eec435fe2d49cf24f29b793c7"
+      "source": "guest/files/usr/lib/udev/rules.d/70-linuxvm-ports.rules"
     },
     "deb:data/usr/share/doc/linuxvm-guest/copyright": {
-      "source": "guest/files/usr/share/doc/linuxvm-guest/copyright",
-      "sha256": "1c3def0bc37817cacf4e77135d922468da649b1c23e51e5e28ef3f1acaa435c0"
+      "source": "guest/files/usr/share/doc/linuxvm-guest/copyright"
     },
     "deb:data/usr/share/glib-2.0/schemas/90_linuxvm.gschema.override": {
-      "source": "guest/files/usr/share/glib-2.0/schemas/90_linuxvm.gschema.override",
-      "sha256": "ccb6967f9cac5f9cdca46d0eac5b0e5c669c8e070a1d0b5406436e1d41dd4963"
+      "source": "guest/files/usr/share/glib-2.0/schemas/90_linuxvm.gschema.override"
     },
     "deb:data/usr/share/gnome-shell/extensions/clipboard@linuxvm.dev/extension.js": {
-      "source": "guest/files/usr/share/gnome-shell/extensions/clipboard@linuxvm.dev/extension.js",
-      "sha256": "7cb0144802f9f5bdb9ef017042e540fe3d347e94339defc6150cb2a8f288dd45"
+      "source": "guest/files/usr/share/gnome-shell/extensions/clipboard@linuxvm.dev/extension.js"
     },
     "deb:data/usr/share/gnome-shell/extensions/clipboard@linuxvm.dev/metadata.json": {
-      "source": "guest/files/usr/share/gnome-shell/extensions/clipboard@linuxvm.dev/metadata.json",
-      "sha256": "7d86f8ca08e38eb260232da3e4ad337c2dce39587f4096a67059e8219b03ec43"
+      "source": "guest/files/usr/share/gnome-shell/extensions/clipboard@linuxvm.dev/metadata.json"
     },
     "deb:data/usr/share/libinput/90-linuxvm.quirks": {
-      "source": "guest/files/usr/share/libinput/90-linuxvm.quirks",
-      "sha256": "0e77c31cc0a05ea7ae99f3d8665baa72809201808c01f3eea11ecc1e0838eca1"
+      "source": "guest/files/usr/share/libinput/90-linuxvm.quirks"
     },
     "deb:control/control": {
-      "source": "guest/debian/control",
-      "sha256": "6de38549411db32f3fe30be71c0c06c83c0d65c0b3b91f76c5ee6002afc00a6a"
+      "source": "guest/debian/control"
     },
     "deb:control/postinst": {
-      "source": "guest/debian/postinst",
-      "sha256": "3c141fb44c5d1969ef52fee564155c2d0d83275824f10b3d8ac9e760e1d912ce"
+      "source": "guest/debian/postinst"
     },
     "deb:control/postrm": {
-      "source": "guest/debian/postrm",
-      "sha256": "bb68513ce649e46b0569055d4d4f5702824b53fe3ce7d126d0a1e5be1fd810e7"
+      "source": "guest/debian/postrm"
     },
     "deb:control/prerm": {
-      "source": "guest/debian/prerm",
-      "sha256": "9c428f3f66e410fa8acf3e7170f8dff4c8b812b12319ec5e2eb8ff5c41c09746"
+      "source": "guest/debian/prerm"
     },
     "iso:/README.txt": {
-      "source": "guest/iso/README.txt",
-      "sha256": "8e5fdc8d6b1d54beb6d254af9abb2a51de6f386531276df772a6e9ec26a53234"
+      "source": "guest/iso/README.txt"
     },
     "iso:/install.sh": {
-      "source": "guest/iso/install.sh",
-      "sha256": "999e67f9c0e742b00c171d4b474c67bca39dbef05de7adfdb8ce5533b795e30b"
+      "source": "guest/iso/install.sh"
     },
     "deb:data/usr/lib/linuxvm/version.py": {
-      "generated": "VERSION = '0.2.1'\n",
-      "sha256": "59b34844cb8d885d9f8ed5a9a47df3b86ef29156922e72229ee537a8ad2102a0"
+      "generated": "version from guest/build.py"
     }
   },
-  "release_blockers": [
-    "ANGLE: its verified bottle formula source (tap commit 97987d9531ea8feeaf0fcc126be2bd97ffdf6479) fetches ANGLE main and moving dependency heads, never sets ANGLE_COMMIT, and installs an empty commit.txt. Obtain the exact ANGLE and dependency commits plus build graph/logs to recover matching LICENSE and compiled third-party notices. See licenses/ANGLE-AUDIT.md for the v1.0.16 tag checksum mismatch."
-  ]
+  "release_blockers": []
 }

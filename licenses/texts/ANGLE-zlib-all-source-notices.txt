@@ -1,0 +1,1293 @@
+==> adler32.c <==
+/* adler32.c -- compute the Adler-32 checksum of a data stream
+ * Copyright (C) 1995-2011, 2016 Mark Adler
+ * For conditions of distribution and use, see copyright notice in zlib.h
+ */
+
+/* @(#) $Id$ */
+
+==> adler32_simd.c <==
+/* adler32_simd.c
+ *
+ * Copyright 2017 The Chromium Authors
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the Chromium source repository LICENSE file.
+ *
+ * Per http://en.wikipedia.org/wiki/Adler-32 the adler32 A value (aka s1) is
+ * the sum of N input data bytes D1 ... DN,
+ *
+ *   A = A0 + D1 + D2 + ... + DN
+ *
+ * where A0 is the initial value.
+ *
+ * SSE2 _mm_sad_epu8() can be used for byte sums (see http://bit.ly/2wpUOeD,
+ * for example) and accumulating the byte sums can use SSE shuffle-adds (see
+ * the "Integer" section of http://bit.ly/2erPT8t for details). Arm NEON has
+ * similar instructions.
+ *
+ * The adler32 B value (aka s2) sums the A values from each step:
+ *
+ *   B0 + (A0 + D1) + (A0 + D1 + D2) + ... + (A0 + D1 + D2 + ... + DN) or
+ *
+ *       B0 + N.A0 + N.D1 + (N-1).D2 + (N-2).D3 + ... + (N-(N-1)).DN
+ *
+ * B0 being the initial value. For 32 bytes (ideal for garden-variety SIMD):
+ *
+ *   B = B0 + 32.A0 + [D1 D2 D3 ... D32] x [32 31 30 ... 1].
+ *
+ * Adjacent blocks of 32 input bytes can be iterated with the expressions to
+ * compute the adler32 s1 s2 of M >> 32 input bytes [1].
+ *
+ * As M grows, the s1 s2 sums grow. If left unchecked, they would eventually
+ * overflow the precision of their integer representation (bad). However, s1
+ * and s2 also need to be computed modulo the adler BASE value (reduced). If
+ * at most NMAX bytes are processed before a reduce, s1 s2 _cannot_ overflow
+ * a uint32_t type (the NMAX constraint) [2].
+ *
+ * [1] the iterative equations for s2 contain constant factors; these can be
+ * hoisted from the n-blocks do loop of the SIMD code.
+ *
+ * [2] zlib adler32_z() uses this fact to implement NMAX-block-based updates
+ * of the adler s1 s2 of uint32_t type (see adler32.c).
+ */
+
+==> adler32_simd.h <==
+/* adler32_simd.h
+ *
+ * Copyright 2017 The Chromium Authors
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the Chromium source repository LICENSE file.
+ */
+
+==> chromeconf.h <==
+/* Copyright 2017 The Chromium Authors
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file. */
+
+==> compress.c <==
+/* compress.c -- compress a memory buffer
+ * Copyright (C) 1995-2026 Jean-loup Gailly, Mark Adler
+ * For conditions of distribution and use, see copyright notice in zlib.h
+ */
+
+/* @(#) $Id$ */
+
+==> contrib/bench/zlib_bench.cc <==
+/*
+ * Copyright 2018 The Chromium Authors
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the Chromium source repository LICENSE file.
+ *
+ * A benchmark test harness for measuring decoding performance of gzip or zlib
+ * (deflate) encoded compressed data. Given a file containing any data, encode
+ * (compress) it into gzip or zlib format and then decode (uncompress). Output
+ * the median and maximum encoding and decoding rates in MB/s.
+ *
+ * Raw deflate (no gzip or zlib stream wrapper) mode is also supported. Select
+ * it with the [raw] argument. Use the [gzip] [zlib] arguments to select those
+ * stream wrappers.
+ *
+ * Note this code can be compiled outside of the Chromium build system against
+ * the system zlib (-lz) with g++ or clang++ as follows:
+ *
+ *   g++|clang++ -O3 -Wall -std=c++11 zlib_bench.cc -lstdc++ -lz
+ */
+
+==> contrib/minizip/crypt.h <==
+/* crypt.h -- base code for crypt/uncrypt ZIPfile
+
+   Copyright (C) 1998-2026 Gilles Vollant
+
+   This code is a modified version of crypting code in Infozip distribution
+
+   The encryption/decryption parts of this source code (as opposed to the
+   non-echoing password parts) were originally written in Europe.  The
+   whole source package can be freely distributed, including from the USA.
+   (Prior to January 2000, re-export from the US was a violation of US law.)
+
+   This encryption code is a direct transcription of the algorithm from
+   Roger Schlafly, described by Phil Katz in the file appnote.txt.  This
+   file (appnote.txt) is distributed with the PKZIP program (even in the
+   version without encryption capabilities).
+
+   If you don't need crypting in your application, just define symbols
+   NOCRYPT and NOUNCRYPT.
+
+   This code support the "Traditional PKWARE Encryption".
+
+   The new AES encryption added on Zip format by Winzip (see the page
+   https://www.winzip.com/aes_info.htm ) and PKWare PKZip 5.x Strong
+   Encryption is not supported.
+*/
+
+==> contrib/minizip/ints.h <==
+/* ints.h -- create integer types for 8, 16, 32, and 64 bits
+ * Copyright (C) 2024 Mark Adler
+ * For conditions of distribution and use, see the copyright notice in zlib.h
+ *
+ * There exist compilers with limits.h, but not stdint.h or inttypes.h.
+ */
+
+==> contrib/minizip/ioapi.c <==
+/* ioapi.h -- IO base function header for compress/uncompress .zip
+   part of the MiniZip project - ( https://www.winimage.com/zLibDll/minizip.html )
+
+         Copyright (C) 1998-2026 Gilles Vollant (minizip) ( https://www.winimage.com/zLibDll/minizip.html )
+
+         Modifications for Zip64 support
+         Copyright (C) 2009-2010 Mathias Svensson ( https://result42.com )
+
+         For more info read MiniZip_info.txt
+
+*/
+
+==> contrib/minizip/ioapi.h <==
+/* ioapi.h -- IO base function header for compress/uncompress .zip
+   part of the MiniZip project - ( https://www.winimage.com/zLibDll/minizip.html )
+
+         Copyright (C) 1998-2026 Gilles Vollant (minizip) ( https://www.winimage.com/zLibDll/minizip.html )
+
+         Modifications for Zip64 support
+         Copyright (C) 2009-2010 Mathias Svensson ( https://result42.com )
+
+         For more info read MiniZip_info.txt
+
+         Changes
+
+    Oct-2009 - Defined ZPOS64_T to fpos_t on windows and u_int64_t on linux. (might need to find a better why for this)
+    Oct-2009 - Change to fseeko64, ftello64 and fopen64 so large files would work on linux.
+               More if/def section may be needed to support other platforms
+    Oct-2009 - Defined fxxxx64 calls to normal fopen/ftell/fseek so they would compile on windows.
+                          (but you should use iowin32.c for windows instead)
+
+*/
+
+==> contrib/minizip/iowin32.c <==
+/* iowin32.c -- IO base function header for compress/uncompress .zip
+     part of the MiniZip project - ( https://www.winimage.com/zLibDll/minizip.html )
+
+         Copyright (C) 1998-2026 Gilles Vollant (minizip) ( https://www.winimage.com/zLibDll/minizip.html )
+
+         Modifications for Zip64 support
+         Copyright (C) 2009-2010 Mathias Svensson ( https://result42.com )
+
+     For more info read MiniZip_info.txt
+
+*/
+
+==> contrib/minizip/iowin32.h <==
+/* iowin32.h -- IO base function header for compress/uncompress .zip
+     part of the MiniZip project - ( https://www.winimage.com/zLibDll/minizip.html )
+
+         Copyright (C) 1998-2026 Gilles Vollant (minizip) ( https://www.winimage.com/zLibDll/minizip.html )
+
+         Modifications for Zip64 support
+         Copyright (C) 2009-2010 Mathias Svensson ( https://result42.com )
+
+         For more info read MiniZip_info.txt
+
+*/
+
+==> contrib/minizip/miniunz.c <==
+/*
+   miniunz.c
+   sample part of the MiniZip project - ( https://www.winimage.com/zLibDll/minizip.html )
+
+         Copyright (C) 1998-2026 Gilles Vollant (minizip) ( https://www.winimage.com/zLibDll/minizip.html )
+
+         Modifications of Unzip for Zip64
+         Copyright (C) 2007-2008 Even Rouault
+
+         Modifications for Zip64 support on both zip and unzip
+         Copyright (C) 2009-2010 Mathias Svensson ( https://result42.com )
+*/
+
+==> contrib/minizip/minizip.c <==
+/*
+   minizip.c
+   sample part of the MiniZip project - ( https://www.winimage.com/zLibDll/minizip.html )
+
+         Copyright (C) 1998-2026 Gilles Vollant (minizip) ( https://www.winimage.com/zLibDll/minizip.html )
+
+         Modifications of Unzip for Zip64
+         Copyright (C) 2007-2008 Even Rouault
+
+         Modifications for Zip64 support on both zip and unzip
+         Copyright (C) 2009-2010 Mathias Svensson ( https://result42.com )
+*/
+
+==> contrib/minizip/skipset.h <==
+/* skipset.h -- set operations using a skiplist
+// Copyright (C) 2024-2026 Mark Adler
+// See MiniZip_info.txt for the license.
+
+// This implements a skiplist set, i.e. just keys, no data, with ~O(log n) time
+// insert and search operations. The application defines the type of a key, and
+// provides a function to compare two keys.
+
+// This header is not definitions of functions found in another source file --
+// it creates the set functions, with the application's key type, right where
+// the #include is. Before this header is #included, these must be defined:
+//
+// 1. A macro or typedef for set_key_t, the type of a key.
+// 2. A macro or function set_cmp(a, b) to compare two keys. The return values
+//    are < 0 for a < b, 0 for a == b, and > 0 for a > b.
+// 3. A macro or function set_drop(s, k) to release the key k's resources, if
+//    any, when doing a set_end() or set_clear(). s is a pointer to the set
+//    that key is in, for use with set_free() if desired.
+//
+// Example usage:
+//
+//      typedef int set_key_t;
+//      #define set_cmp(a, b) ((a) < (b) ? -1 : (a) == (b) ? 0 : 1)
+//      #define set_drop(s, k)
+//      #include "skipset.h"
+//
+//      int test(void) {        // return 0: good, 1: bad, -1: out of memory
+//          set_t set;
+//          if (setjmp(set.env))
+//              return -1;
+//          set_start(&set);
+//          set_insert(&set, 2);
+//          set_insert(&set, 1);
+//          set_insert(&set, 7);
+//          int bad = !set_found(&set, 2);
+//          bad = bad || set_found(&set, 5);
+//          set_end(&set);
+//          return bad;
+//      }
+//
+// Interface summary (see more details below):
+// - set_t is the type of the set being operated on (a set_t pointer is passed)
+// - set_start() initializes a new, empty set (initialize set.env first)
+// - set_insert() inserts a new key into the set, or not if it's already there
+// - set_found() determines whether or not a key is in the set
+// - set_end() ends the use of the set, freeing all memory
+// - set_clear() empties the set, equivalent to set_end() and then set_start()
+// - set_ok() checks if set appears to be usable, i.e. started and not ended
+//
+// Auxiliary functions available to the application:
+// - set_alloc() allocates memory with optional tracking (#define SET_TRACK)
+// - set_free() deallocates memory allocated by set_alloc()
+// - set_rand() returns 32 random bits (seeded by set_start()) */
+
+==> contrib/minizip/unzip.c <==
+/* unzip.c -- IO for uncompress .zip files using zlib
+   part of the MiniZip project - ( https://www.winimage.com/zLibDll/minizip.html )
+
+         Copyright (C) 1998-2026 Gilles Vollant (minizip) ( https://www.winimage.com/zLibDll/minizip.html )
+
+         Modifications of Unzip for Zip64
+         Copyright (C) 2007-2008 Even Rouault
+
+         Modifications for Zip64 support on both zip and unzip
+         Copyright (C) 2009-2010 Mathias Svensson ( https://result42.com )
+
+         For more info read MiniZip_info.txt
+
+
+  ------------------------------------------------------------------------------------
+  Decryption code comes from crypt.c by Info-ZIP but has been greatly reduced in terms of
+  compatibility with older software. The following is from the original crypt.c.
+  Code woven in by Terry Thorsen 1/2003.
+
+  Copyright (c) 1990-2000 Info-ZIP.  All rights reserved.
+
+  See the accompanying file LICENSE, version 2000-Apr-09 or later
+  (the contents of which are also included in zip.h) for terms of use.
+  If, for some reason, all these files are missing, the Info-ZIP license
+  also may be found at:  ftp://ftp.info-zip.org/pub/infozip/license.html
+
+        crypt.c (full version) by Info-ZIP.      Last revised:  [see crypt.h]
+
+  The encryption/decryption parts of this source code (as opposed to the
+  non-echoing password parts) were originally written in Europe.  The
+  whole source package can be freely distributed, including from the USA.
+  (Prior to January 2000, re-export from the US was a violation of US law.)
+
+        This encryption code is a direct transcription of the algorithm from
+  Roger Schlafly, described by Phil Katz in the file appnote.txt.  This
+  file (appnote.txt) is distributed with the PKZIP program (even in the
+  version without encryption capabilities).
+
+        ------------------------------------------------------------------------------------
+
+        Changes in unzip.c
+
+        2007-2008 - Even Rouault - Addition of cpl_unzGetCurrentFileZStreamPos
+  2007-2008 - Even Rouault - Decoration of symbol names unz* -> cpl_unz*
+  2007-2008 - Even Rouault - Remove old C style function prototypes
+  2007-2008 - Even Rouault - Add unzip support for ZIP64
+
+        Copyright (C) 2007-2008 Even Rouault
+
+
+  Oct-2009 - Mathias Svensson - Removed cpl_* from symbol names (Even Rouault added them but since this is now moved to a new project (minizip64) I renamed them again).
+  Oct-2009 - Mathias Svensson - Fixed problem if uncompressed size was > 4G and compressed size was <4G
+                                should only read the compressed/uncompressed size from the Zip64 format if
+                                the size from normal header was 0xFFFFFFFF
+  Oct-2009 - Mathias Svensson - Applied some bug fixes from patches received from Gilles Vollant
+  Oct-2009 - Mathias Svensson - Applied support to unzip files with compression method BZIP2 (bzip2 lib is required)
+                                Patch created by Daniel Borca
+
+  Jan-2010 - back to unzip and minizip 1.0 name scheme, with compatibility layer
+
+  Copyright (C) 1998 - 2010 Gilles Vollant, Even Rouault, Mathias Svensson
+
+*/
+
+==> contrib/minizip/unzip.h <==
+/* unzip.h -- IO for uncompress .zip files using zlib
+   part of the MiniZip project - ( https://www.winimage.com/zLibDll/minizip.html )
+
+         Copyright (C) 1998-2026 Gilles Vollant (minizip) ( https://www.winimage.com/zLibDll/minizip.html )
+
+         Modifications of Unzip for Zip64
+         Copyright (C) 2007-2008 Even Rouault
+
+         Modifications for Zip64 support on both zip and unzip
+         Copyright (C) 2009-2010 Mathias Svensson ( https://result42.com )
+
+         For more info read MiniZip_info.txt
+
+         ---------------------------------------------------------------------------------
+
+        Condition of use and distribution are the same than zlib :
+
+  This software is provided 'as-is', without any express or implied
+  warranty.  In no event will the authors be held liable for any damages
+  arising from the use of this software.
+
+  Permission is granted to anyone to use this software for any purpose,
+  including commercial applications, and to alter it and redistribute it
+  freely, subject to the following restrictions:
+
+  1. The origin of this software must not be misrepresented; you must not
+     claim that you wrote the original software. If you use this software
+     in a product, an acknowledgment in the product documentation would be
+     appreciated but is not required.
+  2. Altered source versions must be plainly marked as such, and must not be
+     misrepresented as being the original software.
+  3. This notice may not be removed or altered from any source distribution.
+
+  ---------------------------------------------------------------------------------
+
+        Changes
+
+        See header of unzip64.c
+
+*/
+
+==> contrib/minizip/zip.c <==
+/* zip.c -- IO on .zip files using zlib
+   part of the MiniZip project - ( https://www.winimage.com/zLibDll/minizip.html )
+
+         Copyright (C) 1998-2026 Gilles Vollant (minizip) ( https://www.winimage.com/zLibDll/minizip.html )
+
+         Modifications for Zip64 support
+         Copyright (C) 2009-2010 Mathias Svensson ( https://result42.com )
+
+         For more info read MiniZip_info.txt
+
+         Changes
+   Oct-2009 - Mathias Svensson - Remove old C style function prototypes
+   Oct-2009 - Mathias Svensson - Added Zip64 Support when creating new file archives
+   Oct-2009 - Mathias Svensson - Did some code cleanup and refactoring to get better overview of some functions.
+   Oct-2009 - Mathias Svensson - Added zipRemoveExtraInfoBlock to strip extra field data from its ZIP64 data
+                                 It is used when recreating zip archive with RAW when deleting items from a zip.
+                                 ZIP64 data is automatically added to items that needs it, and existing ZIP64 data need to be removed.
+   Oct-2009 - Mathias Svensson - Added support for BZIP2 as compression mode (bzip2 lib is required)
+   Jan-2010 - back to unzip and minizip 1.0 name scheme, with compatibility layer
+
+*/
+
+==> contrib/minizip/zip.h <==
+/* zip.h -- IO on .zip files using zlib
+   part of the MiniZip project - ( https://www.winimage.com/zLibDll/minizip.html )
+
+         Copyright (C) 1998-2026 Gilles Vollant (minizip) ( https://www.winimage.com/zLibDll/minizip.html )
+
+         Modifications for Zip64 support
+         Copyright (C) 2009-2010 Mathias Svensson ( https://result42.com )
+
+         For more info read MiniZip_info.txt
+
+         ---------------------------------------------------------------------------
+
+   Condition of use and distribution are the same than zlib :
+
+  This software is provided 'as-is', without any express or implied
+  warranty.  In no event will the authors be held liable for any damages
+  arising from the use of this software.
+
+  Permission is granted to anyone to use this software for any purpose,
+  including commercial applications, and to alter it and redistribute it
+  freely, subject to the following restrictions:
+
+  1. The origin of this software must not be misrepresented; you must not
+     claim that you wrote the original software. If you use this software
+     in a product, an acknowledgment in the product documentation would be
+     appreciated but is not required.
+  2. Altered source versions must be plainly marked as such, and must not be
+     misrepresented as being the original software.
+  3. This notice may not be removed or altered from any source distribution.
+
+        ---------------------------------------------------------------------------
+
+        Changes
+
+        See header of zip.h
+
+ */
+
+==> contrib/optimizations/chunkcopy.h <==
+/* chunkcopy.h -- fast chunk copy and set operations
+ * Copyright (C) 2017 ARM, Inc.
+ * Copyright 2017 The Chromium Authors
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the Chromium source repository LICENSE file.
+ */
+
+==> contrib/optimizations/inffast_chunk.c <==
+/* inffast_chunk.c -- fast decoding
+ * Copyright (C) 1995-2026 Mark Adler
+ * Copyright 2023 The Chromium Authors
+ * For conditions of distribution and use, see copyright notice in zlib.h
+ */
+
+==> contrib/optimizations/inffast_chunk.h <==
+/* inffast_chunk.h -- header to use inffast_chunk.c
+ * Copyright (C) 1995-2003, 2010 Mark Adler
+ * Copyright (C) 2017 ARM, Inc.
+ * Copyright 2023 The Chromium Authors
+ * For conditions of distribution and use, see copyright notice in zlib.h
+ */
+
+/* WARNING: this file should *not* be used by applications. It is
+   part of the implementation of the compression library and is
+   subject to change. Applications should only use zlib.h.
+ */
+
+==> contrib/optimizations/inflate.c <==
+/* inflate.c -- zlib decompression
+ * Copyright (C) 1995-2022 Mark Adler
+ * For conditions of distribution and use, see copyright notice in zlib.h
+ */
+
+/*
+ * Change history:
+ *
+ * 1.2.beta0    24 Nov 2002
+ * - First version -- complete rewrite of inflate to simplify code, avoid
+ *   creation of window when not needed, minimize use of window when it is
+ *   needed, make inffast.c even faster, implement gzip decoding, and to
+ *   improve code readability and style over the previous zlib inflate code
+ *
+ * 1.2.beta1    25 Nov 2002
+ * - Use pointers for available input and output checking in inffast.c
+ * - Remove input and output counters in inffast.c
+ * - Change inffast.c entry and loop from avail_in >= 7 to >= 6
+ * - Remove unnecessary second byte pull from length extra in inffast.c
+ * - Unroll direct copy to three copies per loop in inffast.c
+ *
+ * 1.2.beta2    4 Dec 2002
+ * - Change external routine names to reduce potential conflicts
+ * - Correct filename to inffixed.h for fixed tables in inflate.c
+ * - Make hbuf[] unsigned char to match parameter type in inflate.c
+ * - Change strm->next_out[-state->offset] to *(strm->next_out - state->offset)
+ *   to avoid negation problem on Alphas (64 bit) in inflate.c
+ *
+ * 1.2.beta3    22 Dec 2002
+ * - Add comments on state->bits assertion in inffast.c
+ * - Add comments on op field in inftrees.h
+ * - Fix bug in reuse of allocated window after inflateReset()
+ * - Remove bit fields--back to byte structure for speed
+ * - Remove distance extra == 0 check in inflate_fast()--only helps for lengths
+ * - Change post-increments to pre-increments in inflate_fast(), PPC biased?
+ * - Add compile time option, POSTINC, to use post-increments instead (Intel?)
+ * - Make MATCH copy in inflate() much faster for when inflate_fast() not used
+ * - Use local copies of stream next and avail values, as well as local bit
+ *   buffer and bit count in inflate()--for speed when inflate_fast() not used
+ *
+ * 1.2.beta4    1 Jan 2003
+ * - Split ptr - 257 statements in inflate_table() to avoid compiler warnings
+ * - Move a comment on output buffer sizes from inffast.c to inflate.c
+ * - Add comments in inffast.c to introduce the inflate_fast() routine
+ * - Rearrange window copies in inflate_fast() for speed and simplification
+ * - Unroll last copy for window match in inflate_fast()
+ * - Use local copies of window variables in inflate_fast() for speed
+ * - Pull out common wnext == 0 case for speed in inflate_fast()
+ * - Make op and len in inflate_fast() unsigned for consistency
+ * - Add FAR to lcode and dcode declarations in inflate_fast()
+ * - Simplified bad distance check in inflate_fast()
+ * - Added inflateBackInit(), inflateBack(), and inflateBackEnd() in new
+ *   source file infback.c to provide a call-back interface to inflate for
+ *   programs like gzip and unzip -- uses window as output buffer to avoid
+ *   window copying
+ *
+ * 1.2.beta5    1 Jan 2003
+ * - Improved inflateBack() interface to allow the caller to provide initial
+ *   input in strm.
+ * - Fixed stored blocks bug in inflateBack()
+ *
+ * 1.2.beta6    4 Jan 2003
+ * - Added comments in inffast.c on effectiveness of POSTINC
+ * - Typecasting all around to reduce compiler warnings
+ * - Changed loops from while (1) or do {} while (1) to for (;;), again to
+ *   make compilers happy
+ * - Changed type of window in inflateBackInit() to unsigned char *
+ *
+ * 1.2.beta7    27 Jan 2003
+ * - Changed many types to unsigned or unsigned short to avoid warnings
+ * - Added inflateCopy() function
+ *
+ * 1.2.0        9 Mar 2003
+ * - Changed inflateBack() interface to provide separate opaque descriptors
+ *   for the in() and out() functions
+ * - Changed inflateBack() argument and in_func typedef to swap the length
+ *   and buffer address return values for the input function
+ * - Check next_in and next_out for Z_NULL on entry to inflate()
+ *
+ * The history for versions after 1.2.0 are in ChangeLog in zlib distribution.
+ */
+
+==> contrib/optimizations/insert_string.h <==
+/* insert_string.h
+ *
+ * Copyright 2019 The Chromium Authors
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the Chromium source repository LICENSE file.
+ */
+
+==> contrib/qat/deflate_qat.cpp <==
+/*
+ * Copyright (C) 2024 Intel Corporation. All rights reserved.
+ * Authors:
+ *  Gustavo A Espinoza   <gustavo.adolfo.espinoza.quintero@intel.com>
+ *                       <gustavoaespinozaq@hotmail.com>
+ *
+ * For conditions of distribution and use, see copyright notice in zlib.h
+ */
+
+==> contrib/qat/deflate_qat.h <==
+/*
+ * Copyright (C) 2024 Intel Corporation. All rights reserved.
+ * Authors:
+ *  Gustavo A Espinoza   <gustavo.adolfo.espinoza.quintero@intel.com>
+ *                       <gustavoaespinozaq@hotmail.com>
+ *
+ * For conditions of distribution and use, see copyright notice in zlib.h
+ */
+
+==> contrib/qat/qatzpp/io_buffers.cpp <==
+/*
+ * Copyright (C) 2024 Intel Corporation. All rights reserved.
+ * Authors:
+ *  Gustavo A Espinoza   <gustavo.adolfo.espinoza.quintero@intel.com>
+ *                       <gustavoaespinozaq@hotmail.com>
+ *
+ * For conditions of distribution and use, see copyright notice in zlib.h
+ */
+
+==> contrib/qat/qatzpp/io_buffers.h <==
+/*
+ * Copyright (C) 2024 Intel Corporation. All rights reserved.
+ * Authors:
+ *  Gustavo A Espinoza   <gustavo.adolfo.espinoza.quintero@intel.com>
+ *                       <gustavoaespinozaq@hotmail.com>
+ *
+ * For conditions of distribution and use, see copyright notice in zlib.h
+ */
+
+==> contrib/qat/qatzpp/memory.cpp <==
+/*
+ * Copyright (C) 2024 Intel Corporation. All rights reserved.
+ * Authors:
+ *  Gustavo A Espinoza   <gustavo.adolfo.espinoza.quintero@intel.com>
+ *                       <gustavoaespinozaq@hotmail.com>
+ *
+ * For conditions of distribution and use, see copyright notice in zlib.h
+ */
+
+==> contrib/qat/qatzpp/qat.cpp <==
+/*
+ * Copyright (C) 2024 Intel Corporation. All rights reserved.
+ * Authors:
+ *  Gustavo A Espinoza   <gustavo.adolfo.espinoza.quintero@intel.com>
+ *                       <gustavoaespinozaq@hotmail.com>
+ *
+ * For conditions of distribution and use, see copyright notice in zlib.h
+ */
+
+==> contrib/qat/qatzpp/qat_buffer_list.cpp <==
+/*
+ * Copyright (C) 2024 Intel Corporation. All rights reserved.
+ * Authors:
+ *  Gustavo A Espinoza   <gustavo.adolfo.espinoza.quintero@intel.com>
+ *                       <gustavoaespinozaq@hotmail.com>
+ *
+ * For conditions of distribution and use, see copyright notice in zlib.h
+ */
+
+==> contrib/qat/qatzpp/qat_instance.cpp <==
+/*
+ * Copyright (C) 2024 Intel Corporation. All rights reserved.
+ * Authors:
+ *  Gustavo A Espinoza   <gustavo.adolfo.espinoza.quintero@intel.com>
+ *                       <gustavoaespinozaq@hotmail.com>
+ *
+ * For conditions of distribution and use, see copyright notice in zlib.h
+ */
+
+==> contrib/qat/qatzpp/qat_task.cpp <==
+/*
+ * Copyright (C) 2024 Intel Corporation. All rights reserved.
+ * Authors:
+ *  Gustavo A Espinoza   <gustavo.adolfo.espinoza.quintero@intel.com>
+ *                       <gustavoaespinozaq@hotmail.com>
+ *
+ * For conditions of distribution and use, see copyright notice in zlib.h
+ */
+
+==> contrib/qat/qatzpp/session.cpp <==
+/*
+ * Copyright (C) 2024 Intel Corporation. All rights reserved.
+ * Authors:
+ *  Gustavo A Espinoza   <gustavo.adolfo.espinoza.quintero@intel.com>
+ *                       <gustavoaespinozaq@hotmail.com>
+ *
+ * For conditions of distribution and use, see copyright notice in zlib.h
+ */
+
+==> contrib/tests/fuzzers/compress_fuzzer.cc <==
+// Copyright 2024 The Chromium Authors
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+
+==> contrib/tests/fuzzers/deflate_fuzzer.cc <==
+// Copyright 2017 The Chromium Authors
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+
+==> contrib/tests/fuzzers/deflate_set_dictionary_fuzzer.cc <==
+// Copyright 2017 The Chromium Authors
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+
+==> contrib/tests/fuzzers/inflate_fuzzer.cc <==
+// Copyright 2017 The Chromium Authors
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+
+==> contrib/tests/fuzzers/inflate_with_header_fuzzer.cc <==
+// Copyright 2022 The Chromium Authors
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+
+==> contrib/tests/fuzzers/minizip_unzip_fuzzer.cc <==
+// Copyright 2025 The Chromium Authors
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+
+==> contrib/tests/fuzzers/streaming_inflate_fuzzer.cc <==
+// Copyright 2020 The Chromium Authors
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+
+==> contrib/tests/fuzzers/uncompress_fuzzer.cc <==
+// Copyright 2015 The Chromium Authors
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+
+==> contrib/tests/infcover.cc <==
+/* infcover.c -- test zlib's inflate routines with full code coverage
+ * Copyright (C) 2011, 2016 Mark Adler
+ * For conditions of distribution and use, see copyright notice in zlib.h
+ */
+
+/* to use, do: ./configure --cover && make cover */
+// clang-format off
+
+==> contrib/tests/run_all_unittests.cc <==
+// Copyright 2020 The Chromium Authors
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+
+==> contrib/tests/standalone_test_runner.cc <==
+// Copyright 2023 The Chromium Authors
+// Use of this source code is governed by a BSD-style license that can be
+// found in the Chromium source repository LICENSE file.
+
+==> contrib/tests/utils_unittest.cc <==
+// Copyright 2020 The Chromium Authors
+// Use of this source code is governed by a BSD-style license that can be
+// found in the Chromium source repository LICENSE file.
+
+==> cpu_features.c <==
+/* cpu_features.c -- Processor features detection.
+ *
+ * Copyright 2018 The Chromium Authors
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the Chromium source repository LICENSE file.
+ */
+
+==> cpu_features.h <==
+/* cpu_features.h -- Processor features detection.
+ *
+ * Copyright 2018 The Chromium Authors
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the Chromium source repository LICENSE file.
+ */
+
+==> crc32.c <==
+/* crc32.c -- compute the CRC-32 of a data stream
+ * Copyright (C) 1995-2026 Mark Adler
+ * For conditions of distribution and use, see copyright notice in zlib.h
+ *
+ * This interleaved implementation of a CRC makes use of pipelined multiple
+ * arithmetic-logic units, commonly found in modern CPU cores. It is due to
+ * Kadatch and Jenkins (2010). See doc/crc-doc.1.0.pdf in this distribution.
+ */
+
+/* @(#) $Id$ */
+
+/*
+  Note on the use of DYNAMIC_CRC_TABLE: there is no mutex or semaphore
+  protection on the static variables used to control the first-use generation
+  of the crc tables. Therefore, if you #define DYNAMIC_CRC_TABLE, you should
+  first call get_crc_table() to initialize the tables before allowing more than
+  one thread to use crc32().
+
+  MAKECRCH can be #defined to write out crc32.h. A main() routine is also
+  produced, so that this one source file can be compiled to an executable.
+ */
+
+==> crc32_simd.c <==
+/* crc32_simd.c
+ *
+ * Copyright 2017 The Chromium Authors
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the Chromium source repository LICENSE file.
+ */
+
+==> crc32_simd.h <==
+/* crc32_simd.h
+ *
+ * Copyright 2017 The Chromium Authors
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the Chromium source repository LICENSE file.
+ */
+
+==> crc_folding.c <==
+/*
+ * Compute the CRC32 using a parallelized folding approach with the PCLMULQDQ
+ * instruction.
+ *
+ * A white paper describing this algorithm can be found at:
+ * http://www.intel.com/content/dam/www/public/us/en/documents/white-papers/fast-crc-computation-generic-polynomials-pclmulqdq-paper.pdf
+ *
+ * Copyright (C) 2013 Intel Corporation. All rights reserved.
+ * Authors:
+ * 	Wajdi Feghali   <wajdi.k.feghali@intel.com>
+ * 	Jim Guilford    <james.guilford@intel.com>
+ * 	Vinodh Gopal    <vinodh.gopal@intel.com>
+ * 	Erdinc Ozturk   <erdinc.ozturk@intel.com>
+ * 	Jim Kukunas     <james.t.kukunas@linux.intel.com>
+ *
+ * For conditions of distribution and use, see copyright notice in zlib.h
+ */
+
+==> deflate.c <==
+/* deflate.c -- compress data using the deflation algorithm
+ * Copyright (C) 1995-2026 Jean-loup Gailly and Mark Adler
+ * For conditions of distribution and use, see copyright notice in zlib.h
+ */
+
+/*
+ *  ALGORITHM
+ *
+ *      The "deflation" process depends on being able to identify portions
+ *      of the input text which are identical to earlier input (within a
+ *      sliding window trailing behind the input currently being processed).
+ *
+ *      The most straightforward technique turns out to be the fastest for
+ *      most input files: try all possible matches and select the longest.
+ *      The key feature of this algorithm is that insertions into the string
+ *      dictionary are very simple and thus fast, and deletions are avoided
+ *      completely. Insertions are performed at each input character, whereas
+ *      string matches are performed only when the previous match ends. So it
+ *      is preferable to spend more time in matches to allow very fast string
+ *      insertions and avoid deletions. The matching algorithm for small
+ *      strings is inspired from that of Rabin & Karp. A brute force approach
+ *      is used to find longer strings when a small match has been found.
+ *      A similar algorithm is used in comic (by Jan-Mark Wams) and freeze
+ *      (by Leonid Broukhis).
+ *         A previous version of this file used a more sophisticated algorithm
+ *      (by Fiala and Greene) which is guaranteed to run in linear amortized
+ *      time, but has a larger average cost, uses more memory and is patented.
+ *      However the F&G algorithm may be faster for some highly redundant
+ *      files if the parameter max_chain_length (described below) is too large.
+ *
+ *  ACKNOWLEDGEMENTS
+ *
+ *      The idea of lazy evaluation of matches is due to Jan-Mark Wams, and
+ *      I found it in 'freeze' written by Leonid Broukhis.
+ *      Thanks to many people for bug reports and testing.
+ *
+ *  REFERENCES
+ *
+ *      Deutsch, L.P.,"DEFLATE Compressed Data Format Specification".
+ *      Available at https://datatracker.ietf.org/doc/html/rfc1951
+ *
+ *      A description of the Rabin and Karp algorithm is given in the book
+ *         "Algorithms" by R. Sedgewick, Addison-Wesley, p252.
+ *
+ *      Fiala,E.R., and Greene,D.H.
+ *         Data Compression with Finite Windows, Comm.ACM, 32,4 (1989) 490-595
+ *
+ */
+
+/* @(#) $Id$ */
+
+==> deflate.h <==
+/* deflate.h -- internal compression state
+ * Copyright (C) 1995-2026 Jean-loup Gailly
+ * For conditions of distribution and use, see copyright notice in zlib.h
+ */
+
+/* WARNING: this file should *not* be used by applications. It is
+   part of the implementation of the compression library and is
+   subject to change. Applications should only use zlib.h.
+ */
+
+/* @(#) $Id$ */
+
+==> examples/zpipe.c <==
+/* zpipe.c: example of proper use of zlib's inflate() and deflate()
+   Not copyrighted -- provided to the public domain
+   Version 1.5  11 February 2026  Mark Adler */
+
+/* Version history:
+   1.0  30 Oct 2004  First version
+   1.1   8 Nov 2004  Add void casting for unused return values
+                     Use switch statement for inflate() return values
+   1.2   9 Nov 2004  Add assertions to document zlib guarantees
+   1.3   6 Apr 2005  Remove incorrect assertion in inf()
+   1.4  11 Dec 2005  Add hack to avoid MSDOS end-of-line conversions
+                     Avoid some compiler warnings for input and output buffers
+   1.5  11 Feb 2026  Use underscores for Windows POSIX names
+ */
+
+==> google/compression_utils.cc <==
+// Copyright 2014 The Chromium Authors
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+
+==> google/compression_utils.h <==
+// Copyright 2014 The Chromium Authors
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+
+==> google/compression_utils_portable.cc <==
+/* compression_utils_portable.cc
+ *
+ * Copyright 2019 The Chromium Authors
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the Chromium source repository LICENSE file.
+ */
+
+==> google/compression_utils_portable.h <==
+/* compression_utils_portable.h
+ *
+ * Copyright 2019 The Chromium Authors
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the Chromium source repository LICENSE file.
+ */
+
+==> google/compression_utils_unittest.cc <==
+// Copyright 2014 The Chromium Authors
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+
+==> google/redact.h <==
+// Copyright 2022 The Chromium Authors
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+
+==> google/zip.cc <==
+// Copyright 2012 The Chromium Authors
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+
+==> google/zip.h <==
+// Copyright 2011 The Chromium Authors
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+
+==> google/zip_internal.cc <==
+// Copyright 2011 The Chromium Authors
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+
+==> google/zip_internal.h <==
+// Copyright 2011 The Chromium Authors
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+
+==> google/zip_reader.cc <==
+// Copyright 2012 The Chromium Authors
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+
+==> google/zip_reader.h <==
+// Copyright 2011 The Chromium Authors
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+
+==> google/zip_reader_unittest.cc <==
+// Copyright 2011 The Chromium Authors
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+
+==> google/zip_unittest.cc <==
+// Copyright 2011 The Chromium Authors
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+
+==> google/zip_writer.cc <==
+// Copyright 2017 The Chromium Authors
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+
+==> google/zip_writer.h <==
+// Copyright 2017 The Chromium Authors
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+
+==> gzclose.c <==
+/* gzclose.c -- zlib gzclose() function
+ * Copyright (C) 2004, 2010 Mark Adler
+ * For conditions of distribution and use, see copyright notice in zlib.h
+ */
+
+==> gzguts.h <==
+/* gzguts.h -- zlib internal header definitions for gz* operations
+ * Copyright (C) 2004-2026 Mark Adler
+ * For conditions of distribution and use, see copyright notice in zlib.h
+ */
+
+==> gzlib.c <==
+/* gzlib.c -- zlib functions common to reading and writing gzip files
+ * Copyright (C) 2004-2026 Mark Adler
+ * For conditions of distribution and use, see copyright notice in zlib.h
+ */
+
+==> gzread.c <==
+/* gzread.c -- zlib functions for reading gzip files
+ * Copyright (C) 2004-2026 Mark Adler
+ * For conditions of distribution and use, see copyright notice in zlib.h
+ */
+
+==> gzwrite.c <==
+/* gzwrite.c -- zlib functions for writing gzip files
+ * Copyright (C) 2004-2026 Mark Adler
+ * For conditions of distribution and use, see copyright notice in zlib.h
+ */
+
+==> infback.c <==
+/* infback.c -- inflate using a call-back interface
+ * Copyright (C) 1995-2026 Mark Adler
+ * For conditions of distribution and use, see copyright notice in zlib.h
+ */
+
+/*
+   This code is largely copied from inflate.c.  Normally either infback.o or
+   inflate.o would be linked into an application--not both.  The interface
+   with inffast.c is retained so that optimized assembler-coded versions of
+   inflate_fast() can be used with either inflate.c or infback.c.
+ */
+
+==> inffast.c <==
+/* inffast.c -- fast decoding
+ * Copyright (C) 1995-2026 Mark Adler
+ * For conditions of distribution and use, see copyright notice in zlib.h
+ */
+
+==> inffast.h <==
+/* inffast.h -- header to use inffast.c
+ * Copyright (C) 1995-2003, 2010 Mark Adler
+ * For conditions of distribution and use, see copyright notice in zlib.h
+ */
+
+/* WARNING: this file should *not* be used by applications. It is
+   part of the implementation of the compression library and is
+   subject to change. Applications should only use zlib.h.
+ */
+
+/* INFLATE_FAST_MIN_INPUT: the minimum number of input bytes needed so that
+   we can safely call inflate_fast() with only one up-front bounds check. One
+   length/distance code pair (15 bits for the length code, 5 bits for length
+   extra, 15 bits for the distance code, 13 bits for distance extra) requires
+   reading up to 48 input bits (6 bytes).
+*/
+
+==> inflate.c <==
+/* inflate.c -- zlib decompression
+ * Copyright (C) 1995-2026 Mark Adler
+ * For conditions of distribution and use, see copyright notice in zlib.h
+ */
+
+/*
+ * Change history:
+ *
+ * 1.2.beta0    24 Nov 2002
+ * - First version -- complete rewrite of inflate to simplify code, avoid
+ *   creation of window when not needed, minimize use of window when it is
+ *   needed, make inffast.c even faster, implement gzip decoding, and to
+ *   improve code readability and style over the previous zlib inflate code
+ *
+ * 1.2.beta1    25 Nov 2002
+ * - Use pointers for available input and output checking in inffast.c
+ * - Remove input and output counters in inffast.c
+ * - Change inffast.c entry and loop from avail_in >= 7 to >= 6
+ * - Remove unnecessary second byte pull from length extra in inffast.c
+ * - Unroll direct copy to three copies per loop in inffast.c
+ *
+ * 1.2.beta2    4 Dec 2002
+ * - Change external routine names to reduce potential conflicts
+ * - Correct filename to inffixed.h for fixed tables in inflate.c
+ * - Make hbuf[] unsigned char to match parameter type in inflate.c
+ * - Change strm->next_out[-state->offset] to *(strm->next_out - state->offset)
+ *   to avoid negation problem on Alphas (64 bit) in inflate.c
+ *
+ * 1.2.beta3    22 Dec 2002
+ * - Add comments on state->bits assertion in inffast.c
+ * - Add comments on op field in inftrees.h
+ * - Fix bug in reuse of allocated window after inflateReset()
+ * - Remove bit fields--back to byte structure for speed
+ * - Remove distance extra == 0 check in inflate_fast()--only helps for lengths
+ * - Change post-increments to pre-increments in inflate_fast(), PPC biased?
+ * - Add compile time option, POSTINC, to use post-increments instead (Intel?)
+ * - Make MATCH copy in inflate() much faster for when inflate_fast() not used
+ * - Use local copies of stream next and avail values, as well as local bit
+ *   buffer and bit count in inflate()--for speed when inflate_fast() not used
+ *
+ * 1.2.beta4    1 Jan 2003
+ * - Split ptr - 257 statements in inflate_table() to avoid compiler warnings
+ * - Move a comment on output buffer sizes from inffast.c to inflate.c
+ * - Add comments in inffast.c to introduce the inflate_fast() routine
+ * - Rearrange window copies in inflate_fast() for speed and simplification
+ * - Unroll last copy for window match in inflate_fast()
+ * - Use local copies of window variables in inflate_fast() for speed
+ * - Pull out common wnext == 0 case for speed in inflate_fast()
+ * - Make op and len in inflate_fast() unsigned for consistency
+ * - Add FAR to lcode and dcode declarations in inflate_fast()
+ * - Simplified bad distance check in inflate_fast()
+ * - Added inflateBackInit(), inflateBack(), and inflateBackEnd() in new
+ *   source file infback.c to provide a call-back interface to inflate for
+ *   programs like gzip and unzip -- uses window as output buffer to avoid
+ *   window copying
+ *
+ * 1.2.beta5    1 Jan 2003
+ * - Improved inflateBack() interface to allow the caller to provide initial
+ *   input in strm.
+ * - Fixed stored blocks bug in inflateBack()
+ *
+ * 1.2.beta6    4 Jan 2003
+ * - Added comments in inffast.c on effectiveness of POSTINC
+ * - Typecasting all around to reduce compiler warnings
+ * - Changed loops from while (1) or do {} while (1) to for (;;), again to
+ *   make compilers happy
+ * - Changed type of window in inflateBackInit() to unsigned char *
+ *
+ * 1.2.beta7    27 Jan 2003
+ * - Changed many types to unsigned or unsigned short to avoid warnings
+ * - Added inflateCopy() function
+ *
+ * 1.2.0        9 Mar 2003
+ * - Changed inflateBack() interface to provide separate opaque descriptors
+ *   for the in() and out() functions
+ * - Changed inflateBack() argument and in_func typedef to swap the length
+ *   and buffer address return values for the input function
+ * - Check next_in and next_out for Z_NULL on entry to inflate()
+ *
+ * The history for versions after 1.2.0 are in ChangeLog in zlib distribution.
+ */
+
+==> inflate.h <==
+/* inflate.h -- internal inflate state definition
+ * Copyright (C) 1995-2019 Mark Adler
+ * For conditions of distribution and use, see copyright notice in zlib.h
+ */
+
+/* WARNING: this file should *not* be used by applications. It is
+   part of the implementation of the compression library and is
+   subject to change. Applications should only use zlib.h.
+ */
+
+/* define NO_GZIP when compiling if you want to disable gzip header and
+   trailer decoding by inflate().  NO_GZIP would be used to avoid linking in
+   the crc code when it is not needed.  For shared libraries, gzip decoding
+   should be left enabled. */
+
+==> inftrees.c <==
+/* inftrees.c -- generate Huffman trees for efficient decoding
+ * Copyright (C) 1995-2026 Mark Adler
+ * For conditions of distribution and use, see copyright notice in zlib.h
+ */
+
+==> inftrees.h <==
+/* inftrees.h -- header to use inftrees.c
+ * Copyright (C) 1995-2026 Mark Adler
+ * For conditions of distribution and use, see copyright notice in zlib.h
+ */
+
+/* WARNING: this file should *not* be used by applications. It is
+   part of the implementation of the compression library and is
+   subject to change. Applications should only use zlib.h.
+ */
+
+/* Structure for decoding tables.  Each entry provides either the
+   information needed to do the operation requested by the code that
+   indexed that table entry, or it provides a pointer to another
+   table that indexes more bits of the code.  op indicates whether
+   the entry is a pointer to another table, a literal, a length or
+   distance, an end-of-block, or an invalid code.  For a table
+   pointer, the low four bits of op is the number of index bits of
+   that table.  For a length or distance, the low four bits of op
+   is the number of extra bits to get after the code.  bits is
+   the number of bits in this code or part of the code to drop off
+   of the bit buffer.  val is the actual byte to output in the case
+   of a literal, the base length or distance, or the offset from
+   the current table to the next table.  Each entry is four bytes. */
+
+==> slide_hash_simd.h <==
+/* slide_hash_simd.h
+ *
+ * Copyright 2022 The Chromium Authors
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the Chromium source repository LICENSE file.
+ */
+
+==> test/minigzip.c <==
+/* minigzip.c -- simulate gzip using the zlib compression library
+ * Copyright (C) 1995-2026 Jean-loup Gailly
+ * For conditions of distribution and use, see copyright notice in zlib.h
+ */
+
+/*
+ * minigzip is a minimal implementation of the gzip utility. This is
+ * only an example of using zlib and isn't meant to replace the
+ * full-featured gzip. No attempt is made to deal with file systems
+ * limiting names to 14 or 8+3 characters, etc... Error checking is
+ * very limited. So use minigzip only for testing; use gzip for the
+ * real thing. On MSDOS, use only on file names without extension
+ * or in pipe mode.
+ */
+
+/* @(#) $Id$ */
+
+==> trees.c <==
+/* trees.c -- output deflated data using Huffman coding
+ * Copyright (C) 1995-2026 Jean-loup Gailly
+ * detect_data_type() function provided freely by Cosmin Truta, 2006
+ * For conditions of distribution and use, see copyright notice in zlib.h
+ */
+
+/*
+ *  ALGORITHM
+ *
+ *      The "deflation" process uses several Huffman trees. The more
+ *      common source values are represented by shorter bit sequences.
+ *
+ *      Each code tree is stored in a compressed form which is itself
+ * a Huffman encoding of the lengths of all the code strings (in
+ * ascending order by source values).  The actual code strings are
+ * reconstructed from the lengths in the inflate process, as described
+ * in the deflate specification.
+ *
+ *  REFERENCES
+ *
+ *      Deutsch, L.P.,"'Deflate' Compressed Data Format Specification".
+ *      Available in ftp.uu.net:/pub/archiving/zip/doc/deflate-1.1.doc
+ *
+ *      Storer, James A.
+ *          Data Compression:  Methods and Theory, pp. 49-50.
+ *          Computer Science Press, 1988.  ISBN 0-7167-8156-5.
+ *
+ *      Sedgewick, R.
+ *          Algorithms, p290.
+ *          Addison-Wesley, 1983. ISBN 0-201-06672-6.
+ */
+
+/* @(#) $Id$ */
+
+/* #define GEN_TREES_H */
+
+==> uncompr.c <==
+/* uncompr.c -- decompress a memory buffer
+ * Copyright (C) 1995-2026 Jean-loup Gailly, Mark Adler
+ * For conditions of distribution and use, see copyright notice in zlib.h
+ */
+
+/* @(#) $Id$ */
+
+==> zconf.h <==
+/* zconf.h -- configuration of the zlib compression library
+ * Copyright (C) 1995-2026 Jean-loup Gailly, Mark Adler
+ * For conditions of distribution and use, see copyright notice in zlib.h
+ */
+
+/* @(#) $Id$ */
+
+==> zlib.h <==
+/* zlib.h -- interface of the 'zlib' general purpose compression library
+  version 1.3.2.1, February xxth, 2026
+
+  Copyright (C) 1995-2026 Jean-loup Gailly and Mark Adler
+
+  This software is provided 'as-is', without any express or implied
+  warranty.  In no event will the authors be held liable for any damages
+  arising from the use of this software.
+
+  Permission is granted to anyone to use this software for any purpose,
+  including commercial applications, and to alter it and redistribute it
+  freely, subject to the following restrictions:
+
+  1. The origin of this software must not be misrepresented; you must not
+     claim that you wrote the original software. If you use this software
+     in a product, an acknowledgment in the product documentation would be
+     appreciated but is not required.
+  2. Altered source versions must be plainly marked as such, and must not be
+     misrepresented as being the original software.
+  3. This notice may not be removed or altered from any source distribution.
+
+  Jean-loup Gailly        Mark Adler
+  jloup@gzip.org          madler@alumni.caltech.edu
+
+
+  The data format used by the zlib library is described by RFCs (Request for
+  Comments) 1950 to 1952 at https://datatracker.ietf.org/doc/html/rfc1950
+  (zlib format), rfc1951 (deflate format) and rfc1952 (gzip format).
+*/
+
+==> zutil.c <==
+/* zutil.c -- target dependent utility functions for the compression library
+ * Copyright (C) 1995-2026 Jean-loup Gailly
+ * For conditions of distribution and use, see copyright notice in zlib.h
+ */
+
+/* @(#) $Id$ */
+
+==> zutil.h <==
+/* zutil.h -- internal interface and configuration of the compression library
+ * Copyright (C) 1995-2026 Jean-loup Gailly, Mark Adler
+ * For conditions of distribution and use, see copyright notice in zlib.h
+ */
+
+/* WARNING: this file should *not* be used by applications. It is
+   part of the implementation of the compression library and is
+   subject to change. Applications should only use zlib.h.
+ */
+
+/* @(#) $Id$ */

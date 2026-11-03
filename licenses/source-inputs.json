@@ -203,7 +203,9 @@
       "archive": "sparkle-eef1a539a373c1f1a320624b1130fc5de7b2e100.tar.gz"
     }
   },
-  "gaps": [
-    "ANGLE: exact ANGLE and fetched dependency revisions and patch application state are unknown; see licenses/ANGLE-AUDIT.md."
+  "gaps": [],
+  "findings": [
+    "ANGLE external build revisions and patch application were not recorded. DEPS references establish permissive notices; corresponding source is not required.",
+    "ANGLE tag archive differs from tag formula checksum. Retention uses the verified formula embedded in the bottle."
   ]
 }

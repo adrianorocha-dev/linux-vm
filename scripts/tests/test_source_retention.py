@@ -9,6 +9,8 @@ import subprocess
 import tarfile
 import tempfile
 import unittest
+from unittest.mock import patch
+from argparse import Namespace
 
 ROOT = Path(__file__).resolve().parents[2]
 SPEC = importlib.util.spec_from_file_location('retention', ROOT / 'scripts/retain-release-source.py')
@@ -92,13 +94,52 @@ class RetentionTests(unittest.TestCase):
                     with self.assertRaisesRegex(ValueError, 'retained checksum differs'):
                         retention.verify_bundle(path)
 
-    def test_complete_archive_refuses_known_source_gaps(self):
+    def test_copyleft_inputs_cannot_be_optional(self):
+        manifest = retention.notices.load()
+        self.assertFalse(retention.retention_required(manifest, 'angle-source', manifest['inputs']['angle-source']))
+        for key in ('qemu', 'bottle-glib', 'bottle-gettext', 'bottle-libusb'):
+            item = dict(manifest['inputs'][key], retention='best-effort')
+            with self.assertRaisesRegex(ValueError, 'copyleft'):
+                retention.retention_required(manifest, key, item)
+
+    def test_optional_angle_failure_does_not_hide_required_source_failure(self):
         with tempfile.TemporaryDirectory() as directory:
-            result = subprocess.run(['python3', str(ROOT / 'scripts/retain-release-source.py'),
-                                     '--output', str(Path(directory) / 'complete.tar.gz')], capture_output=True, text=True)
-            self.assertEqual(result.returncode, 1)
-            self.assertIn('complete source unavailable: ANGLE', result.stderr)
-            self.assertFalse((Path(directory) / 'complete.tar.gz').exists())
+            root = Path(directory)
+            git(root, 'init', '--quiet')
+            (root / 'licenses').mkdir()
+            manifest = {'components': [{'id': 'angle', 'inputs': ['angle-source'], 'license': 'BSD-3-Clause'},
+                                       {'id': 'qemu', 'inputs': ['qemu'], 'license': 'GPL-2.0-only'}],
+                        'inputs': {'angle-source': {'retention': 'best-effort', 'archive': 'angle.tar.gz'}, 'qemu': {'archive': 'qemu.tar.gz'}}}
+            (root / 'licenses/manifest.json').write_text(json.dumps(manifest))
+            (root / 'licenses/source-inputs.json').write_text(json.dumps({'extra_sources': {}, 'bottles': {}, 'gaps': []}))
+            git(root, 'add', '.')
+            git(root, '-c', 'user.name=Test', '-c', 'user.email=test@example.invalid', 'commit', '--quiet', '-m', 'fixture')
+            args = Namespace(subset=None, output=root / 'complete.tar.gz', inputs=root, cache=root / 'cache')
+
+            def download(collector, key, item, existing):
+                if key == 'angle-source':
+                    raise OSError('optional ANGLE unavailable')
+                payload = collector.stage / key
+                payload.write_bytes(b'required source')
+                collector.record(key, payload, item)
+
+            with patch.object(retention, 'ROOT', root), patch.object(retention.notices, 'load', return_value=manifest), \
+                    patch.object(retention, 'formula_sources', return_value={}), \
+                    patch.object(retention.Collector, 'download', download):
+                retention.collect(args)
+            with tarfile.open(args.output) as archive:
+                index = json.load(archive.extractfile('release-source/SOURCE-INDEX.json'))
+            self.assertTrue(index['complete'])
+            self.assertIn('angle-source', index['optional_failures'])
+            self.assertIn('qemu', index['artifacts'])
+            args.output.unlink()
+            with patch.object(retention, 'ROOT', root), patch.object(retention.notices, 'load', return_value=manifest), \
+                    patch.object(retention, 'run', side_effect=[b'', b'test-revision']), \
+                    patch.object(retention, 'formula_sources', return_value={}), \
+                    patch.object(retention.Collector, 'download', side_effect=OSError('required source missing')):
+                with self.assertRaisesRegex(OSError, 'required source missing'):
+                    retention.collect(args)
+            self.assertFalse(args.output.exists())
 
 
 if __name__ == '__main__':

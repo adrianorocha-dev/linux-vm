@@ -1,0 +1,516 @@
+==> include/CL/cl.h <==
+/*******************************************************************************
+ * Copyright (c) 2008-2020 The Khronos Group Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ ******************************************************************************/
+
+==> include/CL/cl_d3d10.h <==
+/*******************************************************************************
+ * Copyright (c) 2008-2023 The Khronos Group Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ ******************************************************************************/
+
+==> include/CL/cl_d3d11.h <==
+/*******************************************************************************
+ * Copyright (c) 2008-2023 The Khronos Group Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ ******************************************************************************/
+
+==> include/CL/cl_dx9_media_sharing.h <==
+/*******************************************************************************
+ * Copyright (c) 2008-2023 The Khronos Group Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ ******************************************************************************/
+
+==> include/CL/cl_dx9_media_sharing_intel.h <==
+/*******************************************************************************
+ * Copyright (c) 2008-2020 The Khronos Group Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ ******************************************************************************/
+
+==> include/CL/cl_egl.h <==
+/*******************************************************************************
+ * Copyright (c) 2008-2023 The Khronos Group Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ ******************************************************************************/
+
+==> include/CL/cl_ext.h <==
+/*******************************************************************************
+ * Copyright (c) 2008-2023 The Khronos Group Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ ******************************************************************************/
+
+==> include/CL/cl_ext_intel.h <==
+/*******************************************************************************
+ * Copyright (c) 2008-2020 The Khronos Group Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ ******************************************************************************/
+
+==> include/CL/cl_function_types.h <==
+/*
+ * Copyright (c) 2023 The Khronos Group Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * OpenCL is a trademark of Apple Inc. used under license by Khronos.
+ */
+
+==> include/CL/cl_gl.h <==
+/*******************************************************************************
+ * Copyright (c) 2008-2023 The Khronos Group Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ ******************************************************************************/
+
+==> include/CL/cl_gl_ext.h <==
+/*******************************************************************************
+ * Copyright (c) 2008-2021 The Khronos Group Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ ******************************************************************************/
+
+==> include/CL/cl_half.h <==
+/*******************************************************************************
+ * Copyright (c) 2019-2020 The Khronos Group Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ ******************************************************************************/
+
+/**
+ * This is a header-only utility library that provides OpenCL host code with
+ * routines for converting to/from cl_half values.
+ *
+ * Example usage:
+ *
+ *    #include <CL/cl_half.h>
+ *    ...
+ *    cl_half h = cl_half_from_float(0.5f, CL_HALF_RTE);
+ *    cl_float f = cl_half_to_float(h);
+ */
+
+==> include/CL/cl_icd.h <==
+/*******************************************************************************
+ * Copyright (c) 2019-2020 The Khronos Group Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ ******************************************************************************/
+
+==> include/CL/cl_layer.h <==
+/*******************************************************************************
+ * Copyright (c) 2008-2023 The Khronos Group Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ ******************************************************************************/
+
+==> include/CL/cl_platform.h <==
+/*******************************************************************************
+ * Copyright (c) 2008-2020 The Khronos Group Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ ******************************************************************************/
+
+==> include/CL/cl_va_api_media_sharing_intel.h <==
+/*******************************************************************************
+ * Copyright (c) 2008-2023 The Khronos Group Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ ******************************************************************************/
+
+==> include/CL/cl_version.h <==
+/*******************************************************************************
+ * Copyright (c) 2018-2020 The Khronos Group Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ ******************************************************************************/
+
+==> include/CL/opencl.h <==
+/*******************************************************************************
+ * Copyright (c) 2008-2021 The Khronos Group Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ ******************************************************************************/
+
+==> include/EGL/eglext_angle.h <==
+//
+// Copyright 2017 The ANGLE Project Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+//
+// eglext_angle.h: ANGLE modifications to the eglext.h header file.
+//   Currently we don't include this file directly, we patch eglext.h
+//   to include it implicitly so it is visible throughout our code.
+
+==> include/GLES/egl.h <==
+/*
+** Copyright (c) 2008-2017 The Khronos Group Inc.
+**
+** Licensed under the Apache License, Version 2.0 (the "License");
+** you may not use this file except in compliance with the License.
+** You may obtain a copy of the License at
+**
+**     http://www.apache.org/licenses/LICENSE-2.0
+**
+** Unless required by applicable law or agreed to in writing, software
+** distributed under the License is distributed on an "AS IS" BASIS,
+** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+** See the License for the specific language governing permissions and
+** limitations under the License.
+*/
+
+/*
+ * Skeleton egl.h to provide compatibility for early GLES 1.0
+ * applications. Several early implementations included gl.h
+ * in egl.h leading applications to include only egl.h
+ */
+
+==> include/GLES2/gl2ext_angle.h <==
+//
+// Copyright 2017 The ANGLE Project Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+//
+// gl2ext_angle.h: ANGLE modifications to the gl2ext.h header file.
+//   Currently we don't include this file directly, we patch gl2ext.h
+//   to include it implicitly so it is visible throughout our code.
+
+==> include/GLSLANG/ShaderLang.h <==
+//
+// Copyright 2002 The ANGLE Project Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+//
+
+==> include/GLSLANG/ShaderVars.h <==
+//
+// Copyright 2013 The ANGLE Project Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+//
+// ShaderVars.h:
+//  Types to represent GL variables (varyings, uniforms, etc)
+//
+
+==> include/angle_cl.h <==
+//
+// Copyright 2021 The ANGLE Project Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+//
+// angle_cl.h: Includes all necessary CL headers and definitions for ANGLE.
+
+==> include/angle_gl.h <==
+//
+// Copyright 2014 The ANGLE Project Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+//
+// angle_gl.h:
+//   Includes all necessary GL headers and definitions for ANGLE.
+//
+
+==> include/angle_windowsstore.h <==
+//
+// Copyright 2014 The ANGLE Project Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+//
+// angle_windowsstore.h:
+
+==> include/export.h <==
+//
+// Copyright 2014 The ANGLE Project Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+//
+
+// export.h : Defines ANGLE_EXPORT, a macro for exporting functions from the DLL
+
+==> include/platform/Feature.h <==
+//
+// Copyright 2019 The ANGLE Project Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+//
+// Feature.h: Definition of structs to hold feature/workaround information.
+//
+
+==> include/platform/PlatformMethods.h <==
+//
+// Copyright 2015 The ANGLE Project Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+
+// PlatformMethods.h: The public interface ANGLE exposes to the API layer, for
+//   doing platform-specific tasks like gathering data, or for tracing.
+
+==> include/platform/autogen/FeaturesD3D_autogen.h <==
+// GENERATED FILE - DO NOT EDIT.
+// Generated by gen_features.py using data from d3d_features.json.
+//
+// Copyright 2022 The ANGLE Project Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+//
+// FeaturesD3D_autogen.h: Features and workarounds for D3D driver bugs and other issues.
+
+==> include/platform/autogen/FeaturesGL_autogen.h <==
+// GENERATED FILE - DO NOT EDIT.
+// Generated by gen_features.py using data from gl_features.json.
+//
+// Copyright 2022 The ANGLE Project Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+//
+// FeaturesGL_autogen.h: angle::Features and workarounds for GL driver bugs and other issues.
+
+==> include/platform/autogen/FeaturesMtl_autogen.h <==
+// GENERATED FILE - DO NOT EDIT.
+// Generated by gen_features.py using data from mtl_features.json.
+//
+// Copyright 2022 The ANGLE Project Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+//
+// FeaturesMtl_autogen.h: Optional features for the Metal renderer.
+
+==> include/platform/autogen/FeaturesVk_autogen.h <==
+// GENERATED FILE - DO NOT EDIT.
+// Generated by gen_features.py using data from vk_features.json.
+//
+// Copyright 2022 The ANGLE Project Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+//
+// FeaturesVk_autogen.h: Optional features for the Vulkan renderer.
+
+==> include/platform/autogen/FeaturesWgpu_autogen.h <==
+// GENERATED FILE - DO NOT EDIT.
+// Generated by gen_features.py using data from wgpu_features.json.
+//
+// Copyright 2025 The ANGLE Project Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+//
+// FeaturesWgpu_autogen.h: angle::Features and workarounds for the WebGPU backend.
+
+==> include/platform/autogen/FrontendFeatures_autogen.h <==
+// GENERATED FILE - DO NOT EDIT.
+// Generated by gen_features.py using data from frontend_features.json.
+//
+// Copyright 2022 The ANGLE Project Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+//
+// FrontendFeatures_autogen.h: Features/workarounds for driver bugs and other behaviors seen
+// on all platforms.
+
+==> include/platform/gen_features.py <==
+#! /usr/bin/python3
+
+# Copyright 2022 The ANGLE Project Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+#
+# gen_features.py:
+#  Code generation for ANGLE features.
+#  NOTE: don't run this script directly. Run scripts/run_code_generation.py.
+
+==> include/vulkan/vulkan_fuchsia_ext.h <==
+//
+// Copyright 2019 The ANGLE Project Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+//
+// vulkan_fuchsia_ext:
+//   Defines Fuchsia-specific Vulkan extensions when compiling on other
+//   platforms.
+//

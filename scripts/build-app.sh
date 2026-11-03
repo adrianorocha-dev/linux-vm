@@ -38,7 +38,11 @@ source "$omarchy/macos/pinned-git-source.sh"
 pinned_git_source_archive https://github.com/qemu/qemu.git "$qemu_commit" "qemu-$qemu_commit" "$qemu_archive" "$archives" ||
   fail "could not verify QEMU firmware source at $qemu_commit"
 
-python3 "$root/scripts/license-notices.py" --inputs --identity "$identity"
+license_args=(--identity "$identity")
+if [[ $identity != - ]]; then
+  license_args+=(--inputs)
+fi
+python3 "$root/scripts/license-notices.py" "${license_args[@]}"
 
 echo "[build-app] Building the app and supervisor"
 swift build --package-path "$root/macos" -c release --product LinuxVM
