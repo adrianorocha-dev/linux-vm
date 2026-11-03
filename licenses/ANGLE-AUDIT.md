@@ -21,7 +21,7 @@ The shipped library itself records `ANGLE 2.1.27632 git hash: bb9e1870521d`.
 This command reads that evidence without changing the dependency tree:
 
 ```sh
-strings -a ~/ccsandbox/linux-vm/.deps/try-omarchy/macos/.build/qemu-gpu-runtime/lib/libGLESv2.dylib | rg 'ANGLE 2.1.27632 git hash: bb9e1870521d'
+strings -a .deps/try-omarchy/macos/.build/qemu-gpu-runtime/lib/libGLESv2.dylib | rg 'ANGLE 2.1.27632 git hash: bb9e1870521d'
 ```
 
 The prefix resolves to [bb9e1870521db37d5030103d74a9d3c9163ef7cc](https://github.com/google/angle/commit/bb9e1870521db37d5030103d74a9d3c9163ef7cc), committed on 25 April 2026.

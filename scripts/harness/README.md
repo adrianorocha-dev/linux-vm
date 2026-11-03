@@ -15,9 +15,8 @@ scripts/harness/cleanup harness-runs/20261102-123456
 ```
 
 `LINUXVMCTL` overrides `/Applications/Linux VM.app/Contents/Helpers/linuxvmctl`.
-`--iso PATH` overrides the ISO: first try the repository's
-`test-media/ubuntu-26.04.1-desktop-arm64.iso`, then
-`~/ccsandbox/linux-vm/test-media/ubuntu-26.04.1-desktop-arm64.iso`.
+`--iso PATH` overrides the ISO, which defaults to the repository's
+`test-media/ubuntu-26.04.1-desktop-arm64.iso`.
 `--deb PATH` installs a candidate guest package instead of the installed app's
 Guest Tools disc. `--run-dir PATH` chooses a new, nonexistent output directory.
 

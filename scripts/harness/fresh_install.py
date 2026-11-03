@@ -89,7 +89,7 @@ def main():
     signal.signal(signal.SIGTERM, interrupted)
     parser = argparse.ArgumentParser(description=__doc__)
     relative = ROOT / 'test-media/ubuntu-26.04.1-desktop-arm64.iso'
-    parser.add_argument('--iso', type=Path, default=relative if relative.exists() else Path('~/ccsandbox/linux-vm/test-media/ubuntu-26.04.1-desktop-arm64.iso'))
+    parser.add_argument('--iso', type=Path, default=relative)
     parser.add_argument('--deb', type=Path)
     parser.add_argument('--keep', action='store_true')
     parser.add_argument('--install-timeout', type=int, default=3600)

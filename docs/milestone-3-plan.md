@@ -121,7 +121,12 @@ Carried over:
 
 - **Source:** not bundled with the app (2 November).
 
+Made on 3 November 2026, later:
+
+- **Open source.** This repository becomes public, under the MIT License for our own code. Releases are published from it, so there is no separate releases repository.
+- **Source with each release.** Each release's complete corresponding source archive is attached to its GitHub release, next to the DMG. Source requests go to the repository's Issues page.
+- **Privacy.** Before the repository went public, the author email in its history was rewritten to a GitHub noreply address. Home-folder paths, a location and a device identifier were removed from current and past files.
+
 ## Open
 
-- The name of the public releases repository.
-- A license for our own code. There is none yet, which doesn't block the notices.
+- Nothing. The releases repository and our own code's license were decided on 3 November.

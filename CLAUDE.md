@@ -27,4 +27,4 @@ Read `README.md` for the layout, then `docs/milestone-3-plan.md` for the current
 
 - Delegate well-defined, non-UI modules to GPT-6.1-Sol (T3 `delegate_task`, Codex provider) with a written contract and tests. Never delegate UI work. Review its output before integrating.
 - Host–guest interfaces live in `docs/host-guest-contract.md`. Change the contract first.
-- Commit at sensible checkpoints on `main`. The remote is the private `adrianorocha-dev/linux-vm`.
+- Commit at sensible checkpoints on `main`. The remote is the public `adrianorocha-dev/linux-vm`. Keep personal details out of the repository: no email addresses, home-folder paths, locations or device identifiers.

@@ -119,7 +119,7 @@ Original app and Guest Tools code has no manifest checksums.
 Their notice versions come from Info.plist and guest/build.py.
 An unlisted component or missing license text stops the build.
 Developer ID builds also require a source-offer contact and resolved provenance gaps.
-The original Linux VM code has no selected license yet.
+Linux VM’s own code is available under the MIT License ([LICENSE](LICENSE)).
 See [licenses/README.md](licenses/README.md) for the inventory, current release blockers and how to add a component.
 
 Retain release source outside the app with `python3 scripts/retain-release-source.py --output /path/to/retained/linux-vm-VERSION-source.tar.gz`.

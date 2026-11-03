@@ -490,7 +490,7 @@ def notices(manifest, root=ROOT):
              'including the Homebrew bottle sources and patches; upstream URLs alone',
              'are not a substitute for complete corresponding source.', '',
              'See LGPL-REPLACEMENT.txt for replacing LGPL libraries in a personal copy.',
-             'Original Linux VM code and artwork have no selected license.', '']
+             'Linux VM’s own code and artwork are available under the MIT License; see Linux-VM.txt.', '']
     if release_blockers(manifest):
         lines += ['DEVELOPMENT BUILD — unresolved provenance (public release is blocked):']
         lines += release_blockers(manifest) + ['']

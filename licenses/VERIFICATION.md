@@ -1,8 +1,8 @@
 # License and source-retention verification
 
 Verified on 3 November 2026 on this Mac in `t3/license-notice-performance`.
-Merge commit `(commit)` brings in `t3/license-source-retention`, including (commit), (commit) and (commit).
-Implementation commit `(commit)` contains the ANGLE notices, dynamic original-code versions, fast build checks and source-retention changes.
+A merge commit brings in `t3/license-source-retention`.
+The implementation commit contains the ANGLE notices, dynamic original-code versions, fast build checks and source-retention changes.
 The verification commit changes documentation only.
 The final notice refinement adds Vulkan Utility Libraries’ complete Apache text from its own pinned archive and labels Chromium’s zlib additions BSD-3-Clause.
 
@@ -17,9 +17,9 @@ The Try Omarchy helper used the build script's private `build/omarchy-helper` sc
 The existing Guest Tools disc was copied from the main checkout.
 
 ```sh
-ln -s ~/ccsandbox/linux-vm/.deps .deps
+ln -s <main checkout>/.deps .deps
 mkdir -p guest/dist build/firmware-source/git
-cp ~/ccsandbox/linux-vm/guest/dist/* guest/dist/
+cp <main checkout>/guest/dist/* guest/dist/
 cp -R .deps/source-archives/git/qemu-c3d48b7d1e89604920e5b81b91140c2ad39a1943.git build/firmware-source/git/
 OMARCHY_DOWNLOAD_CACHE="$PWD/build/firmware-source" /usr/bin/time -p scripts/build-app.sh > build/build-final.log 2>&1
 ```
@@ -37,7 +37,7 @@ Nothing was pushed or merged to main.
 
 The measurement sums the three license commands that `build-app.sh` invokes.
 It excludes compilation, firmware archiving, bundle copying, signing and `linuxvmctl check`.
-A pristine copy of merge commit `(commit)` in `build/license-baseline` supplied the old checker, manifest and texts.
+A pristine copy of that merge commit in `build/license-baseline` supplied the old checker, manifest and texts.
 It used the same read-only dependency tree and warmed supplemental archives.
 The old bundle was copied to `build/license-baseline/Timing.app` for the measurement.
 Each row was timed with Python's `time.monotonic()` around `subprocess.run`.
@@ -119,7 +119,7 @@ The Swift compiler's existing unused-result warnings and the runtime diff's trai
 
 ## Full source archive
 
-A clean checkout at implementation commit `(commit)` ran:
+A clean checkout at the implementation commit ran:
 
 ```sh
 python3 scripts/retain-release-source.py --output build/linux-vm-complete-source.tar.gz

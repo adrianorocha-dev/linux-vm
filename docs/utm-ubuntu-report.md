@@ -17,7 +17,7 @@ The VM named **Ubuntu** now uses the off-the-shelf UTM QEMU/VirGL graphics recip
 - Linear upscaling/downscaling.
 - CPU remains Default (CPUCount=0); RAM remains 6144 MiB.
 - Balloon and RNG enabled; TSO disabled; no custom QEMU arguments.
-- Shared networking; Ubuntu’s original MAC `(MAC address)` retained.
+- Shared networking; Ubuntu’s original MAC address retained.
 
 Current bundle: `~/Library/Containers/com.utmapp.UTM/Data/Documents/Ubuntu.utm`
 Current VM UUID: `F62CAEEA-6AC5-4D33-B56E-102FD42E8FF2`

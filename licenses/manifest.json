@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "offer_contact": "SOURCE_OFFER_CONTACT_UNSET",
+  "offer_contact": "https://github.com/adrianorocha-dev/linux-vm/issues",
   "inputs": {
     "qemu": {
       "archive": "qemu-c3d48b7d1e89604920e5b81b91140c2ad39a1943.tar.gz",
@@ -474,7 +474,7 @@
     },
     "Linux-VM.txt": {
       "authored": true,
-      "sha256": "3e194c5a5b0937658f057384df75248d14f0aab6640bb83e7efb29094fda1ed6"
+      "sha256": "2580917b4c71689561939f78be3d0eb302f3a519583f60d474852dda341fed21"
     },
     "keycodemapdb-BSD.txt": {
       "input": "keycodemap",
@@ -906,7 +906,7 @@
     {
       "id": "linux-vm",
       "name": "Linux VM app, supervisor and artwork",
-      "license": "LicenseRef-Linux-VM-Undecided",
+      "license": "MIT",
       "bundle_files": [
         "Contents/MacOS/LinuxVM",
         "Contents/Helpers/linuxvmctl",
@@ -932,7 +932,7 @@
       "id": "app-icon",
       "name": "Linux VM app icon drawn with paths",
       "version": "asset SHA-256 74d205028ed83410a7bd90d1dccfb433ab8c64172cbe74b45727b7a15991f304",
-      "license": "LicenseRef-Linux-VM-Undecided",
+      "license": "MIT",
       "bundle_files": [
         "Contents/Resources/AppIcon.icns"
       ],
@@ -953,7 +953,7 @@
     {
       "id": "guest",
       "name": "Linux VM Guest Tools",
-      "license": "LicenseRef-Linux-VM-Undecided AND MIT",
+      "license": "MIT",
       "bundle_files": [
         "Contents/Resources/guest-tools.iso"
       ],
@@ -1003,7 +1003,7 @@
       "id": "local-patches",
       "name": "Linux VM runtime and helper modifications",
       "version": "try-omarchy-v1.3.0.diff",
-      "license": "LicenseRef-Linux-VM-Undecided AND GPL-2.0-only AND MIT",
+      "license": "MIT AND GPL-2.0-only",
       "bundle_files": [
         "Contents/Resources/runtime/bin/qemu-system-aarch64",
         "Contents/Resources/runtime/lib/libvirglrenderer.1.dylib",

@@ -20,6 +20,7 @@ class LicenseTests(unittest.TestCase):
 
     def test_manifest_texts_and_release_gates(self):
         notices.validate_manifest(self.manifest)
+        self.manifest['offer_contact'] = 'SOURCE_OFFER_CONTACT_UNSET'
         with self.assertRaisesRegex(notices.LicenseError, 'offer_contact'):
             notices.validate_manifest(self.manifest, identity='Developer ID Application: test')
         self.manifest['offer_contact'] = 'source@example.invalid'
