@@ -894,6 +894,12 @@
         "angle-bb9e1870521db37d5030103d74a9d3c9163ef7cc/src/third_party/khronos/GL/wglext.h"
       ],
       "sha256": "f8284f96f678fb44b546afad1aefe840d5778ef9108d797ec3a9b6c02065cefa"
+    },
+    "ANGLE-Vulkan-Utility-Apache-2.0.txt": {
+      "input": "angle-vulkan-utility",
+      "member": "Vulkan-Utility-Libraries-e2f236b273bfcd9c665306fdd53451b923d659ab/LICENSES/Apache-2.0.txt",
+      "mode": "verbatim",
+      "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30"
     }
   },
   "components": [
@@ -1341,7 +1347,8 @@
         "ANGLE-vulkan-loader-loader-source-notices.txt",
         "ANGLE-zlib-all-source-notices.txt",
         "ANGLE-Bison-GPL-3.0.txt",
-        "ANGLE-Khronos-header-notices.txt"
+        "ANGLE-Khronos-header-notices.txt",
+        "ANGLE-Vulkan-Utility-Apache-2.0.txt"
       ],
       "notes": "The binary version identifies ANGLE. External dependency notice revisions come from this commit's DEPS, not the bottle's unrecorded moving heads or build-day DEPS. All listed library terms are permissive and require notices, not corresponding-source distribution. Conservative notices include candidates outside the enabled graph. The tag/formula checksum mismatch remains a finding. See ANGLE-AUDIT.md. Generated Bison parsers carry GPL-3.0-or-later with Bison-exception-2.2, which permits this larger work under chosen terms and imposes no corresponding-source obligation.",
       "license_status": "permissive notices verified at the recorded source revisions; external bottle build revisions were not recorded",
@@ -1521,7 +1528,8 @@
           "revision": "e2f236b273bfcd9c665306fdd53451b923d659ab",
           "notice_input": "angle-vulkan-utility",
           "license_files": [
-            "ANGLE-Vulkan-Utility-Libraries.txt"
+            "ANGLE-Vulkan-Utility-Libraries.txt",
+            "ANGLE-Vulkan-Utility-Apache-2.0.txt"
           ],
           "graph_evidence": "Vulkan loader transitive headers; conservative"
         },
@@ -1537,11 +1545,12 @@
         },
         {
           "name": "zlib",
-          "license": "Zlib",
+          "license": "Zlib AND BSD-3-Clause",
           "revision": "89921383f1f51331f48a2dc843403779770ea3a9",
           "notice_input": "angle-zlib",
           "license_files": [
-            "ANGLE-zlib.txt"
+            "ANGLE-zlib.txt",
+            "ANGLE-Chromium-BSD.txt"
           ],
           "graph_evidence": "BUILD.gn: angle_compression -> compression_utils_portable -> zlib"
         },

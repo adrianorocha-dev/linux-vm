@@ -86,7 +86,7 @@ They are notice reference revisions, not recovered bottle build revisions.
 | Vulkan-Tools | Apache-2.0 | `7c46da2b39036a80ce088576d5794bf39e667f56` | src/common/vulkan:angle_libvulkan -> VkICD_mock_icd data dependency; conservative |
 | Vulkan-Utility-Libraries | Apache-2.0 | `e2f236b273bfcd9c665306fdd53451b923d659ab` | Vulkan loader transitive headers; conservative |
 | VulkanMemoryAllocator | MIT | `cb0597213b0fcb999caa9ed08c2f88dc45eb7d50` | src/libANGLE/renderer/vulkan:angle_vk_mem_alloc_wrapper |
-| zlib | Zlib | `89921383f1f51331f48a2dc843403779770ea3a9` | BUILD.gn: angle_compression -> compression_utils_portable -> zlib |
+| zlib | Zlib AND BSD-3-Clause | `89921383f1f51331f48a2dc843403779770ea3a9` | BUILD.gn: angle_compression -> compression_utils_portable -> zlib |
 | Chromium base helpers | BSD-3-Clause | `28b5bbb227d331c01e6ff9b2f8729732135aadc7` | src/common/base/README.chromium; angle_common and anglebase headers |
 | Khronos EGL/GLES/KHR/WGL headers | MIT AND Apache-2.0 | `bb9e1870521db37d5030103d74a9d3c9163ef7cc` | include/ and src/third_party/khronos; WGL included conservatively |
 | Bison generated parser skeleton | GPL-3.0-or-later WITH Bison-exception-2.2 | `bb9e1870521db37d5030103d74a9d3c9163ef7cc` | src/compiler/translator/glslang_tab_autogen.cpp and .h; larger-work exception permits distribution under chosen terms; no source obligation for ANGLE output |

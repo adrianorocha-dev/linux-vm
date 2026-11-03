@@ -3,7 +3,8 @@
 Verified on 3 November 2026 on this Mac in `t3/license-notice-performance`.
 Merge commit `(commit)` brings in `t3/license-source-retention`, including (commit), (commit) and (commit).
 Implementation commit `(commit)` contains the ANGLE notices, dynamic original-code versions, fast build checks and source-retention changes.
-The final verification commit changes documentation only.
+The verification commit changes documentation only.
+The final notice refinement adds Vulkan Utility Libraries’ complete Apache text from its own pinned archive and labels Chromium’s zlib additions BSD-3-Clause.
 
 ## Inputs and build commands
 
