@@ -1,0 +1,5 @@
+{
+  "repository": "<owner>/<releases-repository>",
+  "public_key": "<Sparkle EdDSA public key>",
+  "source_archive_directory": "<absolute path outside this repository>"
+}
