@@ -212,7 +212,7 @@ name = pathlib.Path(sys.argv[0]).name
 args = sys.argv[1:]
 with (root / 'commands.jsonl').open('a') as log:
     log.write(json.dumps([name] + args) + '\\n')
-if os.environ.get('STUB_FAIL') == name:
+if os.environ.get('STUB_FAIL') == name and os.environ.get('STUB_FAIL_ARG', '') in ([''] + args):
     print('fixture command failed', file=sys.stderr); sys.exit(1)
 if name == 'git':
     if args[:2] == ['branch', '--show-current']: print('main')
@@ -394,10 +394,16 @@ class ReleaseIntegrationTests(unittest.TestCase):
         self.assertFalse(any(c[0] in ('generate_keys', 'build-app.sh', 'sign_update') for c in self.commands()))
 
     def test_failed_notarization_stops_before_update_signing_or_publication(self):
-        self.env['STUB_FAIL'] = 'xcrun'
+        self.env.update(STUB_FAIL='xcrun', STUB_FAIL_ARG='submit')
         with self.assertRaisesRegex(ValueError, 'fixture command failed'):
             self.execute()
         self.assertFalse(any(c[0] == 'sign_update' or c[:2] == ['gh', 'release'] for c in self.commands()))
+
+    def test_unavailable_notary_profile_refuses_before_building(self):
+        self.env.update(STUB_FAIL='xcrun', STUB_FAIL_ARG='history')
+        with self.assertRaisesRegex(ValueError, 'notary profile linuxvm-notary is unavailable'):
+            self.execute()
+        self.assertFalse(any(c[0] in ('build-app.sh', 'build-runtime.sh', 'package-dmg.sh') for c in self.commands()))
 
     def test_wrong_key_refuses_before_building_or_signing(self):
         self.env['STUB_PUBLIC_KEY'] = base64.b64encode(b'x' * 32).decode()

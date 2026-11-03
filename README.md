@@ -2,6 +2,8 @@
 
 A macOS app that runs Ubuntu on Apple Silicon with Mac-quality trackpad, display and cursor behaviour. It builds on Try Omarchy's patched QEMU runtime and its Mac bridge helper.
 
+Download the latest version from [Releases](https://github.com/adrianorocha-dev/linux-vm/releases/latest). It needs an Apple Silicon Mac with macOS 15 or later, and updates itself once installed. [What needs the guest tools](docs/what-needs-guest-tools.md) explains the optional Ubuntu package on the Guest Tools disc.
+
 ## Layout
 
 - `macos/`: Swift package.
@@ -82,6 +84,7 @@ LINUXVM_SIGN_IDENTITY="Developer ID Application: <name> (<team ID>)" python3 scr
 
 The script builds, signs and notarizes the app, and collects the release's complete source, before asking to publish.
 It uses `linuxvm-notary` unless `LINUXVM_NOTARY_PROFILE` names another profile.
+Keep the Mac unlocked during a release: macOS doesn't release the notary credentials while the screen is locked, and the script stops before building when it can't read them.
 Review the summary, then type `publish`.
 The script pushes an annotated tag, creates a draft release with the DMG, `appcast.xml` and the source archive, publishes it, and checks what GitHub serves.
 Artifacts stay in `build/release/VERSION/`: `LinuxVM-VERSION.dmg`, `appcast.xml` and `linux-vm-VERSION-source.tar.gz`.

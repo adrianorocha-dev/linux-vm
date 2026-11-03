@@ -92,6 +92,13 @@ GPT-6.1-Sol built it, and Claude reviewed and merged it with one fix.
 - **Fixed at merge.** A dry run kept the source archive, so the real release of the same commit then refused to run. A verified, complete archive of the same commit is now reused.
 - **Verified** with stubbed commands only: 24 tests. Nothing was signed, notarized or published. The first real release will be the end-to-end check.
 
+### First release: 0.2.0 (3 November 2026)
+
+- **Published** at [v0.2.0](https://github.com/adrianorocha-dev/linux-vm/releases/tag/v0.2.0), from commit `a675d5b`, with the DMG, the update feed and the 398 MB source archive (97 sources, complete).
+- **Checked as a download.** The public DMG matched the built one byte for byte. With a quarantine flag, Gatekeeper accepted the DMG and the app copied out of it as notarized Developer ID. `syspolicy_check distribution` passed, and so did the app's runtime check.
+- **Found on the way.** The first publish attempt stopped at notarization, before anything was public: the Mac's screen had locked, and macOS doesn't release the notary credentials while it's locked. The release script now checks the notary profile before building, and the README says to keep the Mac unlocked.
+- **Still to verify:** a copy of 0.2.0 updating itself to the next release while keeping its VMs. That's this milestone's last "done" criterion, and the clicked Sparkle path gets checked at the same time.
+
 ## Steps that belong to the user
 
 - **The EdDSA key pair.** Sparkle's `generate_keys` keeps the private key in your login keychain and prints the public key for Info.plist. Back the private key up: without it, installed copies can't be updated.

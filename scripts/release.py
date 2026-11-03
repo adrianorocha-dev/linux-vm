@@ -344,6 +344,10 @@ def release(version, dry_run=False, config_path=None, root=ROOT, env=None):
             source.unlink()
             source.with_suffix(source.suffix + '.sha256').unlink(missing_ok=True)
             retained = False
+    # macOS doesn't release the notary credentials while the screen is locked.
+    notary = run('xcrun', 'notarytool', 'history', '--keychain-profile', env['LINUXVM_NOTARY_PROFILE'], cwd=root, check=False)
+    require(notary.returncode == 0, f'the notary profile {env["LINUXVM_NOTARY_PROFILE"]} is unavailable. Keep the Mac unlocked during a '
+            'release, and check the profile with xcrun notarytool history.')
     tools = sparkle_tools(root)
     public_key = run(tools / 'generate_keys', '-p', cwd=root).stdout.strip()
     require(public_key == config['public_key'], 'keychain EdDSA public key differs from release config; run generate_keys during setup')
