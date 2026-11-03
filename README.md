@@ -80,3 +80,9 @@ An unlisted component or missing license text stops the build.
 Developer ID builds also require a source-offer contact and resolved provenance gaps.
 The original Linux VM code has no selected license yet.
 See [licenses/README.md](licenses/README.md) for the inventory, current release blockers and how to add a component.
+
+Retain release source outside the app with `python3 scripts/retain-release-source.py --output /path/to/retained/linux-vm-VERSION-source.tar.gz`.
+The collector verifies sources, bottle formulas and patches and records their checksums.
+Keep a complete archive for at least three years after the release's last distribution.
+The full run currently blocks on ANGLE's unknown source revisions.
+See [source retention](licenses/README.md#retaining-release-source) for the contents and subset test.

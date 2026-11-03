@@ -80,6 +80,55 @@ The app icon is original artwork drawn with paths and has no SF Symbols blocker.
 An ad hoc build reports the remaining ANGLE gap in its notices.
 The checker cannot prove that an opaque prebuilt bottle contains only the subcomponents declared by its producer.
 
+## Retaining release source
+
+Run this after building the release from a clean committed checkout:
+
+```sh
+python3 scripts/retain-release-source.py --output /path/to/retained/linux-vm-VERSION-source.tar.gz
+```
+
+The archive is outside the app.
+Keep it with the release's DMG and build log.
+Keep it through at least three years after that version's last distribution.
+Back it up somewhere durable before distributing the binary.
+A successful complete run is required before answering a source request from this archive.
+
+The collector retains all manifest archives, including bottles and build tools.
+It retains every pinned git source and recursively follows its submodule commits.
+It includes the full Linux VM checkout at the release commit, including our diffs, patches, guest sources, build scripts and installation scripts.
+It extracts each bottle's exact formula and fetches its checksum-pinned upstream source and resources.
+The source plan is `source-inputs.json`.
+It also includes libepoxy's implementation commit and the tap archives containing its patches.
+GLib's formula patch is pinned to the Homebrew commit that added it in October 2025.
+The patch path has no later changes before this bottle's July 2026 build.
+Every download is checked against its SHA-256.
+Every git source is checked against its commit and with `git fsck`.
+A failed local git fetch retries the pinned upstream URL without modifying the original repository.
+
+`SOURCE-INDEX.json` records revisions, source URLs, pins, retained hashes and artifact sizes.
+`SHA256SUMS` covers every retained file.
+The script reads back and verifies the container before naming the final archive.
+An adjacent `.sha256` file covers the complete archive.
+It never writes to `.deps/`.
+Its download and git cache defaults to `build/source-retention-cache/`.
+`--inputs` selects the read-only bottle and runtime input directory.
+That directory must contain the release's pinned bottles so their formulas can be checked.
+
+The full run currently exits before downloading because ANGLE's exact source revisions are unknown.
+It must not produce a misleading complete-source archive.
+To test a small subset, use:
+
+```sh
+python3 scripts/retain-release-source.py --subset keycodemap,zstd-source,bottle-lz4-upstream,glib-hardcoded-paths,source-try-omarchy,sparkle-release,angle-build-source,epoxy-upstream --output build/source-retention-subset.tar.gz
+```
+
+A subset always has `complete: false` in its index.
+It is a test artifact and cannot fulfill the written offer.
+The tested subset is about 23 MB and includes nine artifacts plus formulas and integrity metadata.
+The full size is unknown until ANGLE's exact dependency set is recovered.
+The collector reports actual bytes rather than estimating missing sources.
+
 ## Legal review points
 
 The LGPL replacement procedure preserves QEMU's entitlements while removing library validation in a personal ad hoc copy.
