@@ -1,4 +1,6 @@
 import copy
+import plistlib
+import re
 import importlib.util
 from pathlib import Path
 import shutil
@@ -59,11 +61,13 @@ class LicenseTests(unittest.TestCase):
     def test_versions_follow_sources_without_manifest_changes(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
-            for name in ('macos/Resources/Info.plist', 'guest/build.py'):
-                target = root / name
-                target.parent.mkdir(parents=True, exist_ok=True)
-                shutil.copyfile(ROOT / name, target)
-                target.write_text(target.read_text().replace('0.1.0', '9.8.7').replace("VERSION = '0.2.1'", "VERSION = '6.5.4'"))
+            info = plistlib.loads((ROOT / 'macos/Resources/Info.plist').read_bytes())
+            info['CFBundleShortVersionString'] = '9.8.7'
+            (root / 'macos/Resources').mkdir(parents=True)
+            (root / 'macos/Resources/Info.plist').write_bytes(plistlib.dumps(info))
+            build = re.sub(r"^VERSION = '[^']+'$", "VERSION = '6.5.4'", (ROOT / 'guest/build.py').read_text(), flags=re.M)
+            (root / 'guest').mkdir()
+            (root / 'guest/build.py').write_text(build)
             with patch.object(notices.subprocess, 'check_output', return_value='test-revision\n'):
                 text = notices.notices(self.manifest, root)
             self.assertIn('Version: 9.8.7', text)
