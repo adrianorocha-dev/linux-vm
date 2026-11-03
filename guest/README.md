@@ -1,9 +1,12 @@
 # LinuxVM guest tools
 
-`linuxvm-guest` 0.2.0 targets Ubuntu 26.04 Desktop, GNOME Shell/Mutter 50 on
+`linuxvm-guest` 0.2.1 targets Ubuntu 26.04 Desktop, GNOME Shell/Mutter 50 on
 Wayland. The Debian package builder uses Python's standard library; the tools
 disc requires xorriso (PATH, then `/opt/homebrew/bin/xorriso`). No VM or Debian
 build tools are needed on the Mac.
+
+What works in a VM without this package, and what needs it:
+[docs/what-needs-guest-tools.md](../docs/what-needs-guest-tools.md).
 
 ## Integrations
 
@@ -116,7 +119,7 @@ PYTHON=/opt/homebrew/bin/python3.14 guest/build-tools-iso.sh
 /opt/homebrew/bin/python3.14 -m unittest discover guest/tests -v
 ```
 
-Outputs: `guest/dist/linuxvm-guest_0.2.0_all.deb` and
+Outputs: `guest/dist/linuxvm-guest_<version>_all.deb` and
 `guest/dist/guest-tools.iso`. xorriso creates Rock Ridge plus Joliet with label
 `LINUXVM-TOOLS`; root ownership, directories/install.sh 0755, other files 0644,
 and fixed 2000-01-01 UTC timestamps. Two builds produce identical bytes; the
