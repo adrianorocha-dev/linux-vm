@@ -36,12 +36,22 @@ Prerequisites: the patched QEMU runtime and the pinned QEMU source archive, set 
 
 Steps:
 1. Build the guest tools: `python3 guest/build.py` and `guest/build-tools-iso.sh`. The disc needs `xorriso` (`brew install xorriso`).
-2. Build the app: `scripts/build-app.sh`. It ends with a runtime capability check.
+2. Build the app: `scripts/build-app.sh`. It ends with a runtime capability check. To share it, see [Sharing the app](#sharing-the-app).
 
 Tests:
 - `swift test --package-path macos`
 - `python3 -m unittest discover guest/tests`
 - `python3 -m unittest discover scripts/harness/tests`
+
+## Sharing the app
+
+`scripts/build-app.sh` signs ad hoc, so the build runs only on this Mac without a Gatekeeper warning. To share it, sign it with a Developer ID and have Apple notarize it:
+
+1. Once per Mac, in Xcode → Settings → Accounts → Manage Certificates, add a "Developer ID Application" certificate for your team. Then store notary credentials in the keychain: `xcrun notarytool store-credentials linuxvm-notary --apple-id <Apple ID> --team-id <team ID>`, with an app-specific password from account.apple.com.
+2. Build with the identity: `LINUXVM_SIGN_IDENTITY="Developer ID Application: <name> (<team ID>)" scripts/build-app.sh`. Every executable gets the identity, the hardened runtime and a secure timestamp. QEMU keeps the hypervisor and microphone entitlements (`macos/Resources/qemu.entitlements`); the app and supervisor have the microphone one (`macos/Resources/app.entitlements`).
+3. Package and notarize: `LINUXVM_SIGN_IDENTITY=… LINUXVM_NOTARY_PROFILE=linuxvm-notary scripts/package-dmg.sh`. It writes `build/Linux VM <version>.dmg`, signed, notarized and stapled.
+
+Recipients need an Apple Silicon Mac with macOS 15 or later. Without `LINUXVM_NOTARY_PROFILE`, step 3 only signs the image, to check the steps; any signing identity works for that.
 
 ## Command line
 

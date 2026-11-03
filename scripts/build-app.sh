@@ -8,6 +8,10 @@
 #   - the guest tools disc from guest/dist.
 #
 #   scripts/build-app.sh
+#
+# The app is signed ad hoc, for this Mac. To share it, set
+# LINUXVM_SIGN_IDENTITY to a "Developer ID Application" identity, then run
+# scripts/package-dmg.sh.
 
 set -euo pipefail
 
@@ -19,6 +23,7 @@ qemu_commit=c3d48b7d1e89604920e5b81b91140c2ad39a1943
 qemu_archive="$archives/qemu-$qemu_commit.tar.gz"
 qemu_archive_sha256=db14020067babeb646ba35e3cffdf1f252a04157114684fa5c0f5da98015ffdf
 app="$root/build/Linux VM.app"
+identity=${LINUXVM_SIGN_IDENTITY:--}
 
 fail() {
   echo "build-app: $*" >&2
@@ -76,11 +81,34 @@ fi
 install -m 0644 "$root/macos/Resources/Info.plist" "$staging/Contents/Info.plist"
 install -m 0644 "$omarchy/LICENSE" "$staging/Contents/Resources/LICENSE.try-omarchy"
 
-# Sign only our own executables and then the bundle, never --deep: that
-# would strip the QEMU runtime's hypervisor entitlement.
-codesign --force --sign - "$staging/Contents/Helpers/linuxvmctl" "$staging/Contents/Helpers/omarchy-vm-helper"
-codesign --force --sign - "$staging/Contents/MacOS/LinuxVM"
-codesign --force --sign - "$staging"
+# Never sign with --deep: it would strip the QEMU runtime's entitlements.
+if [[ $identity == - ]]; then
+  # Ad hoc, for this Mac: the runtime keeps the signatures its build gave it.
+  codesign --force --sign - "$staging/Contents/Helpers/linuxvmctl" "$staging/Contents/Helpers/omarchy-vm-helper"
+  codesign --force --sign - "$staging/Contents/MacOS/LinuxVM"
+  codesign --force --sign - "$staging"
+else
+  # For sharing: every executable gets the identity, the hardened runtime and
+  # a secure timestamp, as notarization requires, from the inside out.
+  echo "[build-app] Signing with $identity"
+  sign=(codesign --force --sign "$identity" --options runtime --timestamp)
+  for library in "$staging/Contents/Resources/runtime/lib"/*.dylib; do
+    "${sign[@]}" "$library"
+  done
+  "${sign[@]}" "$staging/Contents/Resources/runtime/bin/zstd"
+  "${sign[@]}" --entitlements "$root/macos/Resources/qemu.entitlements" "$staging/Contents/Resources/runtime/bin/qemu-system-aarch64"
+  "${sign[@]}" "$staging/Contents/Helpers/omarchy-vm-helper"
+  "${sign[@]}" --entitlements "$root/macos/Resources/app.entitlements" "$staging/Contents/Helpers/linuxvmctl"
+  "${sign[@]}" --entitlements "$root/macos/Resources/app.entitlements" "$staging"
+  codesign --verify --deep --strict "$staging" || fail "the signed app does not verify"
+  team=$(codesign -dv "$staging" 2>&1 | sed -n 's/^TeamIdentifier=//p')
+  while IFS= read -r -d '' file; do
+    [[ $(file -b "$file") == Mach-O* ]] || continue
+    details=$(codesign -dv "$file" 2>&1)
+    [[ $details == *"TeamIdentifier=$team"* && $details == *"(runtime)"* && $details == *"Timestamp="* ]] ||
+      fail "not signed for sharing: ${file#"$staging/"}"
+  done < <(find "$staging" -type f -perm +111 -print0)
+fi
 codesign -d --entitlements - "$staging/Contents/Resources/runtime/bin/qemu-system-aarch64" 2>/dev/null | grep -q com.apple.security.hypervisor ||
   fail "the QEMU runtime lost its hypervisor entitlement"
 

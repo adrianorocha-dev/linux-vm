@@ -5,6 +5,7 @@ Read `README.md` for the layout, then `docs/milestone-2-plan.md` for the current
 ## Build and test
 
 - Build the app: `scripts/build-app.sh`. It ends with the runtime capability check. To install, copy `build/Linux VM.app` over `/Applications/Linux VM.app` while the app is quit.
+- Build to share: README's [Sharing the app](README.md#sharing-the-app). Creating certificates and notary credentials is the user's step; never handle their passwords.
 - Run the tests: `swift test --package-path macos` and `/opt/homebrew/bin/python3.14 -m unittest discover guest/tests`.
 - Rebuild the guest tools: `python3 guest/build.py` and `guest/build-tools-iso.sh`. Then rebuild the app, which bundles the disc.
 - The QEMU runtime and its inputs live in git-ignored `.deps/` ([runtime/README.md](runtime/README.md)).
