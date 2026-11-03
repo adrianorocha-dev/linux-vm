@@ -52,6 +52,8 @@ Tests:
 2. Build with the identity: `LINUXVM_SIGN_IDENTITY="Developer ID Application: <name> (<team ID>)" scripts/build-app.sh`. Every executable gets the identity, the hardened runtime and a secure timestamp. QEMU keeps the hypervisor and microphone entitlements (`macos/Resources/qemu.entitlements`); the app and supervisor have the microphone one (`macos/Resources/app.entitlements`).
 3. Package and notarize: `LINUXVM_SIGN_IDENTITY=… LINUXVM_NOTARY_PROFILE=linuxvm-notary scripts/package-dmg.sh`. It writes `build/Linux VM <version>.dmg`, signed, notarized and stapled.
 
+For the app to update itself through Sparkle, step 2 also needs `LINUXVM_UPDATE_FEED` (the feed's https URL) and `LINUXVM_UPDATE_KEY` (the EdDSA public key). Without them the app has no updater. An update never installs while a VM runs. See [Milestone 3](docs/milestone-3-plan.md#sparkle-in-the-app-3-november-2026).
+
 Recipients need an Apple Silicon Mac with macOS 15 or later. Without `LINUXVM_NOTARY_PROFILE`, step 3 only signs the image, to check the steps; any signing identity works for that.
 
 ## Command line

@@ -11,7 +11,8 @@
 #
 # The app is signed ad hoc, for this Mac. To share it, set
 # LINUXVM_SIGN_IDENTITY to a "Developer ID Application" identity, then run
-# scripts/package-dmg.sh.
+# scripts/package-dmg.sh. LINUXVM_UPDATE_FEED and LINUXVM_UPDATE_KEY name the
+# Sparkle update feed and its EdDSA public key; release builds need both.
 
 set -euo pipefail
 
@@ -24,6 +25,8 @@ qemu_archive="$archives/qemu-$qemu_commit.tar.gz"
 qemu_archive_sha256=db14020067babeb646ba35e3cffdf1f252a04157114684fa5c0f5da98015ffdf
 app="$root/build/Linux VM.app"
 identity=${LINUXVM_SIGN_IDENTITY:--}
+update_feed=${LINUXVM_UPDATE_FEED:-}
+update_key=${LINUXVM_UPDATE_KEY:-}
 
 fail() {
   echo "build-app: $*" >&2
@@ -50,6 +53,15 @@ mkdir -p "$staging/Contents/MacOS" "$staging/Contents/Helpers" "$staging/Content
 install -m 0755 "$products/LinuxVM" "$staging/Contents/MacOS/LinuxVM"
 install -m 0755 "$products/linuxvmctl" "$staging/Contents/Helpers/linuxvmctl"
 install -m 0755 "$helper" "$staging/Contents/Helpers/omarchy-vm-helper"
+
+# Sparkle, for updates. The app isn't sandboxed, so Sparkle's XPC services
+# aren't needed.
+sparkle="$staging/Contents/Frameworks/Sparkle.framework"
+[[ -d $products/Sparkle.framework ]] || fail "swift build did not produce Sparkle.framework"
+mkdir -p "$staging/Contents/Frameworks"
+ditto "$products/Sparkle.framework" "$sparkle"
+rm -rf "$sparkle/XPCServices" "$sparkle/Versions/B/XPCServices" "$sparkle/Headers" "$sparkle/Versions/B/Headers" \
+  "$sparkle/PrivateHeaders" "$sparkle/Versions/B/PrivateHeaders" "$sparkle/Modules" "$sparkle/Versions/B/Modules"
 
 # ditto keeps the runtime's signatures and the hypervisor entitlement. The
 # binary keeps its name: the bridge helper only serves qemu-system-* targets.
@@ -79,11 +91,21 @@ if [[ -f $root/macos/Resources/AppIcon.icns ]]; then
   install -m 0644 "$root/macos/Resources/AppIcon.icns" "$staging/Contents/Resources/AppIcon.icns"
 fi
 install -m 0644 "$root/macos/Resources/Info.plist" "$staging/Contents/Info.plist"
+# The update feed and its EdDSA public key. Without them the app has no updates.
+if [[ -n $update_feed || -n $update_key ]]; then
+  [[ $update_feed == https://* || $update_feed == http://127.0.0.1:* ]] || fail "LINUXVM_UPDATE_FEED must be an https URL"
+  [[ $update_key =~ ^[A-Za-z0-9+/]{43}=$ ]] || fail "LINUXVM_UPDATE_KEY must be Sparkle's base64 EdDSA public key"
+  /usr/libexec/PlistBuddy -c "Add :SUFeedURL string $update_feed" -c "Add :SUPublicEDKey string $update_key" \
+    "$staging/Contents/Info.plist"
+elif [[ $identity != - ]]; then
+  echo "[build-app] warning: LINUXVM_UPDATE_FEED and LINUXVM_UPDATE_KEY are not set, so this build won't update itself" >&2
+fi
 install -m 0644 "$omarchy/LICENSE" "$staging/Contents/Resources/LICENSE.try-omarchy"
 
 # Never sign with --deep: it would strip the QEMU runtime's entitlements.
 if [[ $identity == - ]]; then
   # Ad hoc, for this Mac: the runtime keeps the signatures its build gave it.
+  codesign --force --sign - "$sparkle/Versions/B/Autoupdate" "$sparkle/Versions/B/Updater.app" "$sparkle"
   codesign --force --sign - "$staging/Contents/Helpers/linuxvmctl" "$staging/Contents/Helpers/omarchy-vm-helper"
   codesign --force --sign - "$staging/Contents/MacOS/LinuxVM"
   codesign --force --sign - "$staging"
@@ -97,6 +119,9 @@ else
   done
   "${sign[@]}" "$staging/Contents/Resources/runtime/bin/zstd"
   "${sign[@]}" --entitlements "$root/macos/Resources/qemu.entitlements" "$staging/Contents/Resources/runtime/bin/qemu-system-aarch64"
+  "${sign[@]}" "$sparkle/Versions/B/Autoupdate"
+  "${sign[@]}" "$sparkle/Versions/B/Updater.app"
+  "${sign[@]}" "$sparkle"
   "${sign[@]}" "$staging/Contents/Helpers/omarchy-vm-helper"
   "${sign[@]}" --entitlements "$root/macos/Resources/app.entitlements" "$staging/Contents/Helpers/linuxvmctl"
   "${sign[@]}" --entitlements "$root/macos/Resources/app.entitlements" "$staging"

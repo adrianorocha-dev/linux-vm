@@ -3,12 +3,19 @@ import SwiftUI
 
 @main
 struct LinuxVMApp: App {
-    @State private var model = LibraryModel()
+    @State private var model: LibraryModel
+    @State private var updates: UpdateController
     @State private var sheet: LibrarySheet?
+
+    init() {
+        let model = LibraryModel()
+        _model = State(initialValue: model)
+        _updates = State(initialValue: UpdateController(model: model))
+    }
 
     var body: some Scene {
         Window("Linux VM", id: "library") {
-            LibraryView(model: model, sheet: $sheet)
+            LibraryView(model: model, updates: updates, sheet: $sheet)
                 .frame(minWidth: 780, minHeight: 540)
                 .onAppear {
                     if let initial = ProcessInfo.processInfo.environment["LINUXVM_SNAPSHOT_SHEET"] {
@@ -19,6 +26,10 @@ struct LinuxVMApp: App {
         }
         .defaultSize(width: 920, height: 640)
         .commands {
+            CommandGroup(after: .appInfo) {
+                Button("Check for Updates…") { updates.checkForUpdates() }
+                    .disabled(!updates.canCheck)
+            }
             CommandGroup(replacing: .newItem) {
                 Button("New Virtual Machine…") { sheet = .create }
                     .keyboardShortcut("n")
@@ -42,6 +53,7 @@ enum LibrarySheet: String, Identifiable {
 
 struct LibraryView: View {
     @Bindable var model: LibraryModel
+    @Bindable var updates: UpdateController
     @Binding var sheet: LibrarySheet?
 
     var body: some View {
@@ -82,12 +94,39 @@ struct LibraryView: View {
                 ContentUnavailableView("No Selection", systemImage: "sidebar.left")
             }
         }
+        .toolbar {
+            if let version = updates.waitingVersion {
+                ToolbarItem(placement: .primaryAction) {
+                    Button(action: updates.installWaitingUpdate) {
+                        Label(updates.shuttingDown ? "Shutting Down…" : "Update to \(version)",
+                              systemImage: updates.shuttingDown ? "hourglass" : "arrow.down.circle")
+                    }
+                    .labelStyle(.titleAndIcon)
+                    .disabled(updates.shuttingDown)
+                    .help("Install Linux VM \(version). Running virtual machines shut down first.")
+                }
+            }
+        }
         .sheet(item: $sheet) { kind in
             switch kind {
             case .create: NewMachineSheet(model: model)
             case .importDisk: ImportDiskSheet(model: model)
             case .runtime: RuntimeCheckSheet(runtime: model.runtime)
             }
+        }
+        .alert(
+            updates.prompt?.title ?? "",
+            isPresented: Binding(get: { updates.prompt != nil }, set: { if !$0 { updates.prompt = nil } }),
+            presenting: updates.prompt
+        ) { prompt in
+            if prompt.kind == .shutDown {
+                Button("Shut Down and Install", action: updates.shutDownAndInstall)
+                Button("Later", role: .cancel) {}
+            } else {
+                Button("OK", role: .cancel) {}
+            }
+        } message: { prompt in
+            Text(prompt.message)
         }
         .alert("Something went wrong", isPresented: Binding(
             get: { model.errorMessage != nil },

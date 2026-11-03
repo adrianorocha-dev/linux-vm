@@ -46,6 +46,20 @@ Milestone 2 made the app dependable on this Mac ([plan](milestone-2-plan.md)). M
 - It is tested from a fresh clone in a temporary folder, and the result is compared with the current runtime: the same files and the same patches. The test also records the build time.
 - `runtime/README.md` shrinks to running the script, plus what it does.
 
+## Progress
+
+### Sparkle in the app (3 November 2026)
+
+- **In the bundle.** Sparkle 2.10.0, pinned in `macos/Package.resolved`, sits in `Contents/Frameworks`, signed with the rest of the app. Its XPC services are left out, because the app isn't sandboxed. The app menu has "Check for Updates…".
+- **Configuration.** `scripts/build-app.sh` writes the feed and the public key into Info.plist from `LINUXVM_UPDATE_FEED` and `LINUXVM_UPDATE_KEY`. A build without them has no updater. Silent installs are off (`SUAllowsAutomaticUpdates`), so every update is shown before it installs.
+- **Replacing the bundle under a running VM, tested.** QEMU kept running, and so did the bridges that were already running. A bridge that restarted could not attach: macOS reports no path for the running QEMU, whose file had been deleted, so the helper refuses it. The clipboard stayed off for the rest of that run.
+- **So updates wait for VMs.** An update found while a VM runs isn't downloaded. The window shows "Update to …" instead, which shuts the VMs down and then installs. An install that starts while a VM runs waits the same way. One case remains: Sparkle always installs an update it has already downloaded when the app quits. If a VM was started after the download, it keeps running, but its bridges can't restart until the VM restarts.
+- **Verified on this Mac** with two Developer ID test copies, a test bundle identifier, a throwaway EdDSA key and a local feed:
+  - with a VM running, the check fetched the feed, downloaded nothing, and the window showed "Update to 0.2.1";
+  - with no VM running, Sparkle downloaded and verified the DMG and installed 0.2.1 two seconds after the app quit. This used silent installs, which only the test copies allow;
+  - the updated copy kept its Developer ID signature, passed its runtime check and started its VM.
+- **Not verified yet:** the path with clicks. That is Sparkle's update window, Install and Relaunch, and the shut-down prompt. It needs someone at the Mac.
+
 ## Steps that belong to the user
 
 - **The EdDSA key pair.** Sparkle's `generate_keys` keeps the private key in your login keychain and prints the public key for Info.plist. Back the private key up: without it, installed copies can't be updated.

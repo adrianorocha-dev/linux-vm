@@ -32,5 +32,7 @@
 	<string>Linux apps in your VM can use the microphone, as on a Linux computer.</string>
 	<key>NSPrincipalClass</key>
 	<string>NSApplication</string>
+	<key>SUAllowsAutomaticUpdates</key>
+	<false/>
 </dict>
 </plist>
