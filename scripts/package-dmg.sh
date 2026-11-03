@@ -38,6 +38,22 @@ dmg="$root/build/Linux VM $version.dmg"
 scratch=$(mktemp -d)
 trap 'rm -rf "$scratch"' EXIT
 
+notarize() {
+  echo "[package-dmg] Submitting $(basename "$1") to Apple's notary service; this usually takes a few minutes"
+  xcrun notarytool submit "$1" --keychain-profile "$profile" --wait --timeout 1h | tee "$scratch/notary.log"
+  grep -q "status: Accepted" "$scratch/notary.log" ||
+    fail "Apple did not accept $(basename "$1"); see: xcrun notarytool log <submission id> --keychain-profile $profile"
+}
+
+# The app gets its own ticket first, so a copy dragged out of the image
+# opens without Gatekeeper reaching Apple's servers.
+if [[ -n $profile ]]; then
+  ditto -c -k --keepParent "$app" "$scratch/Linux VM.zip"
+  notarize "$scratch/Linux VM.zip"
+  xcrun stapler staple "$app"
+  xcrun stapler validate "$app"
+fi
+
 echo "[package-dmg] Creating $(basename "$dmg")"
 mkdir "$scratch/image"
 ditto "$app" "$scratch/image/Linux VM.app"
@@ -49,16 +65,9 @@ codesign --sign "$identity" --timestamp "$dmg"
 codesign --verify --strict "$dmg"
 
 if [[ -n $profile ]]; then
-  echo "[package-dmg] Submitting to Apple's notary service; this usually takes a few minutes"
-  xcrun notarytool submit "$dmg" --keychain-profile "$profile" --wait --timeout 1h |
-    tee "$scratch/notary.log"
-  grep -q "status: Accepted" "$scratch/notary.log" ||
-    fail "Apple did not accept the image; see: xcrun notarytool log <submission id> --keychain-profile $profile"
+  notarize "$dmg"
   xcrun stapler staple "$dmg"
   xcrun stapler validate "$dmg"
-  # The ticket covers the app too; staple the local copy for builds shared
-  # without the image.
-  xcrun stapler staple "$app"
   spctl --assess --type open --context context:primary-signature --verbose=2 "$dmg"
   spctl --assess --type execute --verbose=2 "$app"
 else
