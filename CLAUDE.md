@@ -1,12 +1,12 @@
 # Working on Linux VM
 
-Read `README.md` for the layout, then `docs/milestone-3-plan.md` for the current milestone. `docs/milestone-2-plan.md` records Milestone 2 (closed), `docs/future-tests.md` the checks it left for later, and `docs/proposal.md` the investigation and the Milestone 0 and 1 results.
+Read `README.md` for what the app does and `docs/development.md` for the layout, building and releasing, then `docs/milestone-3-plan.md` for the current milestone. `docs/milestone-2-plan.md` records Milestone 2 (closed), `docs/future-tests.md` the checks it left for later, and `docs/proposal.md` the investigation and the Milestone 0 and 1 results.
 
 ## Build and test
 
 - Build the QEMU runtime: `scripts/build-runtime.sh`.
 - Build the app: `scripts/build-app.sh`. It ends with the runtime capability check. To install, copy `build/Linux VM.app` over `/Applications/Linux VM.app` while the app is quit.
-- Build to share: README's [Sharing the app](README.md#sharing-the-app). Creating certificates and notary credentials is the user's step; never handle their passwords.
+- Build to share: [Sharing the app](docs/development.md#sharing-the-app). Creating certificates and notary credentials is the user's step; never handle their passwords.
 - Run the tests: `swift test --package-path macos` and `/opt/homebrew/bin/python3.14 -m unittest discover guest/tests`, `python3 -m unittest discover scripts/harness/tests`, and `python3 -m unittest discover scripts/tests`. The last command clones the pinned Try Omarchy source if absent. It does not build it.
 - Rebuild the guest tools: `python3 guest/build.py` and `guest/build-tools-iso.sh`. Then rebuild the app, which bundles the disc.
 - The QEMU runtime and its inputs live in git-ignored `.deps/` ([runtime/README.md](runtime/README.md)).

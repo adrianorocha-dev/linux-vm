@@ -4,7 +4,7 @@ Milestone 2 made the app dependable on this Mac ([plan](milestone-2-plan.md)). M
 
 ## Starting state
 
-- **App:** version 0.1.0, signed with the user's Developer ID. `scripts/package-dmg.sh` makes a notarized, stapled DMG ([README](../README.md#sharing-the-app)). There are no version tags or releases yet. The repository is private.
+- **App:** version 0.1.0, signed with the user's Developer ID. `scripts/package-dmg.sh` makes a notarized, stapled DMG ([development notes](development.md#sharing-the-app)). There are no version tags or releases yet. The repository is private.
 - **Licenses:** the bundle ships Try Omarchy's license and the edk2 firmware's licenses. It ships nothing for QEMU (GPLv2) or the 15 libraries in `Contents/Resources/runtime/lib`, several of them LGPL (GLib, libintl, libusb).
 - **Runtime build:** every input is pinned by checksum. QEMU, libslirp, virglrenderer and the build tools are built from source archives, and some libraries come from pinned Homebrew bottles. Setting it up takes the manual steps in [runtime/README.md](../runtime/README.md).
 - **Updates:** none. Each new version is a DMG sent by hand.
@@ -96,7 +96,7 @@ GPT-6.1-Sol built it, and Claude reviewed and merged it with one fix.
 
 - **Published** at [v0.2.0](https://github.com/adrianorocha-dev/linux-vm/releases/tag/v0.2.0), from commit `a675d5b`, with the DMG, the update feed and the 398 MB source archive (97 sources, complete).
 - **Checked as a download.** The public DMG matched the built one byte for byte. With a quarantine flag, Gatekeeper accepted the DMG and the app copied out of it as notarized Developer ID. `syspolicy_check distribution` passed, and so did the app's runtime check.
-- **Found on the way.** The first publish attempt stopped at notarization, before anything was public: the Mac's screen had locked, and macOS doesn't release the notary credentials while it's locked. The release script now checks the notary profile before building, and the README says to keep the Mac unlocked.
+- **Found on the way.** The first publish attempt stopped at notarization, before anything was public: the Mac's screen had locked, and macOS doesn't release the notary credentials while it's locked. The release script now checks the notary profile before building, and the [release steps](development.md#releasing) say to keep the Mac unlocked.
 - **Still to verify:** a copy of 0.2.0 updating itself to the next release while keeping its VMs. That's this milestone's last "done" criterion, and the clicked Sparkle path gets checked at the same time.
 
 ## Steps that belong to the user

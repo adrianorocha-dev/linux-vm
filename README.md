@@ -1,128 +1,144 @@
 # Linux VM
 
-A macOS app that runs Ubuntu on Apple Silicon with Mac-quality trackpad, display and cursor behaviour. It builds on Try Omarchy's patched QEMU runtime and its Mac bridge helper.
+Linux VM is a Mac app for running Linux on Apple Silicon. It aims to make Linux feel at home on a Mac. Trackpad scrolling follows your fingers smoothly, Linux runs at your display's refresh rate and Retina resolution, and you see Linux's own pointer.
 
-Download the latest version from [Releases](https://github.com/adrianorocha-dev/linux-vm/releases/latest). It needs an Apple Silicon Mac with macOS 15 or later, and updates itself once installed. [What needs the guest tools](docs/what-needs-guest-tools.md) explains the optional Ubuntu package on the Guest Tools disc.
+Ubuntu 26.04 is the first distribution where all of this has been tested and tuned. Other ARM64 distributions can run too; see [Distributions](#distributions).
 
-## Layout
+**[Download Linux VM](https://github.com/adrianorocha-dev/linux-vm/releases/latest)**. It needs an Apple Silicon Mac with macOS 15 or later.
 
-- `macos/`: Swift package.
-  - `LinuxVMCore`: VM library, QEMU launch, supervision, QMP, runtime checks.
-  - `linuxvmctl`: the command-line tool, which is also the per-VM supervisor the app starts.
-  - `LinuxVM`: the SwiftUI app.
-- `guest/`: the Ubuntu guest tools package (`linuxvm-guest`) and the Guest Tools disc.
-- `docs/host-guest-contract.md`: the only interfaces between the Mac and the guest.
-- `docs/what-needs-guest-tools.md`: what works without the guest tools, and what needs them.
-- `docs/proposal.md`: the investigation and proposal, with Milestone 0 and 1 results. `docs/milestone-0-notes.md` and `docs/utm-ubuntu-report.md` hold the measurements behind it.
-- `docs/milestone-3-plan.md`: the current milestone, releasing the app. `docs/milestone-2-plan.md`: Milestone 2, closed on 3 November 2026. `docs/future-tests.md` lists the checks it left for later.
-- `runtime/`: our changes to Try Omarchy v1.3.0's QEMU runtime build, and how to build it.
-- `scripts/build-app.sh`: assembles `build/Linux VM.app`. `scripts/ssh-vm.sh`, `scripts/qmp-type.py` and `scripts/guest-diagnostics.sh` are test helpers.
-- `scripts/harness/`: the test harness. It installs a fresh VM unattended and captures monitor state, screenshots, touchpad input and frame timing from inside the guest. It also repeats a VM's start, reboot, sleep and shutdown (`soak`), and replays touchpad contacts across pauses and reboots (`touch-lifecycle`) ([README](scripts/harness/README.md)).
+## The idea
 
-## How a VM runs
+On a Mac, the trackpad is how you get around, so that's where Linux VM starts. It presents your trackpad to Linux as a touchpad, so Linux sees two fingers moving, as it would on a laptop. Scrolling follows your fingers, pinch to zoom works, and so do two-finger swipes back and forward in browsers.
 
-The app starts `linuxvmctl run <id>` in its own session. That supervisor holds the VM folder's lock, starts QEMU, starts the clipboard, audio and time-zone bridges from `omarchy-vm-helper`, restarts a bridge up to five times, and removes its run state when QEMU exits. It also pauses the VM while the Mac sleeps (a per-VM setting, on by default), then prompts Linux to correct its clock, and saves what the guest tools report about themselves. VMs therefore keep running when the app quits. The app and `linuxvmctl` control a running VM through a second QMP socket.
+This approach, and the patched QEMU runtime that makes it work, come from [Try Omarchy](https://github.com/omacom/try-omarchy). Linux VM builds on that work with its own Mac app, VM management and Linux integration.
 
-Each VM is a folder in `~/Library/Application Support/Linux VM/VMs/<id>/` with `config.json`, a sparse raw disk (or an imported QCOW2), the UEFI variable store, `scroll-scale`, `guest.json` (the guest tools' last report) and `logs/`.
+## What you get
 
-The defaults follow our Milestone 0 measurements: the guest's own cursor without the Mac arrow, immersive full screen below the camera housing, and touch scrolling at 0.4 of Try Omarchy's travel.
+- **Trackpad.** Smooth two-finger scrolling, pinch to zoom, and swipes back and forward in browsers. Each VM has its own scroll speed setting. Mice and their scroll wheels work too.
+- **Display.** Accelerated 3D graphics, so WebGL works in browsers. Linux uses your display's refresh rate, up to 120 Hz on ProMotion displays. In full screen, Linux sees the display's full resolution and size, so a desktop such as GNOME picks a Retina scale by itself. Full screen can also hide the menu bar and Dock and use the area beside the camera.
+- **Pointer.** Linux's own cursor shapes, such as the text cursor and resize arrows, with no Mac arrow drawn on top.
+- **Sound.** Linux plays through your Mac's speakers or headphones and records from its microphone. macOS asks once for permission to use the microphone.
+- **Network.** Linux reaches the internet through your Mac. You can forward a port on your Mac to Linux, for example to SSH into it.
+- **Sleep.** The VM pauses while your Mac sleeps and carries on when it wakes.
+- **Runs in the background.** VMs keep running when you quit the app. Open the app again to shut them down.
+- **Updates.** The app updates itself, and never while a VM is running.
 
-## Removable storage
+### With the guest tools
 
-While a VM runs, ejecting the drive holding its VM folder or shared folder is refused with a message naming the VM. Ejecting an installer image’s drive first ejects the disc from the VM, then allows the drive to unmount. The supervisor checks the currently inserted disc, including changes made while running.
+The guest tools are an optional package you install inside Linux, from a disc the app provides. So far they're made for Ubuntu 26.04. They add:
 
-If a drive is forcibly removed or disconnected, losing the VM folder stops QEMU immediately, without asking Linux to shut down. The supervisor releases its lock, removes its temporary run directory, and exits with status **74** (storage disconnected), even if QEMU exits successfully. It tries QMP `quit`, then kills QEMU if that fails or QEMU remains alive after two seconds. Losing an installer image ejects the disc and keeps the VM running; losing a shared folder is logged and also keeps it running. DiskArbitration notifications and a once-per-second filesystem check detect removal. The Mac’s boot/data volume is excluded.
+- a shared clipboard for text and images, both ways;
+- a Mac folder shared with Linux;
+- Linux following your Mac's time zone;
+- Linux setting its clock right as soon as your Mac wakes;
+- each Mac speaker and microphone listed in Linux's sound settings;
+- the guest tools' version and status on the VM's page in the app.
 
-## Building
+[What needs the guest tools](docs/what-needs-guest-tools.md) has the details, including what happens without them.
 
-Prerequisites: an Apple Silicon Mac with macOS 15 or newer, Xcode command line tools, pkg-config, and Python 3.11 or newer with working venvs (`brew install pkgconf python@3.14`). See [runtime/README.md](runtime/README.md).
+## Distributions
 
-Steps:
-1. Build the QEMU runtime: `scripts/build-runtime.sh`.
-2. Build the guest tools: `python3 guest/build.py` and `guest/build-tools-iso.sh`. The disc needs `xorriso` (`brew install xorriso`).
-3. Build the app: `scripts/build-app.sh`. It ends with a runtime capability check. To share it, see [Sharing the app](#sharing-the-app).
+Linux VM runs ARM64 Linux. Getting the details right takes testing and tuning for each distribution, one at a time.
 
-Tests:
-- `swift test --package-path macos`
-- `python3 -m unittest discover guest/tests`
-- `python3 -m unittest discover scripts/harness/tests`
-- `python3 -m unittest discover scripts/tests` (clones the pinned Try Omarchy source if `.deps/try-omarchy` is absent; does not build it)
+- **Ubuntu 26.04 Desktop** is the first fully supported distribution. Everything on this page has been tested with it, and the guest tools are made for it.
+- **Other ARM64 distributions** should work with everything that comes from the VM's virtual hardware: the display, trackpad, pointer, sound, network and sleep ([details](docs/what-needs-guest-tools.md#works-without-the-guest-tools)). They haven't been tested yet, and the guest tools don't support them yet. You can still [mount a shared folder by hand](docs/what-needs-guest-tools.md#needs-the-guest-tools).
 
-## Sharing the app
+## What you need
 
-`scripts/build-app.sh` signs ad hoc, so the build runs only on this Mac without a Gatekeeper warning. To share it, sign it with a Developer ID and have Apple notarize it:
+- An Apple Silicon Mac (M1 or later) with macOS 15 Sequoia or later. Intel Macs aren't supported.
+- An ARM64 Linux installer image. For the best result, use Ubuntu Desktop 26.04 for ARM64: on [ubuntu.com/download/desktop](https://ubuntu.com/download/desktop), choose "Download Ubuntu 26.04.1 arm64" to get `ubuntu-26.04.1-desktop-arm64.iso`. Ubuntu 26.10 hasn't been tested.
+- Memory and disk space for the VM. The app suggests 8 GB of memory on a Mac with 16 GB or more, and 4 GB otherwise. The VM's disk takes space on your Mac only as Linux writes to it.
 
-1. Once per Mac, in Xcode → Settings → Accounts → Manage Certificates, add a "Developer ID Application" certificate for your team. Then store notary credentials in the keychain: `xcrun notarytool store-credentials linuxvm-notary --apple-id <Apple ID> --team-id <team ID>`, with an app-specific password from account.apple.com.
-2. Build with the identity: `LINUXVM_SIGN_IDENTITY="Developer ID Application: <name> (<team ID>)" scripts/build-app.sh`. Every executable gets the identity, the hardened runtime and a secure timestamp. QEMU keeps the hypervisor and microphone entitlements (`macos/Resources/qemu.entitlements`); the app and supervisor have the microphone one (`macos/Resources/app.entitlements`).
-3. Package and notarize: `LINUXVM_SIGN_IDENTITY=… LINUXVM_NOTARY_PROFILE=linuxvm-notary scripts/package-dmg.sh`. It writes `build/Linux VM <version>.dmg`, signed, notarized and stapled.
+## Getting started
 
-For the app to update itself through Sparkle, step 2 also needs `LINUXVM_UPDATE_FEED` (the feed's https URL) and `LINUXVM_UPDATE_KEY` (the EdDSA public key). Without them the app has no updater. An update never installs while a VM runs. See [Milestone 3](docs/milestone-3-plan.md#sparkle-in-the-app-3-november-2026).
+1. **Install the app.** Download `LinuxVM-<version>.dmg` from [Releases](https://github.com/adrianorocha-dev/linux-vm/releases/latest), open it, and drag Linux VM to Applications. The app is signed and notarized by Apple, so it opens like any other app. On its second launch, it asks whether to check for updates automatically.
+2. **Create a VM.** Choose File → New Virtual Machine…, then pick the installer image, the number of CPUs, the memory and the disk size. Leave "Start the installer now" on and click Create.
+3. **Install Linux.** Linux opens in its own window. Install it as you would on a PC.
+4. **Eject the installer.** When the installer restarts the VM, click Eject under Installer Disc on the VM's page in the app, so the VM starts from its own disk. Ubuntu asks for this: when it says to remove the installation medium, click Eject, then press Return in the VM.
+5. **Install the guest tools (Ubuntu).** In Ubuntu, open the `LINUXVM-TOOLS` disc in Files. Open a terminal in that folder and run `sh install.sh`. It asks for your password. Then log out and back in.
+6. **Go full screen.** Click the window's green button. Linux matches the display's resolution and refresh rate.
 
-Recipients need an Apple Silicon Mac with macOS 15 or later. Without `LINUXVM_NOTARY_PROFILE`, step 3 only signs the image, to check the steps; any signing identity works for that.
+### Already have a Linux VM?
 
-## Releasing
+File → Import Disk… brings in an existing ARM64 Linux disk, in raw or QCOW2 format, such as one made with another VM app. You can also add its UEFI variables file. The app works on its own copy. On APFS, that copy takes no extra space until one of them changes. Don't import a disk while another app is running it.
 
-Complete the certificate and notary setup in [Sharing the app](#sharing-the-app).
-Install GitHub CLI (`brew install gh`) and sign in with `gh auth login`.
-Releases are published from this repository, `adrianorocha-dev/linux-vm`, which `scripts/release-config.json` names.
-The script derives the feed URL from it: `https://github.com/adrianorocha-dev/linux-vm/releases/latest/download/appcast.xml`.
+## Using it
 
-Run `.deps/sparkle-2.10.0/bin/generate_keys` once to create the EdDSA key in your login keychain.
-If needed, unpack [Sparkle 2.10.0](https://github.com/sparkle-project/Sparkle/releases/download/2.10.0/Sparkle-2.10.0.tar.xz) there after verifying its SHA-256 is `c2bf58aa8387266ac179357b1415d6f2635f044da8be41042af32425dae6da0c`.
-The config's `public_key` holds the public key it printed.
-Back up the private key securely: without it, installed copies can't be updated.
-The release script fetches and verifies absent tools.
+Each VM's page in the app shows its settings:
 
-For each release, set `CFBundleShortVersionString` in `macos/Resources/Info.plist` to `MAJOR.MINOR.PATCH` and raise the integer `CFBundleVersion` above every published build.
-Add `docs/releases/VERSION.md` using the [notes format](docs/releases/README.md).
-Build the Guest Tools disc using [Building](#building).
-Commit and push these changes, then run from a clean `main` equal to `origin/main`:
+- **Resources:** CPUs and memory. You can also enlarge the disk; afterwards, grow the partition inside Linux (in Ubuntu, with the Disks app).
+- **Installer Disc:** insert or eject an installer image, even while the VM runs.
+- **Sharing:** a Mac folder to share with Linux. With the guest tools, it appears at `/mnt/mac`, with a link in your home folder.
+- **Display and Trackpad:** scroll speed, whether full screen hides the menu bar and Dock, whether it uses the area beside the camera, and whether to show the Mac pointer.
+- **Sleep:** whether the VM pauses while your Mac sleeps.
+- **Network:** port forwards from your Mac to Linux.
 
-```sh
-LINUXVM_SIGN_IDENTITY="Developer ID Application: <name> (<team ID>)" python3 scripts/release.py VERSION
-```
+Shut down the VM to change its resources, sharing or network. The Logs tab shows what the VM and its helpers have reported.
 
-The script builds, signs and notarizes the app, and collects the release's complete source, before asking to publish.
-It uses `linuxvm-notary` unless `LINUXVM_NOTARY_PROFILE` names another profile.
-Keep the Mac unlocked during a release: macOS doesn't release the notary credentials while the screen is locked, and the script stops before building when it can't read them.
-Review the summary, then type `publish`.
-The script pushes an annotated tag, creates a draft release with the DMG, `appcast.xml` and the source archive, publishes it, and checks what GitHub serves.
-Artifacts stay in `build/release/VERSION/`: `LinuxVM-VERSION.dmg`, `appcast.xml` and `linux-vm-VERSION-source.tar.gz`.
-Use `--dry-run` to do all preparation, including signing and notarization, without tagging, pushing, or publishing.
-A later run of the same commit reuses the source archive, so a dry run and then the real release collect the source once.
-Don't delete a release's source archive while that version is distributed.
-If publication fails partway through, inspect the origin tag and public release before retrying.
+**Shutting down.** Shut Down asks Linux to shut down, like pressing a power button. Force Stop stops the VM at once, and anything unsaved in Linux is lost. You can also shut down from inside Linux.
+
+**Updates.** Choose Linux VM → Check for Updates… to check now. If an update arrives while a VM is running, an Update button appears in the window. Click it to shut down your VMs and install.
+
+**Where VMs are kept.** Each VM is a folder in `~/Library/Application Support/Linux VM/VMs/`, holding its disk, settings and logs. Deleting a VM in the app moves its folder to the Trash.
+
+**External drives.** While a VM runs, macOS won't eject a drive holding its shared folder. Ejecting a drive that holds its installer image ejects the disc from the VM first. If the drive is unplugged without ejecting, the VM keeps running without the folder or disc.
 
 ## Command line
 
+The app includes `linuxvmctl`, at `/Applications/Linux VM.app/Contents/Helpers/linuxvmctl`, for managing VMs from Terminal:
+
 ```
-linuxvmctl list | check
-linuxvmctl create --name N --iso PATH [--cpus N] [--memory MIB] [--disk GIB]
-linuxvmctl import --name N --disk PATH [--efi-vars PATH]
-linuxvmctl start|stop [--force]|status|show|delete VM
-linuxvmctl set VM [--cpus N] [--memory MIB] [--iso PATH|none] [--shared-folder PATH|none] [--scroll-scale X] [--pause-during-sleep on|off] ...
+linuxvmctl list                       VMs and their state
+linuxvmctl check                      runtime capability report
+linuxvmctl create --name N [--iso PATH] [--cpus N] [--memory MIB] [--disk GIB]
+linuxvmctl import --name N --disk PATH [--efi-vars PATH] [--cpus N] [--memory MIB]
+linuxvmctl show VM                    configuration as JSON
+linuxvmctl set VM [--name N] [--cpus N] [--memory MIB] [--iso PATH|none]
+                  [--shared-folder PATH|none] [--scroll-scale X] [--mac-cursor on|off]
+                  [--immersive on|off] [--cover-notch on|off] [--forward HOST:GUEST|none]
+                  [--grow-disk GIB] [--pause-during-sleep on|off]
+linuxvmctl start VM                   start in the background
+linuxvmctl stop VM [--force]          shut down (or stop at once)
+linuxvmctl status VM                  state, and the guest tools version
+linuxvmctl insert VM PATH | eject VM  change the installer disc while running
+linuxvmctl screenshot VM PATH         save the display as PNG
+linuxvmctl delete VM                  move a stopped VM to the Trash
 ```
 
-`status` also shows the guest tools version a VM last reported, and whether it is older than the app's Guest Tools disc.
+`VM` is a name, an identifier, or a unique prefix of an identifier.
 
-The tool is at `Linux VM.app/Contents/Helpers/linuxvmctl`.
+## Limitations
 
-## Licenses
+Linux VM is early software, at version 0.2. So far it has been developed and tested on one MacBook Pro running Ubuntu 26.04.
 
-The app's notices, license texts and provenance manifest live in `Contents/Resources/Licenses/`. The notices point to the release page that carries the version's complete source.
-`scripts/build-app.sh` checks license texts, every bundle file and the files inside the Guest Tools disc before signing, then checks coverage again after signing.
-Developer ID builds and tests also verify all third-party input pins, checksums and upstream license bytes.
-Ad hoc builds use local checks without cloning or downloading inputs.
-Original app and Guest Tools code has no manifest checksums.
-Their notice versions come from Info.plist and guest/build.py.
-An unlisted component or missing license text stops the build.
-Developer ID builds also require the release repository, the source-request contact and resolved provenance gaps.
-Linux VM’s own code is available under the MIT License ([LICENSE](LICENSE)).
-See [licenses/README.md](licenses/README.md) for the inventory, current release blockers and how to add a component.
+- **ARM64 Linux only.** It can't run x86 Linux or Windows.
+- **Distributions.** Only Ubuntu 26.04 is fully supported so far; see [Distributions](#distributions).
+- **Display.** Testing has focused on full screen on the Mac's built-in display. Resizing the window and moving to an external display haven't been tested yet.
+- **WebGPU** isn't available in Linux browsers. WebGL works.
 
-`scripts/release.py` collects each release's complete corresponding source with `scripts/retain-release-source.py` and attaches it to the GitHub release, next to the DMG.
-The collector verifies sources, bottle formulas and patches and records their checksums.
-ANGLE's revision comes from its binary version string.
-Its permissive dependency notices use pinned DEPS reference revisions and impose no source-distribution obligation.
-The collector requires all copyleft sources and treats ANGLE's source as best effort.
-See [source retention](licenses/README.md#retaining-release-source) for the contents and subset test.
+## How it works
+
+Linux VM runs Linux with QEMU, using Apple's Hypervisor framework, so Linux runs natively on the Mac's processor. Graphics go through virglrenderer to the Mac's GPU. The runtime is Try Omarchy's patched QEMU, with a few changes of our own ([runtime/README.md](runtime/README.md)). It turns trackpad gestures into touches on a virtual touchpad, and tells Linux about the display's refresh rate and scale. Each VM runs under a small supervisor process, which is why VMs keep running when the app quits.
+
+## Credits
+
+Linux VM is built on the work of these open-source projects:
+
+- [Try Omarchy](https://github.com/omacom/try-omarchy): the trackpad, display and full-screen work in its QEMU runtime, and the helper behind the shared clipboard and sound devices.
+- [QEMU](https://www.qemu.org): the virtual machine itself.
+- [virglrenderer](https://gitlab.freedesktop.org/virgl/virglrenderer): accelerated 3D graphics.
+- [Sparkle](https://sparkle-project.org): updates.
+
+Help → Third-Party Licenses lists everything the app includes.
+
+## Feedback
+
+Report problems and ask questions on the [Issues page](https://github.com/adrianorocha-dev/linux-vm/issues).
+
+## Building from source
+
+[docs/development.md](docs/development.md) covers the repository's layout, building the app and its QEMU runtime, the tests, and making releases. The rest of [docs/](docs/) records how the project got here: the investigation, the milestone plans and their measurements.
+
+## License
+
+Linux VM's own code is available under the [MIT License](LICENSE). The app includes open-source software under other licenses, such as QEMU under GPLv2. Help → Third-Party Licenses lists it all, and each [release](https://github.com/adrianorocha-dev/linux-vm/releases) includes its complete source.
