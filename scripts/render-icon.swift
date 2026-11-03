@@ -22,21 +22,22 @@ func render(_ pixels: Int) -> Data {
     let screen = tile.insetBy(dx: tile.width * 0.16, dy: tile.height * 0.22)
     NSColor(white: 0.08, alpha: 0.85).setFill()
     NSBezierPath(roundedRect: screen, xRadius: screen.width * 0.08, yRadius: screen.width * 0.08).fill()
-    let configuration = NSImage.SymbolConfiguration(pointSize: screen.height * 0.5, weight: .bold)
-    if let glyph = NSImage(systemSymbolName: "chevron.right", accessibilityDescription: nil)?.withSymbolConfiguration(configuration) {
-        let tinted = NSImage(size: glyph.size, flipped: false) { rect in
-            glyph.draw(in: rect)
-            NSColor.white.set()
-            rect.fill(using: .sourceAtop)
-            return true
-        }
-        let glyphRect = NSRect(x: screen.minX + screen.width * 0.12, y: screen.midY - glyph.size.height / 2,
-                               width: glyph.size.width, height: glyph.size.height)
-        tinted.draw(in: glyphRect)
-        NSColor.white.setFill()
-        NSRect(x: glyphRect.maxX + screen.width * 0.06, y: glyphRect.minY + glyph.size.height * 0.05,
-               width: screen.width * 0.28, height: screen.height * 0.09).fill()
-    }
+    // The prompt is drawn as paths: Apple's license doesn't allow SF Symbols in app icons.
+    let height = screen.height * 0.37
+    let stroke = screen.height * 0.09
+    let left = screen.minX + screen.width * 0.19 + stroke / 2
+    let chevron = NSBezierPath()
+    chevron.move(to: NSPoint(x: left, y: screen.midY + height / 2))
+    chevron.line(to: NSPoint(x: left + height * 0.55, y: screen.midY))
+    chevron.line(to: NSPoint(x: left, y: screen.midY - height / 2))
+    chevron.lineWidth = stroke
+    chevron.lineCapStyle = .round
+    chevron.lineJoinStyle = .round
+    NSColor.white.setStroke()
+    chevron.stroke()
+    NSColor.white.setFill()
+    NSRect(x: left + height * 0.55 + screen.width * 0.08, y: screen.midY - height / 2 - stroke / 2,
+           width: screen.width * 0.28, height: stroke).fill()
     NSGraphicsContext.restoreGraphicsState()
     return representation.representation(using: .png, properties: [:])!
 }
