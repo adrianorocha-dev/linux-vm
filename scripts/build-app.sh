@@ -18,10 +18,9 @@ set -euo pipefail
 root=$(cd "$(dirname "$0")/.." && pwd -P)
 omarchy="$root/.deps/try-omarchy"
 runtime_source="$omarchy/macos/.build/qemu-gpu-runtime"
-archives="$root/.deps/source-archives"
-qemu_commit=c3d48b7d1e89604920e5b81b91140c2ad39a1943
+source "$root/runtime/source-pins.sh"
+archives=${OMARCHY_DOWNLOAD_CACHE:-"$root/.deps/source-archives"}
 qemu_archive="$archives/qemu-$qemu_commit.tar.gz"
-qemu_archive_sha256=db14020067babeb646ba35e3cffdf1f252a04157114684fa5c0f5da98015ffdf
 app="$root/build/Linux VM.app"
 identity=${LINUXVM_SIGN_IDENTITY:--}
 
@@ -30,9 +29,11 @@ fail() {
   exit 1
 }
 
-[[ -x $runtime_source/bin/qemu-system-aarch64 ]] || fail "build the QEMU runtime first: $omarchy/macos/build-qemu-gpu-runtime.sh"
-[[ -f $qemu_archive && $(shasum -a 256 "$qemu_archive" | cut -d' ' -f1) == "$qemu_archive_sha256" ]] ||
-  fail "missing or unexpected QEMU source archive: $qemu_archive"
+[[ -x $runtime_source/bin/qemu-system-aarch64 ]] || fail "build the QEMU runtime first: scripts/build-runtime.sh"
+[[ -f $omarchy/macos/pinned-git-source.sh ]] || fail "prepare the runtime with scripts/build-runtime.sh"
+source "$omarchy/macos/pinned-git-source.sh"
+pinned_git_source_archive https://github.com/qemu/qemu.git "$qemu_commit" "qemu-$qemu_commit" "$qemu_archive" "$archives" ||
+  fail "could not verify QEMU firmware source at $qemu_commit"
 
 echo "[build-app] Building the app and supervisor"
 swift build --package-path "$root/macos" -c release --product LinuxVM
