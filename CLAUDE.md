@@ -1,6 +1,6 @@
 # Working on Linux VM
 
-Read `README.md` for the layout, then `docs/milestone-2-plan.md` for the current milestone. `docs/proposal.md` holds the investigation and the Milestone 0 and 1 results.
+Read `README.md` for the layout. `docs/milestone-2-plan.md` records the last milestone (closed), and `docs/future-tests.md` lists the checks left for later. `docs/proposal.md` holds the investigation, the Milestone 0 and 1 results, and the plan for Milestone 3.
 
 ## Build and test
 

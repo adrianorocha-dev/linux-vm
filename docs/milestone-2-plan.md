@@ -1,5 +1,7 @@
 # Milestone 2 plan: make the experience the product
 
+**Closed on 3 November 2026.** The checks still open moved to [Tests for later](future-tests.md).
+
 Milestone 1 delivered a working app, supervisor and guest tools ([proposal](proposal.md#milestone-1-first-build)). Milestone 2 makes the experience dependable in daily use and measurable against Try Omarchy and macOS. Its scope comes from the proposal's [Milestone 2](proposal.md#milestone-2--make-the-experience-the-product) and [validation criteria](proposal.md#what-smooth-must-mean-in-our-validation).
 
 ## Starting state
@@ -126,12 +128,12 @@ Work that needed no one at the Mac. GPT-6.1-Sol built the storage handling; Clau
 - **Touchpad scroll direction was reversed.** In a fresh Ubuntu VM, GNOME's "Natural" scrolling behaved as traditional, and the reverse. Try Omarchy's touch-scroll contacts moved in the direction macOS had already chosen, for a guest with natural scrolling off. GNOME then applied its own setting on top, and guest tools 0.2.0 defaulted it off to compensate. A runtime patch now undoes the Mac's inversion (`isDirectionInvertedFromDevice`), so the contacts follow the fingers and GNOME's setting decides. Guest tools 0.2.1 default natural scrolling on, like the Mac and GNOME. A VM on older guest tools scrolls the traditional way until its tools are updated or the setting is changed.
 - **Verification.** A test of the touch-scroll code moves virtual fingers under both Mac settings: the contacts follow the fingers in all four directions, and the test fails against the old code. In a fresh harness VM with guest tools 0.2.1, natural scrolling defaulted on. A GTK app in the session then received replayed finger scrolls: with Natural on, the content followed the fingers both ways; with it off, it moved the opposite way. Real trackpad events have not been checked yet.
 
-### Next
+### Closing (3 November 2026)
 
-- With the user at the Mac: scrolling, pinch, swipe and cursor compared with Try Omarchy and macOS; window resizes, full-screen transitions and an external display; starting a VM from the app.
-- Presentation: check pacing in full screen and on a second display, with the VM in use.
-- With the user at the Mac: focus loss in the middle of a gesture, unplugging a drive for real, and Finder's message when an eject is refused.
-- Firefox and WebGL in the guest, to finish the VirGL survey.
+- **Browsers, tested by the user.** WebGL works, which completes the VirGL survey.
+- **WebGPU is not available.** The test page reported that `navigator.gpu` is not defined. Firefox, Ubuntu's browser, does not turn WebGPU on for Linux in its stable releases yet (159, October 2026). `dom.webgpu.enabled` in `about:config` turns it on. Browsers run WebGPU on Linux through Vulkan, though, and the VM has no GPU-accelerated Vulkan, because VirGL gives Linux only OpenGL. That needs Venus ([proposal](proposal.md#a-vulkan-path-in-qemu)).
+- **Guest tools.** [What needs the guest tools](what-needs-guest-tools.md) records what works without them and what needs them, checked on a fresh VM.
+- **Everything else still open** is in [Tests for later](future-tests.md). None of it blocks daily use.
 
 ## How the work is split
 
