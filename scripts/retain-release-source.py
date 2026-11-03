@@ -97,7 +97,7 @@ class Collector:
         notices.safe_path(item['archive'])
         target = self.stage / 'archives' / key / item['archive']
         target.parent.mkdir(parents=True, exist_ok=True)
-        cached = self.cache / 'downloads' / item['sha256']
+        cached = self.cache / 'downloads' / (item.get('sha256') or 'content-' + item['content_sha256'])
         source = existing if existing and existing.is_file() else cached
         if not source.is_file():
             cached.parent.mkdir(parents=True, exist_ok=True)
@@ -105,12 +105,12 @@ class Collector:
             try:
                 with urllib.request.urlopen(item['url'], timeout=60) as response, partial.open('wb') as output:
                     shutil.copyfileobj(response, output)
-                notices.require(sha(partial) == item['sha256'], f'{key}: downloaded checksum differs')
+                notices.require(notices.archive_matches(item, partial), f'{key}: downloaded checksum differs')
                 partial.replace(cached)
             finally:
                 partial.unlink(missing_ok=True)
             source = cached
-        notices.require(sha(source) == item['sha256'], f'{key}: checksum differs')
+        notices.require(notices.archive_matches(item, source), f'{key}: checksum differs')
         shutil.copyfile(source, target)
         self.record(key, target, item)
 

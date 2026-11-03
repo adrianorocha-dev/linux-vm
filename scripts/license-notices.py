@@ -88,6 +88,20 @@ def patched_checkout(root=ROOT):
         yield checkout
 
 
+def tar_content_digest(path):
+    with tarfile.open(path) as archive:
+        entries = sorted((m.name, m.type.decode(), m.mode, m.linkname,
+                          digest(archive.extractfile(m).read()) if m.isfile() else '') for m in archive)
+    return digest(json.dumps(entries).encode())
+
+
+def archive_matches(item, path):
+    # Gitiles generates archives on request, so their bytes change while their contents don't.
+    if 'content_sha256' in item:
+        return tar_content_digest(path) == item['content_sha256']
+    return digest(path.read_bytes()) == item['sha256']
+
+
 def supplemental_archive(item, root=ROOT):
     path = root / 'build/license-inputs' / item['archive']
     if not path.exists():
@@ -96,11 +110,11 @@ def supplemental_archive(item, root=ROOT):
         try:
             with urllib.request.urlopen(item['url'], timeout=60) as response, partial.open('wb') as output:
                 shutil.copyfileobj(response, output)
-            require(digest(partial.read_bytes()) == item['sha256'], f"{item['archive']}: downloaded checksum differs")
+            require(archive_matches(item, partial), f"{item['archive']}: downloaded checksum differs")
             partial.replace(path)
         finally:
             partial.unlink(missing_ok=True)
-    require(digest(path.read_bytes()) == item['sha256'], f"{item['archive']}: checksum differs")
+    require(archive_matches(item, path), f"{item['archive']}: checksum differs")
     return path
 
 
@@ -213,8 +227,8 @@ def validate_checkout_pins(manifest, checkout, root=ROOT, deps=None):
     bottles = {row.split('\t')[0]: row.split('\t') for row in rows}
     seen = set()
     for key, item in manifest['inputs'].items():
-        if 'sha256' in item:
-            require(re.fullmatch('[a-f0-9]{64}', item['sha256']), f'{key}: invalid sha256')
+        if 'sha256' in item or 'content_sha256' in item:
+            require(re.fullmatch('[a-f0-9]{64}', item.get('sha256') or item['content_sha256']), f'{key}: invalid sha256')
         else:
             require(re.fullmatch('[a-f0-9]{40}', item.get('commit', '')), f'{key}: invalid source commit')
         if item['pin_file'] == 'supplemental':
@@ -312,8 +326,8 @@ def validate_archives(manifest, directory, root=ROOT):
     for key, item in manifest['inputs'].items():
         path = supplemental_archive(item, root) if item['pin_file'] == 'supplemental' else directory / item['archive']
         require(path.is_file(), f'{key}: archive missing')
-        if 'sha256' in item:
-            require(digest(path.read_bytes()) == item['sha256'], f'{key}: archive checksum differs')
+        if 'sha256' in item or 'content_sha256' in item:
+            require(archive_matches(item, path), f'{key}: archive checksum differs')
         else:
             verify_git_archive(item, path, directory)
         archives[key] = path
@@ -488,6 +502,8 @@ def notices(manifest, root=ROOT):
             lines += ['Input: ' + item['url']]
             if 'sha256' in item:
                 lines += ['SHA-256: ' + item['sha256']]
+            if 'content_sha256' in item:
+                lines += ['Content SHA-256: ' + item['content_sha256']]
             if 'commit' in item:
                 lines += ['Commit: ' + item['commit'], 'Archive format: ' + item['format']]
         if 'source' in component:

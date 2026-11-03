@@ -69,6 +69,18 @@ GPT-6.1-Sol built it, and Claude reviewed and merged it.
 - **Pinned by commit.** QEMU and keycodemapdb are fetched by commit, checked with `git fsck`, and archived again from the verified objects. Local git and gzip versions no longer matter. `scripts/build-app.sh` gets its firmware source the same way. The commits live in `runtime/source-pins.sh`.
 - **Verified.** A fresh clone with no cache built the runtime in 2 minutes 25 seconds, and the app built from it passed `linuxvmctl check`. The result has the same 17 files, libraries, entitlements and patches as the previous runtime. Fourteen files are byte-identical. QEMU, libslirp and virglrenderer differ only by the macOS SDK they were built with (27.2 instead of 27.0). The main checkout was rebuilt the same way in 1 minute 45 seconds.
 
+### Licenses and provenance (3 November 2026)
+
+GPT-6.1-Sol built it in three rounds. Claude reviewed each round, redrew the icon, and merged it with one fix.
+
+- **Inventory.** `licenses/manifest.json` lists every component in the app and on the Guest Tools disc, 23 in all with Sparkle. Each has its version, license, source and pinned checksum. `licenses/README.md` explains how to update it.
+- **In the bundle.** `Contents/Resources/Licenses/` holds every license text, the upstream copyright notices and `NOTICES.txt` with the written source offer. `LGPL-REPLACEMENT.txt` explains how to replace an LGPL library in a personal copy.
+- **Enforced.** The build fails when the bundle or the disc holds a file the manifest doesn't cover. Developer ID builds also verify every third-party input, and refuse while a release blocker remains. The checks add under half a second to an ad hoc build. Changing our own code needs no manifest edit.
+- **Findings resolved.** The icon used an SF Symbol, which Apple's license doesn't allow in app icons, so its prompt is now drawn as paths. ANGLE's exact source was established from the version string in the shipped library (commit `bb9e1870521d`), and its bundled third-party code is covered. Zstandard's embedded xxHash and libdivsufsort notices come from its exact source.
+- **Source kept for requests.** `scripts/retain-release-source.py` gathers the complete corresponding source of a build into one archive and verifies every checksum. A full run produced 380 MiB from 97 inputs, marked complete.
+- **Fixed at merge.** Two ANGLE dependency archives come from Gitiles, which regenerates its archives on every request. They are now pinned by their contents rather than their bytes.
+- **Left open:** the source-offer contact, which blocks Developer ID builds until it's set, and a license for our own code.
+
 ## Steps that belong to the user
 
 - **The EdDSA key pair.** Sparkle's `generate_keys` keeps the private key in your login keychain and prints the public key for Info.plist. Back the private key up: without it, installed copies can't be updated.

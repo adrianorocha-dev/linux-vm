@@ -35,6 +35,26 @@ class LicenseTests(unittest.TestCase):
             component.pop('license_status', None)
         notices.validate_manifest(self.manifest, identity='Developer ID Application: test')
 
+    def test_gitiles_archives_are_pinned_by_contents(self):
+        def archive(path, data, mtime):
+            with tarfile.open(path, 'w:gz') as output:
+                member = tarfile.TarInfo('LICENSE.txt')
+                member.size, member.mtime, member.mode = len(data), mtime, 0o644
+                output.addfile(member, io.BytesIO(data))
+        with tempfile.TemporaryDirectory() as directory:
+            first, second, changed = (Path(directory) / name for name in ('a.tgz', 'b.tgz', 'c.tgz'))
+            archive(first, b'license', 1)
+            archive(second, b'license', 2)
+            archive(changed, b'licence', 1)
+            self.assertNotEqual(first.read_bytes(), second.read_bytes())
+            item = {'content_sha256': notices.tar_content_digest(first)}
+            self.assertTrue(notices.archive_matches(item, second))
+            self.assertFalse(notices.archive_matches(item, changed))
+        gitiles = [key for key, item in self.manifest['inputs'].items() if '/+archive/' in item['url']]
+        self.assertTrue(gitiles)
+        for key in gitiles:
+            self.assertIn('content_sha256', self.manifest['inputs'][key], key)
+
     def test_versions_follow_sources_without_manifest_changes(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)

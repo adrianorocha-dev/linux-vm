@@ -36,6 +36,7 @@ libfdt and keycodemapdb are shipped inside QEMU and have component entries of th
 
 Add a component entry with its version, SPDX expression, exact bundle paths, input IDs and license filenames.
 Add immutable source or bottle URLs and SHA-256 values under `inputs`.
+Gitiles `+archive` downloads change bytes on every request. Pin those with `content_sha256`, the digest of their members, instead of `sha256`.
 For git sources, record the repository URL and commit.
 Verify the git objects with `git fsck` and compare archive members against those objects.
 Locally generated QEMU and keycodemapdb archives have no transport checksum pin.

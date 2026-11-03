@@ -369,12 +369,12 @@
       "url": "https://chromium.googlesource.com/external/github.com/GPUOpen-LibrariesAndSDKs/VulkanMemoryAllocator/+archive/cb0597213b0fcb999caa9ed08c2f88dc45eb7d50.tar.gz",
       "commit": "cb0597213b0fcb999caa9ed08c2f88dc45eb7d50",
       "archive": "angle-vma-cb0597213b0fcb999caa9ed08c2f88dc45eb7d50.tar.gz",
-      "sha256": "d04c9d5c4d734aeea4c561152ff68d1ffd3cee90a7f39563188f10b01e81a6a5",
       "pin_file": "supplemental",
       "component": "angle",
       "scope": "permissive ANGLE notice reference; external revisions are DEPS references, not recovered bottle build revisions",
-      "format": "commit-pinned upstream download with SHA-256",
-      "retention": "best-effort"
+      "format": "commit-pinned Gitiles archive, pinned by its contents because Gitiles regenerates the archive bytes",
+      "retention": "best-effort",
+      "content_sha256": "f13d173b09e03f67361c263e7eec0595ad0b70a97c4d0d6ab62cc8b71bb39a2a"
     },
     "angle-spirv-cross": {
       "url": "https://codeload.github.com/KhronosGroup/SPIRV-Cross/tar.gz/b8fcf307f1f347089e3c46eb4451d27f32ebc8d3",
@@ -402,12 +402,12 @@
       "url": "https://chromium.googlesource.com/chromium/src/third_party/zlib/+archive/89921383f1f51331f48a2dc843403779770ea3a9.tar.gz",
       "commit": "89921383f1f51331f48a2dc843403779770ea3a9",
       "archive": "angle-zlib-89921383f1f51331f48a2dc843403779770ea3a9.tar.gz",
-      "sha256": "6d1f13a74de4c9b9b5d6f5bb9940b8ebc82b1f6edd9c0b094264c23adeb76fa1",
       "pin_file": "supplemental",
       "component": "angle",
-      "format": "commit-pinned upstream download with SHA-256",
+      "format": "commit-pinned Gitiles archive, pinned by its contents because Gitiles regenerates the archive bytes",
       "retention": "best-effort",
-      "scope": "permissive ANGLE notice reference; external revisions are DEPS references, not recovered bottle build revisions"
+      "scope": "permissive ANGLE notice reference; external revisions are DEPS references, not recovered bottle build revisions",
+      "content_sha256": "7faaa5305cecff3bc313fb4c872dcc41061963596163e1d4ceed34d4f5aa6ac4"
     },
     "angle-chromium-license": {
       "url": "https://raw.githubusercontent.com/chromium/chromium/28b5bbb227d331c01e6ff9b2f8729732135aadc7/LICENSE",
