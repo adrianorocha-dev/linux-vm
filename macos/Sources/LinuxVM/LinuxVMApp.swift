@@ -13,6 +13,9 @@ struct LinuxVMApp: App {
         _updates = State(initialValue: UpdateController(model: model))
     }
 
+    /// The notices the build writes for every component the app ships.
+    static let notices = Bundle.main.url(forResource: "NOTICES", withExtension: "txt", subdirectory: "Licenses")
+
     var body: some Scene {
         Window("Linux VM", id: "library") {
             LibraryView(model: model, updates: updates, sheet: $sheet)
@@ -38,6 +41,10 @@ struct LinuxVMApp: App {
             }
             CommandGroup(after: .help) {
                 Button("Check Runtime…") { sheet = .runtime }
+                Button("Third-Party Licenses") {
+                    if let notices = Self.notices { NSWorkspace.shared.open(notices) }
+                }
+                .disabled(Self.notices == nil)
             }
         }
     }
