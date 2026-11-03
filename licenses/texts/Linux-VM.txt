@@ -1,0 +1,7 @@
+Linux VM code, artwork, packaging and local modifications
+
+No license has been selected for the original Linux VM code or artwork.
+This notice grants no additional rights to that code.
+Third-party code retains its own license.
+Changes to QEMU and virglrenderer are distributed under their upstream terms.
+The Guest Tools contain MIT code adapted from Try Omarchy.

@@ -1,0 +1,37 @@
+Replacing LGPL libraries in a personal copy
+
+GLib, GNU libintl and libusb are LGPL-2.1-or-later shared libraries.
+Their license permits modification and reverse engineering to debug those
+modifications. Linux VM imposes no additional restriction on those rights.
+Use an arm64, macOS 15 compatible replacement with the same ABI, install name
+and dependencies. The runtime uses relative @loader_path/@rpath references.
+
+Developer ID builds use hardened-runtime library validation. A library signed
+by you has a different team ID and cannot load into the original signed QEMU.
+You can re-sign a personal copy ad hoc without library validation. This does
+not require our signing key, a paid Apple account, or a system security change.
+Quit the app and shut down its VMs before changing that copy.
+
+With Apple's command line tools installed, use Terminal:
+
+  app="$HOME/Desktop/Linux VM.app"
+  ditto "/path/to/Linux VM.app" "$app"
+  runtime="$app/Contents/Resources/runtime"
+  entitlements=$(mktemp)
+  codesign --display --entitlements - --xml "$runtime/bin/qemu-system-aarch64" > "$entitlements" 2>/dev/null
+
+Replace the relevant file in "$runtime/lib": libglib-2.0.0.dylib,
+libintl.8.dylib or libusb-1.0.0.dylib. Then sign the replacements and QEMU:
+
+  for library in "$runtime"/lib/*.dylib; do
+    codesign --force --sign - --options 0 --timestamp=none "$library"
+  done
+  codesign --force --sign - --options 0 --timestamp=none --entitlements "$entitlements" "$runtime/bin/qemu-system-aarch64"
+  rm "$entitlements"
+  codesign --force --sign - --options 0 --timestamp=none "$app"
+  "$runtime/bin/qemu-system-aarch64" --version
+
+The saved entitlements preserve hypervisor and microphone access.
+The modified copy no longer has the publisher's Developer ID or notarization.
+Keep the modified copy separate from app updates, which replace the runtime.
+The written source offer in NOTICES.txt also covers these LGPL libraries.

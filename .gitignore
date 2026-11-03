@@ -4,6 +4,6 @@ guest/dist/
 test-media/
 __pycache__/
 .DS_Store
-.deps/
+.deps
 
 harness-runs/
