@@ -74,4 +74,9 @@ The tool is at `Linux VM.app/Contents/Helpers/linuxvmctl`.
 
 ## Licenses
 
-The QEMU runtime and the bridge helper come from Try Omarchy (MIT, `Contents/Resources/LICENSE.try-omarchy`) and QEMU (GPLv2 with component exceptions). The edk2 firmware's licenses ship beside it. Review the full bundle before distributing it.
+The app's notices, source offer, license texts and provenance manifest live in `Contents/Resources/Licenses/`.
+`scripts/build-app.sh` checks the pinned inputs, license texts, every bundle file and the files inside the Guest Tools disc before signing, then checks coverage again after signing.
+An unlisted component or missing license text stops the build.
+Developer ID builds also require a source-offer contact and resolved provenance gaps.
+The original Linux VM code has no selected license yet.
+See [licenses/README.md](licenses/README.md) for the inventory, current release blockers and how to add a component.

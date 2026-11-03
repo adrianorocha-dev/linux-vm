@@ -1,0 +1,1060 @@
+{
+  "schema_version": 1,
+  "offer_contact": "SOURCE_OFFER_CONTACT_UNSET",
+  "inputs": {
+    "qemu": {
+      "archive": "qemu-c3d48b7d1e89604920e5b81b91140c2ad39a1943.tar.gz",
+      "url": "https://github.com/qemu/qemu.git",
+      "sha256": "db14020067babeb646ba35e3cffdf1f252a04157114684fa5c0f5da98015ffdf",
+      "pin": "qemu",
+      "pin_file": "build-qemu-gpu-runtime.sh",
+      "upstream_url": "https://gitlab.com/qemu-project/qemu/-/archive/c3d48b7d1e89604920e5b81b91140c2ad39a1943/qemu-c3d48b7d1e89604920e5b81b91140c2ad39a1943.tar.gz",
+      "commit": "c3d48b7d1e89604920e5b81b91140c2ad39a1943",
+      "format": "git archive --format=tar --prefix=<name>-<commit>/ <commit> | gzip -n; see runtime/README.md",
+      "scope": "distributed code or build headers/patches for distributed code",
+      "component": "qemu"
+    },
+    "slirp": {
+      "archive": "libslirp-d09dc9a70360ee7838acccbd234ab83f3b9b37a5.tar.gz",
+      "url": "https://gitlab.freedesktop.org/slirp/libslirp/-/archive/d09dc9a70360ee7838acccbd234ab83f3b9b37a5/libslirp-d09dc9a70360ee7838acccbd234ab83f3b9b37a5.tar.gz",
+      "sha256": "3ede9d4a09028d14fd7089ba0dc2438e3515300b43f23dba1db5ba94574bf512",
+      "pin": "slirp",
+      "pin_file": "build-qemu-gpu-runtime.sh",
+      "scope": "distributed code or build headers/patches for distributed code",
+      "component": "slirp"
+    },
+    "keycodemap": {
+      "archive": "keycodemapdb-f5772a62ec52591ff6870b7e8ef32482371f22c6.tar.gz",
+      "url": "https://github.com/qemu/keycodemapdb.git",
+      "sha256": "6a73ce24e06299eb0a6ad7128c2b4c19aaf6eeb78ee871de019bc930bb52468e",
+      "pin": "keycodemap",
+      "pin_file": "build-qemu-gpu-runtime.sh",
+      "upstream_url": "https://gitlab.com/qemu-project/keycodemapdb/-/archive/f5772a62ec52591ff6870b7e8ef32482371f22c6/keycodemapdb-f5772a62ec52591ff6870b7e8ef32482371f22c6.tar.gz",
+      "commit": "f5772a62ec52591ff6870b7e8ef32482371f22c6",
+      "format": "git archive --format=tar --prefix=<name>-<commit>/ <commit> | gzip -n; see runtime/README.md",
+      "scope": "distributed code or build headers/patches for distributed code",
+      "component": "keycodemapdb"
+    },
+    "dtc": {
+      "archive": "dtc-b6910bec11614980a21e46fbccc35934b671bd81.tar.gz",
+      "url": "https://git.kernel.org/pub/scm/utils/dtc/dtc.git/snapshot/dtc-b6910bec11614980a21e46fbccc35934b671bd81.tar.gz",
+      "sha256": "e115f987eec23a1ba25150a46ced1675de3716072d3b4905afb3a9cda0f007c7",
+      "pin": "dtc",
+      "pin_file": "build-qemu-gpu-runtime.sh",
+      "scope": "distributed code or build headers/patches for distributed code",
+      "component": "libfdt"
+    },
+    "virgl": {
+      "archive": "virglrenderer-ca50e008863837e094747a69974dde3ae148aeaa.tar.gz",
+      "url": "https://gitlab.freedesktop.org/virgl/virglrenderer/-/archive/ca50e008863837e094747a69974dde3ae148aeaa/virglrenderer-ca50e008863837e094747a69974dde3ae148aeaa.tar.gz",
+      "sha256": "e7c512469a207444103ead88a8992a7077173e21771623845d4567f8128b5dc1",
+      "pin": "virgl",
+      "pin_file": "build-qemu-gpu-runtime.sh",
+      "scope": "distributed code or build headers/patches for distributed code",
+      "component": "virgl"
+    },
+    "virgl_tap": {
+      "archive": "homebrew-virglrenderer-e7daef144d249a38d6206153e6146539f893eae2.tar.gz",
+      "url": "https://codeload.github.com/startergo/homebrew-virglrenderer/tar.gz/e7daef144d249a38d6206153e6146539f893eae2",
+      "sha256": "6954b95a223b31dad4a08583f2d0d17c5e8daa87ff3be43ba84aee6c359d8ea2",
+      "pin": "virgl_tap",
+      "pin_file": "build-qemu-gpu-runtime.sh",
+      "scope": "distributed code or build headers/patches for distributed code",
+      "component": "virgl"
+    },
+    "angle": {
+      "archive": "angle-1.0.16.arm64_sequoia.bottle.tar.gz",
+      "url": "https://github.com/startergo/homebrew-angle/releases/download/v1.0.16/angle-1.0.16.arm64_sequoia.bottle.tar.gz",
+      "sha256": "29fe2175b157a65f12879f9a12b5c8f94d0a76fafdf41ff009a2fdb4e9df525c",
+      "pin": "angle",
+      "pin_file": "build-qemu-gpu-runtime.sh",
+      "scope": "distributed code or build headers/patches for distributed code",
+      "component": "angle"
+    },
+    "epoxy": {
+      "archive": "libepoxy-1.0.5.arm64_sequoia.bottle.tar.gz",
+      "url": "https://github.com/startergo/homebrew-libepoxy/releases/download/v1.0.5/libepoxy-1.0.5.arm64_sequoia.bottle.tar.gz",
+      "sha256": "109384a1d37edf207a9b9f3d8950710c00767635b3c7ff295e3af83611876ef2",
+      "pin": "epoxy",
+      "pin_file": "build-qemu-gpu-runtime.sh",
+      "scope": "distributed code or build headers/patches for distributed code",
+      "component": "epoxy"
+    },
+    "meson": {
+      "archive": "meson-1.9.0.tar.gz",
+      "url": "https://github.com/mesonbuild/meson/releases/download/1.9.0/meson-1.9.0.tar.gz",
+      "sha256": "cd27277649b5ed50d19875031de516e270b22e890d9db65ed9af57d18ebc498d",
+      "pin": "meson",
+      "pin_file": "build-qemu-gpu-runtime.sh",
+      "scope": "build tool only; no code from this tool is included in the bundle",
+      "version": "1.9.0",
+      "license": "Apache-2.0"
+    },
+    "ninja": {
+      "archive": "ninja-1.13.0-py3-none-macosx_10_9_universal2.whl",
+      "url": "https://files.pythonhosted.org/packages/3c/74/d02409ed2aa865e051b7edda22ad416a39d81a84980f544f8de717cab133/ninja-1.13.0-py3-none-macosx_10_9_universal2.whl",
+      "sha256": "fa2a8bfc62e31b08f83127d1613d10821775a0eb334197154c4d6067b7068ff1",
+      "pin": "ninja",
+      "pin_file": "build-qemu-gpu-runtime.sh",
+      "scope": "build tool only; no code from this tool is included in the bundle",
+      "version": "1.13.0",
+      "license": "Apache-2.0"
+    },
+    "setuptools": {
+      "archive": "setuptools-84.0.0-py3-none-any.whl",
+      "url": "https://files.pythonhosted.org/packages/95/9c/c510029fc6ef33a6275cd2c5d3cecd6613dfd6aa401d57c54f1c18852ccf/setuptools-84.0.0-py3-none-any.whl",
+      "sha256": "51a52592b3b99e102b609654876bd65f19f999935166d1352678931132b0c670",
+      "pin": "setuptools",
+      "pin_file": "build-qemu-gpu-runtime.sh",
+      "scope": "build tool only; no code from this tool is included in the bundle",
+      "version": "84.0.0",
+      "license": "MIT"
+    },
+    "packaging": {
+      "archive": "packaging-26.3-py3-none-any.whl",
+      "url": "https://files.pythonhosted.org/packages/63/34/ba1c580383c9eada3711951fef0795c80b829a078d72188184bcab9dd527/packaging-26.3-py3-none-any.whl",
+      "sha256": "d7193f7c8e4e93f444fde0262bf90af30e16fa0ad0ad44cb553c87339b23cd1c",
+      "pin": "packaging",
+      "pin_file": "build-qemu-gpu-runtime.sh",
+      "scope": "build tool only; no code from this tool is included in the bundle",
+      "version": "26.3",
+      "license": "Apache-2.0 OR BSD-2-Clause"
+    },
+    "wheel": {
+      "archive": "wheel-0.48.0-py3-none-any.whl",
+      "url": "https://files.pythonhosted.org/packages/2e/29/69cfbb602cd91690c55d38ba9fe53e6a7e76a6fa647bf38f19c138d25449/wheel-0.48.0-py3-none-any.whl",
+      "sha256": "3217dcc807155e45db462d7ef2431f5ddda0d7273b700d05a67b271ceb1287ab",
+      "pin": "wheel",
+      "pin_file": "build-qemu-gpu-runtime.sh",
+      "scope": "build tool only; no code from this tool is included in the bundle",
+      "version": "0.48.0",
+      "license": "MIT"
+    },
+    "pip": {
+      "archive": "pip-26.2.1-py3-none-any.whl",
+      "url": "https://files.pythonhosted.org/packages/f3/6e/1736e5b4ae2b778ef2f81c47d797de9f891d4d8acb047a24ca37a60294dd/pip-26.2.1-py3-none-any.whl",
+      "sha256": "71138adf1f4ca900cdb7d289c21b7494329f2332b6d85f0e1c42108c0384ed3e",
+      "pin": "pip",
+      "pin_file": "build-qemu-gpu-runtime.sh",
+      "scope": "build tool only; no code from this tool is included in the bundle",
+      "version": "26.2.1",
+      "license": "MIT"
+    },
+    "pyyaml": {
+      "archive": "pyyaml-6.0.3.tar.gz",
+      "url": "https://files.pythonhosted.org/packages/05/8e/961c0007c59b8dd7729d542c61a4d537767a59645b82a0b521206e1e25c2/pyyaml-6.0.3.tar.gz",
+      "sha256": "d76623373421df22fb4cf8817020cbb7ef15c725b9d5e45f17e189bfc384190f",
+      "pin": "pyyaml",
+      "pin_file": "build-qemu-gpu-runtime.sh",
+      "scope": "build tool only; no code from this tool is included in the bundle",
+      "version": "6.0.3",
+      "license": "MIT"
+    },
+    "bottle-glib": {
+      "archive": "glib--2.88.3.arm64_sequoia.bottle.1.tar.gz",
+      "url": "https://ghcr.io/v2/homebrew/core/glib/blobs/sha256:ca168ac34920f6ee13187d8e88af7d55c50b582fa78a5511e15fe9dd875e8b40",
+      "sha256": "ca168ac34920f6ee13187d8e88af7d55c50b582fa78a5511e15fe9dd875e8b40",
+      "pin_file": "pinned-runtime-bottles.sh",
+      "pin": "glib",
+      "version": "2.88.3",
+      "scope": "distributed code or build headers/patches for distributed code",
+      "component": "glib"
+    },
+    "bottle-pixman": {
+      "archive": "pixman--0.46.4.arm64_sequoia.bottle.1.tar.gz",
+      "url": "https://ghcr.io/v2/homebrew/core/pixman/blobs/sha256:86f5fc013d2b22bbe41c1c14661287bf8e8e4c3ac95cd05b08b886d24918fe34",
+      "sha256": "86f5fc013d2b22bbe41c1c14661287bf8e8e4c3ac95cd05b08b886d24918fe34",
+      "pin_file": "pinned-runtime-bottles.sh",
+      "pin": "pixman",
+      "version": "0.46.4",
+      "scope": "distributed code or build headers/patches for distributed code",
+      "component": "pixman"
+    },
+    "bottle-libslirp": {
+      "archive": "libslirp--4.9.4.arm64_sequoia.bottle.tar.gz",
+      "url": "https://ghcr.io/v2/homebrew/core/libslirp/blobs/sha256:78dc33e108213bceb8f4b8a9d0293c0ff578a806ace4dfc4199af8c9714a2ffe",
+      "sha256": "78dc33e108213bceb8f4b8a9d0293c0ff578a806ace4dfc4199af8c9714a2ffe",
+      "pin_file": "pinned-runtime-bottles.sh",
+      "pin": "libslirp",
+      "version": "4.9.4",
+      "scope": "distributed code or build headers/patches for distributed code",
+      "component": "slirp"
+    },
+    "bottle-libusb": {
+      "archive": "libusb--1.0.30.arm64_sequoia.bottle.tar.gz",
+      "url": "https://ghcr.io/v2/homebrew/core/libusb/blobs/sha256:a8d271bd5d9e7065987960caa52a9130d7fe6321ff1bad751499e465d0413e38",
+      "sha256": "a8d271bd5d9e7065987960caa52a9130d7fe6321ff1bad751499e465d0413e38",
+      "pin_file": "pinned-runtime-bottles.sh",
+      "pin": "libusb",
+      "version": "1.0.30",
+      "scope": "distributed code or build headers/patches for distributed code",
+      "component": "libusb"
+    },
+    "bottle-sdl2-compat": {
+      "archive": "sdl2-compat--2.32.70.arm64_sequoia.bottle.tar.gz",
+      "url": "https://ghcr.io/v2/homebrew/core/sdl2-compat/blobs/sha256:b5da3b02dfd9a68368f62a317b29f845dad4f29e067fc4aa81a351ca527a82c3",
+      "sha256": "b5da3b02dfd9a68368f62a317b29f845dad4f29e067fc4aa81a351ca527a82c3",
+      "pin_file": "pinned-runtime-bottles.sh",
+      "pin": "sdl2-compat",
+      "version": "2.32.70",
+      "scope": "distributed code or build headers/patches for distributed code",
+      "component": "sdl2"
+    },
+    "bottle-sdl3": {
+      "archive": "sdl3--3.4.14.arm64_sequoia.bottle.tar.gz",
+      "url": "https://ghcr.io/v2/homebrew/core/sdl3/blobs/sha256:012d5bb068548cb42df1fd6ab231a8ef76e706a82822d84ed71a10be7f155263",
+      "sha256": "012d5bb068548cb42df1fd6ab231a8ef76e706a82822d84ed71a10be7f155263",
+      "pin_file": "pinned-runtime-bottles.sh",
+      "pin": "sdl3",
+      "version": "3.4.14",
+      "scope": "distributed code or build headers/patches for distributed code",
+      "component": "sdl3"
+    },
+    "bottle-gettext": {
+      "archive": "gettext--1.0.arm64_sequoia.bottle.1.tar.gz",
+      "url": "https://ghcr.io/v2/homebrew/core/gettext/blobs/sha256:dde3cd0db0d7549fadf762b901f8c548dae99e3c592a6e6d41f60e1436253e5e",
+      "sha256": "dde3cd0db0d7549fadf762b901f8c548dae99e3c592a6e6d41f60e1436253e5e",
+      "pin_file": "pinned-runtime-bottles.sh",
+      "pin": "gettext",
+      "version": "1.0",
+      "scope": "distributed code or build headers/patches for distributed code",
+      "component": "intl"
+    },
+    "bottle-pcre2": {
+      "archive": "pcre2--10.47_1.arm64_sequoia.bottle.tar.gz",
+      "url": "https://ghcr.io/v2/homebrew/core/pcre2/blobs/sha256:bef2e718b92e5e819a51723157e60eceb76acc4efb0894a10c315cd36abca13c",
+      "sha256": "bef2e718b92e5e819a51723157e60eceb76acc4efb0894a10c315cd36abca13c",
+      "pin_file": "pinned-runtime-bottles.sh",
+      "pin": "pcre2",
+      "version": "10.47_1",
+      "scope": "distributed code or build headers/patches for distributed code",
+      "component": "pcre2"
+    },
+    "bottle-zstd": {
+      "archive": "zstd--1.5.7_1.arm64_sequoia.bottle.tar.gz",
+      "url": "https://ghcr.io/v2/homebrew/core/zstd/blobs/sha256:d72adf48460a8384b256f88061cd7b9df4977df7fa2e0794051d427db754a565",
+      "sha256": "d72adf48460a8384b256f88061cd7b9df4977df7fa2e0794051d427db754a565",
+      "pin_file": "pinned-runtime-bottles.sh",
+      "pin": "zstd",
+      "version": "1.5.7_1",
+      "scope": "distributed code or build headers/patches for distributed code",
+      "component": "zstd"
+    },
+    "bottle-lz4": {
+      "archive": "lz4--1.10.0.arm64_sequoia.bottle.1.tar.gz",
+      "url": "https://ghcr.io/v2/homebrew/core/lz4/blobs/sha256:5bd143b7b784989e549637ea4e484af85ba481e640dde69bc35f3843ae25abc6",
+      "sha256": "5bd143b7b784989e549637ea4e484af85ba481e640dde69bc35f3843ae25abc6",
+      "pin_file": "pinned-runtime-bottles.sh",
+      "pin": "lz4",
+      "version": "1.10.0",
+      "scope": "distributed code or build headers/patches for distributed code",
+      "component": "lz4"
+    },
+    "bottle-xz": {
+      "archive": "xz--5.8.3.arm64_sequoia.bottle.tar.gz",
+      "url": "https://ghcr.io/v2/homebrew/core/xz/blobs/sha256:c4be907ac8459f8b3e764c06287cc88b79c1d5c16a2db1c0335e1facf4fd4dbe",
+      "sha256": "c4be907ac8459f8b3e764c06287cc88b79c1d5c16a2db1c0335e1facf4fd4dbe",
+      "pin_file": "pinned-runtime-bottles.sh",
+      "pin": "xz",
+      "version": "5.8.3",
+      "scope": "distributed code or build headers/patches for distributed code",
+      "component": "lzma"
+    }
+  },
+  "license_texts": {
+    "QEMU-LICENSE.txt": {
+      "input": "qemu",
+      "member": "qemu-c3d48b7d1e89604920e5b81b91140c2ad39a1943/LICENSE",
+      "mode": "full",
+      "sha256": "139c64b7a9ae62858ff969aae622ecfcf4f1519655bd92d2e70a1a2fb615690e"
+    },
+    "GPL-2.0.txt": {
+      "input": "qemu",
+      "member": "qemu-c3d48b7d1e89604920e5b81b91140c2ad39a1943/COPYING",
+      "mode": "full",
+      "sha256": "dd3ce02338c3a48abb6ba59b48809f7108a8bd242cb0cc8be90daafa30707c28"
+    },
+    "LGPL-2.1.txt": {
+      "input": "qemu",
+      "member": "qemu-c3d48b7d1e89604920e5b81b91140c2ad39a1943/COPYING.LIB",
+      "mode": "full",
+      "sha256": "31c90ce76b6f5aab90a205851e71d5c27e31c0aa3d7017a4383b98a6fe3f1faa"
+    },
+    "QEMU-source-notices.txt": {
+      "input": "qemu",
+      "mode": "source-notices",
+      "subdir": "",
+      "sha256": "c946718635e852a99490eaae8e4aa35c756eaf087bcb2edbab01d01f17db0cc5"
+    },
+    "virglrenderer-source-notices.txt": {
+      "input": "virgl",
+      "mode": "source-notices",
+      "subdir": "",
+      "sha256": "d261fa55e2d213946737b8123e4d35ab2ee4189cea702847abce9dbb2ccdb1e2"
+    },
+    "libfdt-BSD.txt": {
+      "input": "dtc",
+      "member": "dtc-b6910bec11614980a21e46fbccc35934b671bd81/BSD-2-Clause",
+      "mode": "full",
+      "sha256": "6313108c23efffa36948f8b2cff1560a5935373b527b0e1a837cc77e6ed1bacd"
+    },
+    "libfdt-source-notices.txt": {
+      "input": "dtc",
+      "mode": "source-notices",
+      "subdir": "libfdt/",
+      "sha256": "83de0f23b67f2401ef2556937df9e34290db303023b3ad4522d8ab1ab3f7a946"
+    },
+    "Try-Omarchy-MIT.txt": {
+      "local": ".deps/try-omarchy/LICENSE",
+      "sha256": "f8360abaaf0114fbb7403b682bc8d21304fcf8bacb0f351261cdf792d75ea481"
+    },
+    "Guest-Tools-attribution.txt": {
+      "local": "guest/files/usr/share/doc/linuxvm-guest/copyright",
+      "sha256": "1c3def0bc37817cacf4e77135d922468da649b1c23e51e5e28ef3f1acaa435c0"
+    },
+    "Linux-VM.txt": {
+      "authored": true,
+      "sha256": "3e194c5a5b0937658f057384df75248d14f0aab6640bb83e7efb29094fda1ed6"
+    },
+    "keycodemapdb-BSD.txt": {
+      "input": "keycodemap",
+      "member": "keycodemapdb-f5772a62ec52591ff6870b7e8ef32482371f22c6/LICENSE.BSD",
+      "mode": "full",
+      "sha256": "602c4c7482de6479dd2e9793cda275e5e63d773dacd1eca689232ab7008fb4fb"
+    },
+    "keycodemapdb-README.txt": {
+      "input": "keycodemap",
+      "member": "keycodemapdb-f5772a62ec52591ff6870b7e8ef32482371f22c6/README",
+      "mode": "full",
+      "sha256": "50b7a1bc3f1739d11c8c9e798519403814b786e2b5eab80bd636b6cacf82e649"
+    },
+    "virglrenderer-MIT.txt": {
+      "input": "virgl",
+      "member": "virglrenderer-ca50e008863837e094747a69974dde3ae148aeaa/COPYING",
+      "mode": "full",
+      "sha256": "3b32caf16e2402c2aff2b716858713f3e1feded85c25e71bf829816ee5009402"
+    },
+    "libslirp-LICENSE.txt": {
+      "input": "slirp",
+      "member": "libslirp-d09dc9a70360ee7838acccbd234ab83f3b9b37a5/LICENSE",
+      "mode": "full",
+      "sha256": "51f17bd7051622101fd3ce477ba3eca5e8f0705a523f3426dfbbddf9973a80bd"
+    },
+    "libslirp-COPYRIGHT.txt": {
+      "input": "slirp",
+      "member": "libslirp-d09dc9a70360ee7838acccbd234ab83f3b9b37a5/COPYRIGHT",
+      "mode": "full",
+      "sha256": "5e81ad3841c9073bee91f65c8c74fdc4b67d1f6742cd35fbd22039bb1e920818"
+    },
+    "libslirp-source-notices.txt": {
+      "input": "slirp",
+      "mode": "source-notices",
+      "subdir": "",
+      "sha256": "056d0a50bf590a78c7c852e992699b0a8400c432c57683515189298284a1f225"
+    },
+    "GLib-notice.txt": {
+      "input": "bottle-glib",
+      "member": "glib/2.88.3/include/glib-2.0/glib.h",
+      "mode": "comment",
+      "sha256": "c2be705bc6ff946dbd33ec19f8ae14a6ed0798765926b573b0aee7d780a46ff8"
+    },
+    "pixman-MIT.txt": {
+      "input": "bottle-pixman",
+      "member": "pixman/0.46.4/COPYING",
+      "mode": "full",
+      "sha256": "fac9270f0987b96ff4533fca3548c633e02083cbba4a0172a3b149b2e4019793"
+    },
+    "libusb-LGPL.txt": {
+      "input": "bottle-libusb",
+      "member": "libusb/1.0.30/COPYING",
+      "mode": "full",
+      "sha256": "5df07007198989c622f5d41de8d703e7bef3d0e79d62e24332ee739a452af62a"
+    },
+    "libusb-AUTHORS.txt": {
+      "input": "bottle-libusb",
+      "member": "libusb/1.0.30/AUTHORS",
+      "mode": "full",
+      "sha256": "27fd82b016838197d5276ba98d2187ed5a1ad0e171767322f356f0a9f6395941"
+    },
+    "sdl2-compat-Zlib.txt": {
+      "input": "bottle-sdl2-compat",
+      "member": "sdl2-compat/2.32.70/LICENSE.txt",
+      "mode": "full",
+      "sha256": "0164aec3168ca9606c1f6066e879b4e8c7f2e46a838391f284348ab0aa1eabf2"
+    },
+    "SDL3-Zlib.txt": {
+      "input": "bottle-sdl3",
+      "member": "sdl3/3.4.14/LICENSE.txt",
+      "mode": "full",
+      "sha256": "1c040b8271b37e5076359f8fd54240e371114112924d2df81ef87c7d6a1dfdfd"
+    },
+    "libintl-notice.txt": {
+      "input": "bottle-gettext",
+      "member": "gettext/1.0/include/libintl.h",
+      "mode": "comment",
+      "sha256": "82aad9267e03a80e821e9d6e3268d0e97a531182f61bda7c4fd0d640b7ba66fd"
+    },
+    "PCRE2-LICENCE.txt": {
+      "input": "bottle-pcre2",
+      "member": "pcre2/10.47_1/LICENCE.md",
+      "mode": "full",
+      "sha256": "197d8a73ffee0d6b09adba2f9c677b5f5aede24edf89258a68e48248d010d811"
+    },
+    "LZ4-BSD.txt": {
+      "input": "bottle-lz4",
+      "member": "lz4/1.10.0/include/lz4.h",
+      "mode": "comment",
+      "sha256": "4af8f46e6ad8dd7302e81bae55f9f5483c862c972d3544c1811984d9dc5747b0"
+    },
+    "XZ-COPYING.txt": {
+      "input": "bottle-xz",
+      "member": "xz/5.8.3/COPYING",
+      "mode": "full",
+      "sha256": "616a3ad264ce29b8f1cb97e53037b139d406899ca8d1f799651e17bfa09830b8"
+    },
+    "XZ-0BSD.txt": {
+      "input": "bottle-xz",
+      "member": "xz/5.8.3/COPYING.0BSD",
+      "mode": "full",
+      "sha256": "0b01625d853911cd0e2e088dcfb743261034a091bb379246cb25a14cc4c74bf1"
+    },
+    "libepoxy-MIT.txt": {
+      "input": "epoxy",
+      "member": "libepoxy/1.0.5/COPYING",
+      "mode": "full",
+      "sha256": "8d5144666f9c4df9bbd69b8900086d5979259152a1060421cdcc0fb9061a1c12"
+    },
+    "Zstandard-BSD.txt": {
+      "input": "bottle-zstd",
+      "member": "zstd/1.5.7_1/LICENSE",
+      "mode": "full",
+      "sha256": "7055266497633c9025b777c78eb7235af13922117480ed5c674677adc381c9d8"
+    },
+    "Zstandard-GPL.txt": {
+      "input": "bottle-zstd",
+      "member": "zstd/1.5.7_1/COPYING",
+      "mode": "full",
+      "sha256": "f9c375a1be4a41f7b70301dd83c91cb89e41567478859b77eef375a52d782505"
+    },
+    "ANGLE-bottle-metadata.json": {
+      "input": "angle",
+      "member": "angle/1.0.16/sbom.spdx.json",
+      "mode": "full",
+      "sha256": "77a65ab4773b870a16622a01307d6011d3b14ccab5b2894528c4868c730e55c5"
+    },
+    "ANGLE-header-notice.txt": {
+      "input": "angle",
+      "member": "angle/1.0.16/include/GLSLANG/ShaderLang.h",
+      "mode": "line-comment",
+      "sha256": "b7003ea38017d7c3eab3543aaa71bc4b12126e6ec8310dd47123bbfe8fe1aae7"
+    },
+    "edk2-licenses.txt": {
+      "input": "qemu",
+      "member": "qemu-c3d48b7d1e89604920e5b81b91140c2ad39a1943/pc-bios/edk2-licenses.txt",
+      "mode": "full",
+      "sha256": "1ddeaed2e7d2e9ecb960bdfc1b8ee45387aff70d056d985d145949af3951657c"
+    },
+    "AppIcon-provenance.txt": {
+      "authored": true,
+      "sha256": "c3bd5261a3e0a5c956da0f289a3a6c279ab2192a941c7c1d0fffbbb5222eedeb"
+    }
+  },
+  "components": [
+    {
+      "id": "linux-vm",
+      "name": "Linux VM app, supervisor and artwork",
+      "version": "0.1.0",
+      "license": "LicenseRef-Linux-VM-Undecided",
+      "bundle_files": [
+        "Contents/MacOS/LinuxVM",
+        "Contents/Helpers/linuxvmctl",
+        "Contents/Info.plist",
+        "Contents/Resources/AppIcon.icns",
+        "Contents/Resources/guest-tools-version"
+      ],
+      "inputs": [],
+      "license_files": [
+        "Linux-VM.txt"
+      ],
+      "source": {
+        "url": "https://github.com/adrianorocha-dev/linux-vm",
+        "kind": "local checkout; build revision recorded in NOTICES.txt",
+        "files": {
+          "macos/Package.swift": "237e0cadce380e34a91dec69f05134a4c043dc26a31af12df83289dc432fadc4",
+          "macos/Resources/AppIcon.icns": "d04bd6ae263ba0594a1cc431b353a68a2350ffaa73cf2f380dbbc9aff9955c9d",
+          "macos/Resources/Info.plist": "9a4a70f9504fe7d9d0cc8a3cdbe0951deb9dd3f7647b00a519801ac9af2a0672",
+          "macos/Sources/LinuxVM/LibraryModel.swift": "6e028c8b365b393b0c1e88936402f9c8297155aec0e2a4137fa752f663c0c131",
+          "macos/Sources/LinuxVM/LinuxVMApp.swift": "fa742698e06d1fb020581dfdcbe9f2187242a653403001de58dbe42a820a3d8b",
+          "macos/Sources/LinuxVM/MachineDetailView.swift": "1f1de67693e25dcdecd3be2941707cd3a172569396dc0e1cf42365a4a1c59963",
+          "macos/Sources/LinuxVM/Sheets.swift": "dbccc5daffed22c2a1350e977ecc5e92faa6c549adcfb7f69ae95660e92d8818",
+          "macos/Sources/LinuxVM/WindowSnapshot.swift": "c735bf7b679de39123fa9eab2b212d2ace0fa2393b49c54c4c6a12f74e202c5d",
+          "macos/Sources/LinuxVMCore/GuestReport.swift": "68efbbf3d5009256b5c2002c9fc50e781df982b5bc11738b2f4eeea5d3e5f199",
+          "macos/Sources/LinuxVMCore/HostSleep.swift": "9ecf54368b187062facf38b55970b25a9bdbd7198b1903b57521b873873dab9c",
+          "macos/Sources/LinuxVMCore/QEMULaunch.swift": "172e304cb44c0f4174b7d846da547587e2cc2ac85a0697aaa83cbb8a906e2fff",
+          "macos/Sources/LinuxVMCore/QMPClient.swift": "c069cbfa10edabc689b321fc9af2738b6d6d64e2d021c6b40dbed9db62f325ba",
+          "macos/Sources/LinuxVMCore/Runtime.swift": "6693345b67b62a53c7e5d6cfb629accd30ccefd555e8c91d1852070cd10ca28e",
+          "macos/Sources/LinuxVMCore/StoragePolicy.swift": "9d6f9405d04dcf68ce4fecf3e083823f1e1176dee9ab76583d17672fb2ea906e",
+          "macos/Sources/LinuxVMCore/StorageVolumes.swift": "a6379f74cdd44c49c93e24a32f842dcb9cfce53408c3e610ad3c48b15b352739",
+          "macos/Sources/LinuxVMCore/Supervisor.swift": "78d3b2f41e5d2329f23f65d7b3e42950592cef21b76e260c69b7474ddff2191d",
+          "macos/Sources/LinuxVMCore/SupervisorStorage.swift": "619c6ee2041fdaf8ff963cb47fc58e6c869e91a4eb73f8d74814fbe79aec4058",
+          "macos/Sources/LinuxVMCore/VMConfiguration.swift": "f0d8b9cbc5638a7b9ac911861218ebc7092eb27317c8905d0f2f11c446a4c1b9",
+          "macos/Sources/LinuxVMCore/VMLibrary.swift": "df34f40f494707479b591fc07b85d206d0378bf064640d3ebb80e740e230f894",
+          "macos/Sources/linuxvmctl/main.swift": "0b4033d5985f6d299fc8d8b7044c10a7517eef563b365d11dc7d540fa94cb526",
+          "scripts/render-icon.swift": "1c59b537bad8f79ea67aeea7896a4888fe382c956302d442f20076f6dd48d486"
+        },
+        "sha256": "962b6b308a262d19d382920699deaa4ffa4d4e621b0ecb760b456d8fe740fea9",
+        "format": "SHA-256 of JSON path-to-SHA-256 map, sorted keys, default Python JSON separators"
+      },
+      "optional_files": [
+        "Contents/Resources/AppIcon.icns",
+        "Contents/Resources/guest-tools-version"
+      ]
+    },
+    {
+      "id": "app-icon",
+      "name": "AppIcon with Apple SF Symbol chevron.right",
+      "version": "asset SHA-256 d04bd6ae263ba0594a1cc431b353a68a2350ffaa73cf2f380dbbc9aff9955c9d",
+      "license": "LicenseRef-Linux-VM-Undecided AND LicenseRef-Apple-SF-Symbols-Unverified",
+      "bundle_files": [
+        "Contents/Resources/AppIcon.icns"
+      ],
+      "optional_files": [
+        "Contents/Resources/AppIcon.icns"
+      ],
+      "inputs": [],
+      "license_files": [
+        "Linux-VM.txt",
+        "AppIcon-provenance.txt"
+      ],
+      "source": {
+        "path": "scripts/render-icon.swift",
+        "sha256": "1c59b537bad8f79ea67aeea7896a4888fe382c956302d442f20076f6dd48d486"
+      },
+      "notes": "Glyph loaded from AppKit. Its SF Symbols release and matching license text are unrecorded. Apple prohibits SF Symbols in app icons; this component is a public-release blocker. The exact checked-in generated asset is pinned in the app source map.",
+      "license_status": "incomplete; see release_blockers"
+    },
+    {
+      "id": "guest",
+      "name": "Linux VM Guest Tools",
+      "version": "0.2.1",
+      "license": "LicenseRef-Linux-VM-Undecided AND MIT",
+      "bundle_files": [
+        "Contents/Resources/guest-tools.iso"
+      ],
+      "inputs": [],
+      "license_files": [
+        "Linux-VM.txt",
+        "Guest-Tools-attribution.txt"
+      ],
+      "optional_files": [
+        "Contents/Resources/guest-tools.iso"
+      ],
+      "source": {
+        "url": "https://github.com/adrianorocha-dev/linux-vm",
+        "kind": "local guest/ source; exact disc and package member hashes below",
+        "sha256": "c0f3d007f15912868c2cb6ec67592093f9750dcb7c2c11f20d81f7b795db94cb",
+        "format": "SHA-256 of guest_files source path-to-SHA-256 map, sorted keys, default Python JSON separators"
+      }
+    },
+    {
+      "id": "try-omarchy",
+      "name": "Try Omarchy helper, runtime patches and adapted Guest Tools",
+      "version": "1.3.0",
+      "license": "MIT",
+      "bundle_files": [
+        "Contents/Helpers/omarchy-vm-helper",
+        "Contents/Resources/LICENSE.try-omarchy",
+        "Contents/Resources/runtime/bin/qemu-system-aarch64",
+        "Contents/Resources/runtime/lib/libslirp.0.dylib",
+        "Contents/Resources/runtime/lib/libvirglrenderer.1.dylib",
+        "Contents/Resources/guest-tools.iso"
+      ],
+      "inputs": [],
+      "license_files": [
+        "Try-Omarchy-MIT.txt",
+        "Guest-Tools-attribution.txt"
+      ],
+      "source": {
+        "url": "https://github.com/omacom/try-omarchy.git",
+        "commit": "13d63df8da2947f833c04025ff5ade187d39ba81",
+        "sha256": "cf59a9d997f90856749acd8c201d049a9fb7ba3a11fef794e7b6dfac8dae7098",
+        "format": "git archive --format=tar HEAD (uncompressed)"
+      },
+      "optional_files": [
+        "Contents/Resources/guest-tools.iso"
+      ]
+    },
+    {
+      "id": "local-patches",
+      "name": "Linux VM runtime and helper modifications",
+      "version": "try-omarchy-v1.3.0.diff",
+      "license": "LicenseRef-Linux-VM-Undecided AND GPL-2.0-only AND MIT",
+      "bundle_files": [
+        "Contents/Resources/runtime/bin/qemu-system-aarch64",
+        "Contents/Resources/runtime/lib/libvirglrenderer.1.dylib",
+        "Contents/Helpers/omarchy-vm-helper"
+      ],
+      "inputs": [],
+      "license_files": [
+        "Linux-VM.txt",
+        "GPL-2.0.txt",
+        "Try-Omarchy-MIT.txt"
+      ],
+      "source": {
+        "path": "runtime/try-omarchy-v1.3.0.diff",
+        "sha256": "c338f06cc935e3a129078d2760e00374898cb392022ece98b4f40a03ffccfeb6"
+      }
+    },
+    {
+      "id": "qemu",
+      "name": "QEMU",
+      "version": "11.1.1",
+      "license": "GPL-2.0-only",
+      "bundle_files": [
+        "Contents/Resources/runtime/bin/qemu-system-aarch64"
+      ],
+      "inputs": [
+        "qemu"
+      ],
+      "license_files": [
+        "QEMU-LICENSE.txt",
+        "GPL-2.0.txt",
+        "LGPL-2.1.txt",
+        "QEMU-source-notices.txt"
+      ],
+      "version_evidence": {
+        "input": "qemu",
+        "member": "qemu-c3d48b7d1e89604920e5b81b91140c2ad39a1943/VERSION",
+        "contains": "11.1.1"
+      },
+      "notes": "QEMU as a whole is GPLv2. Individual files have compatible licenses and exceptions preserved in QEMU-source-notices.txt. TCG is disabled. Includes static libfdt and generated keycodemapdb tables."
+    },
+    {
+      "id": "libfdt",
+      "name": "dtc / libfdt",
+      "version": "1.6.1+b6910bec11614980a21e46fbccc35934b671bd81",
+      "license": "GPL-2.0-or-later OR BSD-2-Clause",
+      "bundle_files": [
+        "Contents/Resources/runtime/bin/qemu-system-aarch64"
+      ],
+      "inputs": [
+        "dtc"
+      ],
+      "license_files": [
+        "libfdt-BSD.txt",
+        "libfdt-source-notices.txt",
+        "GPL-2.0.txt"
+      ],
+      "version_evidence": {
+        "input": "dtc",
+        "member": "dtc-b6910bec11614980a21e46fbccc35934b671bd81/Makefile",
+        "contains": "SUBLEVEL = 1"
+      },
+      "notes": "Only libfdt is linked into QEMU. BSD alternative selected."
+    },
+    {
+      "id": "keycodemapdb",
+      "name": "keycodemapdb generated tables",
+      "version": "f5772a62ec52591ff6870b7e8ef32482371f22c6",
+      "license": "GPL-2.0-or-later OR BSD-3-Clause",
+      "bundle_files": [
+        "Contents/Resources/runtime/bin/qemu-system-aarch64"
+      ],
+      "inputs": [
+        "keycodemap"
+      ],
+      "license_files": [
+        "keycodemapdb-BSD.txt",
+        "keycodemapdb-README.txt",
+        "GPL-2.0.txt"
+      ],
+      "notes": "BSD alternative selected for the generated tables."
+    },
+    {
+      "id": "virgl",
+      "name": "virglrenderer with Homebrew tap patches",
+      "version": "1.3.0",
+      "license": "MIT",
+      "bundle_files": [
+        "Contents/Resources/runtime/lib/libvirglrenderer.1.dylib"
+      ],
+      "inputs": [
+        "virgl",
+        "virgl_tap"
+      ],
+      "license_files": [
+        "virglrenderer-MIT.txt",
+        "virglrenderer-source-notices.txt"
+      ],
+      "version_evidence": {
+        "input": "virgl",
+        "member": "virglrenderer-ca50e008863837e094747a69974dde3ae148aeaa/meson.build",
+        "contains": "'1.3.0'"
+      },
+      "notes": "Tap patch set 1.0.42 at pinned commit; upstream source is 1.3.0. Tap formula declares MIT; no separate patch license is included in its archive."
+    },
+    {
+      "id": "slirp",
+      "name": "libslirp (patched source build)",
+      "version": "4.9.4",
+      "license": "BSD-3-Clause AND BSD-2-Clause AND MIT",
+      "bundle_files": [
+        "Contents/Resources/runtime/lib/libslirp.0.dylib"
+      ],
+      "inputs": [
+        "slirp",
+        "bottle-libslirp"
+      ],
+      "license_files": [
+        "libslirp-LICENSE.txt",
+        "libslirp-COPYRIGHT.txt",
+        "libslirp-source-notices.txt"
+      ],
+      "version_evidence": {
+        "input": "slirp",
+        "member": "libslirp-d09dc9a70360ee7838acccbd234ab83f3b9b37a5/meson.build",
+        "contains": "'4.9.4'"
+      },
+      "notes": "Runtime library is built from source. Bottle provides build headers/pkg-config metadata and is replaced by the source build."
+    },
+    {
+      "id": "glib",
+      "name": "GLib",
+      "version": "2.88.3",
+      "license": "LGPL-2.1-or-later",
+      "bundle_files": [
+        "Contents/Resources/runtime/lib/libglib-2.0.0.dylib"
+      ],
+      "inputs": [
+        "bottle-glib"
+      ],
+      "license_files": [
+        "GLib-notice.txt",
+        "LGPL-2.1.txt"
+      ]
+    },
+    {
+      "id": "pixman",
+      "name": "pixman",
+      "version": "0.46.4",
+      "license": "MIT",
+      "bundle_files": [
+        "Contents/Resources/runtime/lib/libpixman-1.0.dylib"
+      ],
+      "inputs": [
+        "bottle-pixman"
+      ],
+      "license_files": [
+        "pixman-MIT.txt"
+      ]
+    },
+    {
+      "id": "libusb",
+      "name": "libusb",
+      "version": "1.0.30",
+      "license": "LGPL-2.1-or-later",
+      "bundle_files": [
+        "Contents/Resources/runtime/lib/libusb-1.0.0.dylib"
+      ],
+      "inputs": [
+        "bottle-libusb"
+      ],
+      "license_files": [
+        "libusb-LGPL.txt",
+        "libusb-AUTHORS.txt"
+      ]
+    },
+    {
+      "id": "sdl2",
+      "name": "sdl2-compat",
+      "version": "2.32.70",
+      "license": "Zlib",
+      "bundle_files": [
+        "Contents/Resources/runtime/lib/libSDL2-2.0.0.dylib"
+      ],
+      "inputs": [
+        "bottle-sdl2-compat"
+      ],
+      "license_files": [
+        "sdl2-compat-Zlib.txt"
+      ]
+    },
+    {
+      "id": "sdl3",
+      "name": "SDL3",
+      "version": "3.4.14",
+      "license": "Zlib",
+      "bundle_files": [
+        "Contents/Resources/runtime/lib/libSDL3.dylib"
+      ],
+      "inputs": [
+        "bottle-sdl3"
+      ],
+      "license_files": [
+        "SDL3-Zlib.txt"
+      ]
+    },
+    {
+      "id": "intl",
+      "name": "GNU gettext / libintl",
+      "version": "1.0",
+      "license": "LGPL-2.1-or-later",
+      "bundle_files": [
+        "Contents/Resources/runtime/lib/libintl.8.dylib"
+      ],
+      "inputs": [
+        "bottle-gettext"
+      ],
+      "license_files": [
+        "libintl-notice.txt",
+        "LGPL-2.1.txt"
+      ]
+    },
+    {
+      "id": "pcre2",
+      "name": "PCRE2 with JIT",
+      "version": "10.47 (Homebrew revision 1)",
+      "license": "(BSD-3-Clause WITH PCRE2-exception) AND BSD-2-Clause",
+      "bundle_files": [
+        "Contents/Resources/runtime/lib/libpcre2-8.0.dylib"
+      ],
+      "inputs": [
+        "bottle-pcre2"
+      ],
+      "license_files": [
+        "PCRE2-LICENCE.txt"
+      ]
+    },
+    {
+      "id": "lz4",
+      "name": "LZ4 library",
+      "version": "1.10.0",
+      "license": "BSD-2-Clause",
+      "bundle_files": [
+        "Contents/Resources/runtime/lib/liblz4.1.dylib"
+      ],
+      "inputs": [
+        "bottle-lz4"
+      ],
+      "license_files": [
+        "LZ4-BSD.txt"
+      ]
+    },
+    {
+      "id": "lzma",
+      "name": "XZ Utils / liblzma",
+      "version": "5.8.3",
+      "license": "0BSD",
+      "bundle_files": [
+        "Contents/Resources/runtime/lib/liblzma.5.dylib"
+      ],
+      "inputs": [
+        "bottle-xz"
+      ],
+      "license_files": [
+        "XZ-COPYING.txt",
+        "XZ-0BSD.txt"
+      ]
+    },
+    {
+      "id": "epoxy",
+      "name": "libepoxy",
+      "version": "1.5.11 (tap bottle 1.0.5)",
+      "license": "MIT",
+      "bundle_files": [
+        "Contents/Resources/runtime/lib/libepoxy.0.dylib"
+      ],
+      "inputs": [
+        "epoxy"
+      ],
+      "license_files": [
+        "libepoxy-MIT.txt"
+      ],
+      "notes": "epoxy.pc records upstream 1.5.11; 1.0.5 is the tap bottle version."
+    },
+    {
+      "id": "angle",
+      "name": "ANGLE",
+      "version": "1.0.16 (tap bottle; source commit absent)",
+      "license": "BSD-2-Clause",
+      "bundle_files": [
+        "Contents/Resources/runtime/lib/libEGL.dylib",
+        "Contents/Resources/runtime/lib/libGLESv2.dylib"
+      ],
+      "inputs": [
+        "angle"
+      ],
+      "license_files": [
+        "ANGLE-bottle-metadata.json",
+        "ANGLE-header-notice.txt"
+      ],
+      "notes": "BSD-2-Clause is the bottle metadata declaration, not an audited conclusion. The pinned bottle has no LICENSE or third-party notices and its commit.txt is empty. Metadata and a header are preserved as evidence, not substitutes for the missing license text.",
+      "license_status": "incomplete; see release_blockers"
+    },
+    {
+      "id": "zstd",
+      "name": "Zstandard",
+      "version": "1.5.7 (Homebrew revision 1)",
+      "license": "(BSD-3-Clause OR GPL-2.0-only) AND BSD-2-Clause AND MIT",
+      "bundle_files": [
+        "Contents/Resources/runtime/lib/libzstd.1.dylib",
+        "Contents/Resources/runtime/bin/zstd"
+      ],
+      "inputs": [
+        "bottle-zstd"
+      ],
+      "license_files": [
+        "Zstandard-BSD.txt",
+        "Zstandard-GPL.txt"
+      ],
+      "notes": "Bottle SBOM also declares BSD-2-Clause and MIT; corresponding bundled subcomponent notices are absent from this bottle.",
+      "license_status": "incomplete; see release_blockers"
+    },
+    {
+      "id": "edk2",
+      "name": "edk2 firmware",
+      "version": "edk2-stable202408 (08/13/2024)",
+      "license": "BSD-2-Clause-Patent AND BSD-2-Clause AND BSD-3-Clause AND MIT AND OpenSSL",
+      "bundle_files": [
+        "Contents/Resources/firmware/edk2-aarch64-code.fd",
+        "Contents/Resources/firmware/edk2-licenses.txt"
+      ],
+      "inputs": [
+        "qemu"
+      ],
+      "license_files": [
+        "edk2-licenses.txt"
+      ],
+      "version_evidence": {
+        "input": "qemu",
+        "member": "qemu-c3d48b7d1e89604920e5b81b91140c2ad39a1943/roms/edk2-version",
+        "contains": "edk2-stable202408"
+      },
+      "notes": "Aggregate firmware license expression; the complete upstream composite notice is authoritative and includes historical notices. Composite notice includes Berkeley SoftFloat Release 3e and OpenSSL; the embedded OpenSSL version is not recorded."
+    }
+  ],
+  "guest_files": {
+    "deb:data/usr/lib/linuxvm/audio.py": {
+      "source": "guest/files/usr/lib/linuxvm/audio.py",
+      "sha256": "b30fa5bf131ff221b64109de783068e2ff2905aafe3cd9d1cd18bb0c2e167052"
+    },
+    "deb:data/usr/lib/linuxvm/clipboard.py": {
+      "source": "guest/files/usr/lib/linuxvm/clipboard.py",
+      "sha256": "da4d60a7a40972ba647af8310c4005d348852d0b26f842d39cdd8ccd2ca429da"
+    },
+    "deb:data/usr/lib/linuxvm/clock.py": {
+      "source": "guest/files/usr/lib/linuxvm/clock.py",
+      "sha256": "620d6f56435e561d249cb0889c10a658c8267ac35b41a15ea8885764ff4d25dd"
+    },
+    "deb:data/usr/lib/linuxvm/common.py": {
+      "source": "guest/files/usr/lib/linuxvm/common.py",
+      "sha256": "d40e135b592dee0f539fc25cd7acb29769c18921e103eefd773825e96db415da"
+    },
+    "deb:data/usr/lib/linuxvm/share.py": {
+      "source": "guest/files/usr/lib/linuxvm/share.py",
+      "sha256": "dbee2fe1cff544f6dac108c59f5172b001bf4ce855666beed67db6eb94d3b572"
+    },
+    "deb:data/usr/lib/linuxvm/status.py": {
+      "source": "guest/files/usr/lib/linuxvm/status.py",
+      "sha256": "be250b1edcc2cb019f385c253f7be7c7463ccc30dc4d8b5c37abb9cd31918fb0"
+    },
+    "deb:data/usr/lib/linuxvm/timezone.py": {
+      "source": "guest/files/usr/lib/linuxvm/timezone.py",
+      "sha256": "427ffe0d3847622bff57ce820402280acf884f345e79dca16ee0490451d0705e"
+    },
+    "deb:data/usr/lib/systemd/system/linuxvm-clock-recovery.service": {
+      "source": "guest/files/usr/lib/systemd/system/linuxvm-clock-recovery.service",
+      "sha256": "874e874c834631755bb939ac396a0446c03efb36b80f5ec0127bc3b47ee51fa6"
+    },
+    "deb:data/usr/lib/systemd/system/linuxvm-clock-recovery.timer": {
+      "source": "guest/files/usr/lib/systemd/system/linuxvm-clock-recovery.timer",
+      "sha256": "b600770d38667633a4156f1a84f6fdff9efddca13b9d5d1d4d3ac5190d088ea5"
+    },
+    "deb:data/usr/lib/systemd/system/linuxvm-share-mount.service": {
+      "source": "guest/files/usr/lib/systemd/system/linuxvm-share-mount.service",
+      "sha256": "fffb4f905b45111c4ca8b4b973e077c2aa99f738d62435e404ab1bb537455e54"
+    },
+    "deb:data/usr/lib/systemd/system/linuxvm-timezone.service": {
+      "source": "guest/files/usr/lib/systemd/system/linuxvm-timezone.service",
+      "sha256": "2a9a537942bfc29fea7795fe8c2c6d5f84b62a6b6e38d4aa52d980fd07b1e11f"
+    },
+    "deb:data/usr/lib/systemd/user/linuxvm-audio.service": {
+      "source": "guest/files/usr/lib/systemd/user/linuxvm-audio.service",
+      "sha256": "be91c556064a1f0b5abb5da17e51dbd443d2ed1cab0e46031d9d30f690859485"
+    },
+    "deb:data/usr/lib/systemd/user/linuxvm-clipboard.service": {
+      "source": "guest/files/usr/lib/systemd/user/linuxvm-clipboard.service",
+      "sha256": "fcbd6a4f642c1a2b58d9b3e8caa38a9648a4379b87f1549ab3fd6d90b31e5694"
+    },
+    "deb:data/usr/lib/systemd/user/linuxvm-share-link.service": {
+      "source": "guest/files/usr/lib/systemd/user/linuxvm-share-link.service",
+      "sha256": "d74a3035fd1b56cdd3d72196dcf9717d2ff4ef530d5feb7138f30cf93f0fb138"
+    },
+    "deb:data/usr/lib/systemd/user/linuxvm-status.service": {
+      "source": "guest/files/usr/lib/systemd/user/linuxvm-status.service",
+      "sha256": "df450d60c351ea87190b1ebfdf231e40c6f395d3d34c236c57b4eec6ec8c00f0"
+    },
+    "deb:data/usr/lib/udev/rules.d/70-linuxvm-ports.rules": {
+      "source": "guest/files/usr/lib/udev/rules.d/70-linuxvm-ports.rules",
+      "sha256": "14eb3382a499426c6d3d4c777e5a2c73af8b0d9eec435fe2d49cf24f29b793c7"
+    },
+    "deb:data/usr/share/doc/linuxvm-guest/copyright": {
+      "source": "guest/files/usr/share/doc/linuxvm-guest/copyright",
+      "sha256": "1c3def0bc37817cacf4e77135d922468da649b1c23e51e5e28ef3f1acaa435c0"
+    },
+    "deb:data/usr/share/glib-2.0/schemas/90_linuxvm.gschema.override": {
+      "source": "guest/files/usr/share/glib-2.0/schemas/90_linuxvm.gschema.override",
+      "sha256": "ccb6967f9cac5f9cdca46d0eac5b0e5c669c8e070a1d0b5406436e1d41dd4963"
+    },
+    "deb:data/usr/share/gnome-shell/extensions/clipboard@linuxvm.dev/extension.js": {
+      "source": "guest/files/usr/share/gnome-shell/extensions/clipboard@linuxvm.dev/extension.js",
+      "sha256": "7cb0144802f9f5bdb9ef017042e540fe3d347e94339defc6150cb2a8f288dd45"
+    },
+    "deb:data/usr/share/gnome-shell/extensions/clipboard@linuxvm.dev/metadata.json": {
+      "source": "guest/files/usr/share/gnome-shell/extensions/clipboard@linuxvm.dev/metadata.json",
+      "sha256": "7d86f8ca08e38eb260232da3e4ad337c2dce39587f4096a67059e8219b03ec43"
+    },
+    "deb:data/usr/share/libinput/90-linuxvm.quirks": {
+      "source": "guest/files/usr/share/libinput/90-linuxvm.quirks",
+      "sha256": "0e77c31cc0a05ea7ae99f3d8665baa72809201808c01f3eea11ecc1e0838eca1"
+    },
+    "deb:control/control": {
+      "source": "guest/debian/control",
+      "sha256": "6de38549411db32f3fe30be71c0c06c83c0d65c0b3b91f76c5ee6002afc00a6a"
+    },
+    "deb:control/postinst": {
+      "source": "guest/debian/postinst",
+      "sha256": "3c141fb44c5d1969ef52fee564155c2d0d83275824f10b3d8ac9e760e1d912ce"
+    },
+    "deb:control/postrm": {
+      "source": "guest/debian/postrm",
+      "sha256": "bb68513ce649e46b0569055d4d4f5702824b53fe3ce7d126d0a1e5be1fd810e7"
+    },
+    "deb:control/prerm": {
+      "source": "guest/debian/prerm",
+      "sha256": "9c428f3f66e410fa8acf3e7170f8dff4c8b812b12319ec5e2eb8ff5c41c09746"
+    },
+    "iso:/README.txt": {
+      "source": "guest/iso/README.txt",
+      "sha256": "8e5fdc8d6b1d54beb6d254af9abb2a51de6f386531276df772a6e9ec26a53234"
+    },
+    "iso:/install.sh": {
+      "source": "guest/iso/install.sh",
+      "sha256": "999e67f9c0e742b00c171d4b474c67bca39dbef05de7adfdb8ce5533b795e30b"
+    },
+    "deb:data/usr/lib/linuxvm/version.py": {
+      "generated": "VERSION = '0.2.1'\n",
+      "sha256": "59b34844cb8d885d9f8ed5a9a47df3b86ef29156922e72229ee537a8ad2102a0"
+    }
+  },
+  "release_blockers": [
+    "ANGLE: license text, third-party notices and underlying source commit are missing from the pinned bottle. Obtain and audit the matching source before a public release.",
+    "Zstandard: bottle SBOM declares additional BSD-2-Clause and MIT code but contains no corresponding subcomponent notices. Audit the matching source and retain those notices before a public release.",
+    "AppIcon: render-icon.swift uses the Apple SF Symbol chevron.right. Its source version and license text are unrecorded, and Apple prohibits SF Symbols in app icons. Replace this artwork or establish permission before release."
+  ],
+  "pin_snapshots": {
+    "pinned-runtime-bottles.sh": "0b0098ad10aeeab29974c7a40a39ee28def330d0dd1ee9d29e651ecbd051b9f4",
+    "build-qemu-gpu-runtime.sh": "fa23634e6f4311f12db08f0108f13cbeb132ad5b0b756855b5f5bf1c06bebf2c",
+    "prepare-qemu-gpu-runtime.sh": "52b173396caf3f5243fde178e8030f3bf8497c9f2703db9b22e2c9e3bd268c4e"
+  }
+}
