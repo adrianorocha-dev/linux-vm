@@ -12,7 +12,7 @@ A macOS app that runs Ubuntu on Apple Silicon with Mac-quality trackpad, display
 - `docs/host-guest-contract.md`: the only interfaces between the Mac and the guest.
 - `docs/what-needs-guest-tools.md`: what works without the guest tools, and what needs them.
 - `docs/proposal.md`: the investigation and proposal, with Milestone 0 and 1 results. `docs/milestone-0-notes.md` and `docs/utm-ubuntu-report.md` hold the measurements behind it.
-- `docs/milestone-2-plan.md`: Milestone 2, closed on 3 November 2026. `docs/future-tests.md` lists the checks it left for later.
+- `docs/milestone-3-plan.md`: the current milestone, releasing the app. `docs/milestone-2-plan.md`: Milestone 2, closed on 3 November 2026. `docs/future-tests.md` lists the checks it left for later.
 - `runtime/`: our changes to Try Omarchy v1.3.0's QEMU runtime build, and how to build it.
 - `scripts/build-app.sh`: assembles `build/Linux VM.app`. `scripts/ssh-vm.sh`, `scripts/qmp-type.py` and `scripts/guest-diagnostics.sh` are test helpers.
 - `scripts/harness/`: the test harness. It installs a fresh VM unattended and captures monitor state, screenshots, touchpad input and frame timing from inside the guest. It also repeats a VM's start, reboot, sleep and shutdown (`soak`), and replays touchpad contacts across pauses and reboots (`touch-lifecycle`) ([README](scripts/harness/README.md)).
