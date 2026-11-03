@@ -1,0 +1,4065 @@
+==> build/meson/GetZstdLibraryVersion.py <==
+#!/usr/bin/env python3
+# #############################################################################
+# Copyright (c) 2018-present    lzutao <taolzu(at)gmail.com>
+# All rights reserved.
+#
+# This source code is licensed under both the BSD-style license (found in the
+# LICENSE file in the root directory of this source tree) and the GPLv2 (found
+# in the COPYING file in the root directory of this source tree).
+# #############################################################################
+
+==> build/meson/InstallSymlink.py <==
+#!/usr/bin/env python3
+# #############################################################################
+# Copyright (c) 2018-present  lzutao <taolzu(at)gmail.com>
+# All rights reserved.
+#
+# This source code is licensed under both the BSD-style license (found in the
+# LICENSE file in the root directory of this source tree) and the GPLv2 (found
+# in the COPYING file in the root directory of this source tree).
+# #############################################################################
+# This file should be synced with https://github.com/lzutao/meson-symlink
+
+==> build/meson/tests/valgrindTest.py <==
+#!/usr/bin/env python3
+# #############################################################################
+# Copyright (c) 2018-present    lzutao <taolzu(at)gmail.com>
+# All rights reserved.
+#
+# This source code is licensed under both the BSD-style license (found in the
+# LICENSE file in the root directory of this source tree) and the GPLv2 (found
+# in the COPYING file in the root directory of this source tree).
+# #############################################################################
+
+==> build/single_file_libs/zstd-in.c <==
+/**
+ * \file zstd.c
+ * Single-file Zstandard library.
+ *
+ * Generate using:
+ * \code
+ *	python combine.py -r ../../lib -x legacy/zstd_legacy.h -o zstd.c zstd-in.c
+ * \endcode
+ */
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+/*
+ * Settings to bake for the single library file.
+ *
+ * Note: It's important that none of these affects 'zstd.h' (only the
+ * implementation files we're amalgamating).
+ *
+ * Note: MEM_MODULE stops xxhash redefining BYTE, U16, etc., which are also
+ * defined in mem.h (breaking C99 compatibility).
+ *
+ * Note: the undefs for xxHash allow Zstd's implementation to coincide with
+ * standalone xxHash usage (with global defines).
+ *
+ * Note: if you enable ZSTD_LEGACY_SUPPORT the combine.py script will need
+ * re-running without the "-x legacy/zstd_legacy.h" option (it excludes the
+ * legacy support at the source level).
+ *
+ * Note: multithreading is enabled for all platforms apart from Emscripten.
+ */
+
+==> build/single_file_libs/zstddeclib-in.c <==
+/**
+ * \file zstddeclib.c
+ * Single-file Zstandard decompressor.
+ *
+ * Generate using:
+ * \code
+ *	python combine.py -r ../../lib -x legacy/zstd_legacy.h -o zstddeclib.c zstddeclib-in.c
+ * \endcode
+ */
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+/*
+ * Settings to bake for the standalone decompressor.
+ *
+ * Note: It's important that none of these affects 'zstd.h' (only the
+ * implementation files we're amalgamating).
+ *
+ * Note: MEM_MODULE stops xxhash redefining BYTE, U16, etc., which are also
+ * defined in mem.h (breaking C99 compatibility).
+ *
+ * Note: the undefs for xxHash allow Zstd's implementation to coincide with
+ * standalone xxHash usage (with global defines).
+ *
+ * Note: if you enable ZSTD_LEGACY_SUPPORT the combine.py script will need
+ * re-running without the "-x legacy/zstd_legacy.h" option (it excludes the
+ * legacy support at the source level).
+ */
+
+==> contrib/diagnose_corruption/check_flipped_bits.c <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+
+==> contrib/externalSequenceProducer/main.c <==
+/*
+ * Copyright (c) Yann Collet, Meta Platforms, Inc.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+
+==> contrib/externalSequenceProducer/sequence_producer.c <==
+/*
+ * Copyright (c) Yann Collet, Meta Platforms, Inc.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+
+==> contrib/externalSequenceProducer/sequence_producer.h <==
+/*
+ * Copyright (c) Yann Collet, Meta Platforms, Inc.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+
+==> contrib/freestanding_lib/freestanding.py <==
+#!/usr/bin/env python3
+# ################################################################
+# Copyright (c) Meta Platforms, Inc. and affiliates.
+# All rights reserved.
+#
+# This source code is licensed under both the BSD-style license (found in the
+# LICENSE file in the root directory of this source tree) and the GPLv2 (found
+# in the COPYING file in the root directory of this source tree).
+# You may select, at your option, one of the above-listed licenses.
+# ##########################################################################
+
+==> contrib/gen_html/gen_html.cpp <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ */
+
+==> contrib/largeNbDicts/largeNbDicts.c <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+
+/* largeNbDicts
+ * This is a benchmark test tool
+ * dedicated to the specific case of dictionary decompression
+ * using a very large nb of dictionaries
+ * thus suffering latency from lots of cache misses.
+ * It's created in a bid to investigate performance and find optimizations. */
+
+
+/*---  Dependencies  ---*/
+
+==> contrib/linux-kernel/decompress_sources.h <==
+/* SPDX-License-Identifier: GPL-2.0+ OR BSD-3-Clause */
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+
+/*
+ * This file includes every .c file needed for decompression.
+ * It is used by lib/decompress_unzstd.c to include the decompression
+ * source into the translation-unit, so it can be used for kernel
+ * decompression.
+ */
+
+/*
+ * Disable the ASM Huffman implementation because we need to
+ * include all the sources.
+ */
+
+==> contrib/linux-kernel/linux_zstd.h <==
+/* SPDX-License-Identifier: GPL-2.0+ OR BSD-3-Clause */
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of https://github.com/facebook/zstd) and
+ * the GPLv2 (found in the COPYING file in the root directory of
+ * https://github.com/facebook/zstd). You may select, at your option, one of the
+ * above-listed licenses.
+ */
+
+==> contrib/linux-kernel/mem.h <==
+/* SPDX-License-Identifier: GPL-2.0+ OR BSD-3-Clause */
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+
+==> contrib/linux-kernel/test/include/linux/compiler.h <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+
+==> contrib/linux-kernel/test/include/linux/errno.h <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+
+==> contrib/linux-kernel/test/include/linux/kernel.h <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+
+==> contrib/linux-kernel/test/include/linux/limits.h <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+
+==> contrib/linux-kernel/test/include/linux/math64.h <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+
+==> contrib/linux-kernel/test/include/linux/module.h <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+
+==> contrib/linux-kernel/test/include/linux/printk.h <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+
+==> contrib/linux-kernel/test/include/linux/stddef.h <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+
+==> contrib/linux-kernel/test/include/linux/swab.h <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+
+==> contrib/linux-kernel/test/include/linux/types.h <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+
+==> contrib/linux-kernel/test/include/linux/xxhash.h <==
+/*
+ * xxHash - Extremely Fast Hash algorithm
+ * Copyright (C) 2012-2016, Yann Collet.
+ *
+ * BSD 2-Clause License (https://opensource.org/licenses/bsd-license.php)
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are
+ * met:
+ *
+ *   * Redistributions of source code must retain the above copyright
+ *     notice, this list of conditions and the following disclaimer.
+ *   * Redistributions in binary form must reproduce the above
+ *     copyright notice, this list of conditions and the following disclaimer
+ *     in the documentation and/or other materials provided with the
+ *     distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+ * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ * This program is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License version 2 as published by the
+ * Free Software Foundation. This program is dual-licensed; you may select
+ * either version 2 of the GNU General Public License ("GPL") or BSD license
+ * ("BSD").
+ *
+ * You can contact the author at:
+ * - xxHash homepage: https://cyan4973.github.io/xxHash/
+ * - xxHash source repository: https://github.com/Cyan4973/xxHash
+ */
+
+/*
+ * Notice extracted from xxHash homepage:
+ *
+ * xxHash is an extremely fast Hash algorithm, running at RAM speed limits.
+ * It also successfully passes all tests from the SMHasher suite.
+ *
+ * Comparison (single thread, Windows Seven 32 bits, using SMHasher on a Core 2
+ * Duo @3GHz)
+ *
+ * Name            Speed       Q.Score   Author
+ * xxHash          5.4 GB/s     10
+ * CrapWow         3.2 GB/s      2       Andrew
+ * MumurHash 3a    2.7 GB/s     10       Austin Appleby
+ * SpookyHash      2.0 GB/s     10       Bob Jenkins
+ * SBox            1.4 GB/s      9       Bret Mulvey
+ * Lookup3         1.2 GB/s      9       Bob Jenkins
+ * SuperFastHash   1.2 GB/s      1       Paul Hsieh
+ * CityHash64      1.05 GB/s    10       Pike & Alakuijala
+ * FNV             0.55 GB/s     5       Fowler, Noll, Vo
+ * CRC32           0.43 GB/s     9
+ * MD5-32          0.33 GB/s    10       Ronald L. Rivest
+ * SHA1-32         0.28 GB/s    10
+ *
+ * Q.Score is a measure of quality of the hash function.
+ * It depends on successfully passing SMHasher test set.
+ * 10 is a perfect score.
+ *
+ * A 64-bits version, named xxh64 offers much better speed,
+ * but for 64-bits applications only.
+ * Name     Speed on 64 bits    Speed on 32 bits
+ * xxh64       13.8 GB/s            1.9 GB/s
+ * xxh32        6.8 GB/s            6.0 GB/s
+ */
+
+==> contrib/linux-kernel/test/static_test.c <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+
+==> contrib/linux-kernel/test/test.c <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+
+==> contrib/linux-kernel/zstd_common_module.c <==
+// SPDX-License-Identifier: GPL-2.0+ OR BSD-3-Clause
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+
+==> contrib/linux-kernel/zstd_compress_module.c <==
+// SPDX-License-Identifier: GPL-2.0+ OR BSD-3-Clause
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+
+==> contrib/linux-kernel/zstd_decompress_module.c <==
+// SPDX-License-Identifier: GPL-2.0+ OR BSD-3-Clause
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+
+==> contrib/linux-kernel/zstd_deps.h <==
+/* SPDX-License-Identifier: GPL-2.0+ OR BSD-3-Clause */
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+
+/*
+ * This file provides common libc dependencies that zstd requires.
+ * The purpose is to allow replacing this file with a custom implementation
+ * to compile zstd without libc support.
+ */
+
+/* Need:
+ * NULL
+ * INT_MAX
+ * UINT_MAX
+ * ZSTD_memcpy()
+ * ZSTD_memset()
+ * ZSTD_memmove()
+ */
+
+==> contrib/match_finders/zstd_edist.c <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+
+/*-*************************************
+*  Dependencies
+***************************************/
+
+/* Currently relies on qsort when combining contiguous matches. This can probably 
+ * be avoided but would require changes to the algorithm. The qsort is far from 
+ * the bottleneck in this algorithm even for medium sized files so it's probably 
+ * not worth trying to address */
+
+==> contrib/match_finders/zstd_edist.h <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+
+/* This match finder leverages techniques used in file comparison algorithms
+ * to find matches between a dictionary and a source file.
+ * 
+ * The original motivation for studying this approach was to try and optimize 
+ * Zstandard for the use case of patching: the most common scenario being 
+ * updating an existing software package with the next version. When patching,
+ * the difference between the old version of the package and the new version 
+ * is generally tiny (most of the new file will be identical to 
+ * the old one). In more technical terms, the edit distance (the minimal number 
+ * of changes required to take one sequence of bytes to another) between the 
+ * files would be small relative to the size of the file. 
+ * 
+ * Various 'diffing' algorithms utilize this notion of edit distance and 
+ * the corresponding concept of a minimal edit script between two 
+ * sequences to identify the regions within two files where they differ. 
+ * The core algorithm used in this match finder is described in: 
+ * 
+ * "An O(ND) Difference Algorithm and its Variations", Eugene W. Myers,
+ *    Algorithmica Vol. 1, 1986, pp. 251-266,
+ *    <https://doi.org/10.1007/BF01840446>.
+ * 
+ * Additional algorithmic heuristics for speed improvement have also been included.
+ * These we inspired from implementations of various regular and binary diffing 
+ * algorithms such as GNU diff, bsdiff, and Xdelta. 
+ * 
+ * Note: after some experimentation, this approach proved to not provide enough 
+ * utility to justify the additional CPU used in finding matches. The one area
+ * where this approach consistently outperforms Zstandard even on level 19 is 
+ * when compressing small files (<10 KB) using an equally small dictionary that 
+ * is very similar to the source file. For the use case that this was intended,
+ * (large similar files) this approach by itself took 5-10X longer than zstd-19 and 
+ * generally resulted in 2-3X larger files. The core advantage that zstd-19 has 
+ * over this approach for match finding is the overlapping matches. This approach 
+ * cannot find any. 
+ * 
+ * I'm leaving this in the contrib section in case this ever becomes interesting 
+ * to explore again.
+ * */
+
+==> contrib/pzstd/ErrorHolder.h <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ */
+
+==> contrib/pzstd/Logging.h <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ */
+
+==> contrib/pzstd/Options.cpp <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ */
+
+==> contrib/pzstd/Options.h <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ */
+
+==> contrib/pzstd/Pzstd.cpp <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ */
+
+==> contrib/pzstd/Pzstd.h <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ */
+
+==> contrib/pzstd/SkippableFrame.cpp <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ */
+
+==> contrib/pzstd/SkippableFrame.h <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ */
+
+==> contrib/pzstd/main.cpp <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ */
+
+==> contrib/pzstd/test/OptionsTest.cpp <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ */
+
+==> contrib/pzstd/test/PzstdTest.cpp <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ */
+
+==> contrib/pzstd/test/RoundTrip.h <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ */
+
+==> contrib/pzstd/test/RoundTripTest.cpp <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ */
+
+==> contrib/pzstd/utils/Buffer.h <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ */
+
+==> contrib/pzstd/utils/FileSystem.h <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ */
+
+==> contrib/pzstd/utils/Likely.h <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ */
+ 
+/**
+ * Compiler hints to indicate the fast path of an "if" branch: whether
+ * the if condition is likely to be true or false.
+ *
+ * @author Tudor Bosman (tudorb@fb.com)
+ */
+
+==> contrib/pzstd/utils/Portability.h <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ */
+
+==> contrib/pzstd/utils/Range.h <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ */
+
+/**
+ * A subset of `folly/Range.h`.
+ * All code copied verbatim modulo formatting
+ */
+
+==> contrib/pzstd/utils/ResourcePool.h <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ */
+
+==> contrib/pzstd/utils/ScopeGuard.h <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ */
+
+==> contrib/pzstd/utils/ThreadPool.h <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ */
+
+==> contrib/pzstd/utils/WorkQueue.h <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ */
+
+==> contrib/pzstd/utils/test/BufferTest.cpp <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ */
+
+==> contrib/pzstd/utils/test/RangeTest.cpp <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ */
+
+==> contrib/pzstd/utils/test/ResourcePoolTest.cpp <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ */
+
+==> contrib/pzstd/utils/test/ScopeGuardTest.cpp <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ */
+
+==> contrib/pzstd/utils/test/ThreadPoolTest.cpp <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ */
+
+==> contrib/pzstd/utils/test/WorkQueueTest.cpp <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ */
+
+==> contrib/recovery/recover_directory.c <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+
+==> contrib/seekable_format/examples/parallel_compression.c <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ */
+
+==> contrib/seekable_format/examples/parallel_processing.c <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ */
+
+/*
+ * A simple demo that sums up all the bytes in the file in parallel using
+ * seekable decompression and the zstd thread pool
+ */
+
+==> contrib/seekable_format/examples/seekable_compression.c <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ */
+
+==> contrib/seekable_format/examples/seekable_decompression.c <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ */
+
+==> contrib/seekable_format/examples/seekable_decompression_mem.c <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ */
+
+==> contrib/seekable_format/zstdseek_compress.c <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ */
+
+==> contrib/seekable_format/zstdseek_decompress.c <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+
+/* *********************************************************
+*  Turn on Large Files support (>4GB) for 32-bit Linux/Unix
+***********************************************************/
+
+==> doc/educational_decoder/harness.c <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+
+==> doc/educational_decoder/zstd_decompress.c <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+
+/// Zstandard educational decoder implementation
+/// See https://github.com/facebook/zstd/blob/dev/doc/zstd_compression_format.md
+
+==> doc/educational_decoder/zstd_decompress.h <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+
+==> examples/common.h <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+
+/*
+ * This header file has common utility functions used in examples.
+ */
+
+==> examples/dictionary_compression.c <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+**/
+
+/* This example deals with Dictionary compression,
+ * its counterpart is `examples/dictionary_decompression.c` .
+ * These examples presume that a dictionary already exists.
+ * The main method to create a dictionary is `zstd --train`,
+ * look at the CLI documentation for details.
+ * Another possible method is to employ dictionary training API,
+ * published in `lib/zdict.h` .
+**/
+
+==> examples/dictionary_decompression.c <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+
+==> examples/multiple_simple_compression.c <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+
+==> examples/multiple_streaming_compression.c <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+
+
+/* The objective of this example is to show of to compress multiple successive files
+*  while preserving memory management.
+*  All structures and buffers will be created only once,
+*  and shared across all compression operations */
+
+==> examples/simple_compression.c <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+
+==> examples/simple_decompression.c <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+
+==> examples/streaming_compression.c <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+
+==> examples/streaming_compression_thread_pool.c <==
+/*
+ * Copyright (c) Martin Liska, SUSE, Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+
+==> examples/streaming_decompression.c <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+
+==> examples/streaming_memory_usage.c <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+
+
+/*===   Tuning parameter   ===*/
+
+==> lib/common/allocations.h <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+
+/* This file provides custom allocation primitives
+ */
+
+==> lib/common/bits.h <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+
+==> lib/common/bitstream.h <==
+/* ******************************************************************
+ * bitstream
+ * Part of FSE library
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
+ * You can contact the author at :
+ * - Source repository : https://github.com/Cyan4973/FiniteStateEntropy
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+****************************************************************** */
+
+==> lib/common/compiler.h <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+
+==> lib/common/cpu.h <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+
+==> lib/common/debug.c <==
+/* ******************************************************************
+ * debug
+ * Part of FSE library
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
+ * You can contact the author at :
+ * - Source repository : https://github.com/Cyan4973/FiniteStateEntropy
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+****************************************************************** */
+
+
+/*
+ * This module only hosts one global variable
+ * which can be used to dynamically influence the verbosity of traces,
+ * such as DEBUGLOG and RAWLOG
+ */
+
+==> lib/common/debug.h <==
+/* ******************************************************************
+ * debug
+ * Part of FSE library
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
+ * You can contact the author at :
+ * - Source repository : https://github.com/Cyan4973/FiniteStateEntropy
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+****************************************************************** */
+
+
+/*
+ * The purpose of this header is to enable debug functions.
+ * They regroup assert(), DEBUGLOG() and RAWLOG() for run-time,
+ * and DEBUG_STATIC_ASSERT() for compile-time.
+ *
+ * By default, DEBUGLEVEL==0, which means run-time debug is disabled.
+ *
+ * Level 1 enables assert() only.
+ * Starting level 2, traces can be generated and pushed to stderr.
+ * The higher the level, the more verbose the traces.
+ *
+ * It's possible to dynamically adjust level using variable g_debug_level,
+ * which is only declared if DEBUGLEVEL>=2,
+ * and is a global variable, not multi-thread protected (use with care)
+ */
+
+==> lib/common/entropy_common.c <==
+/* ******************************************************************
+ * Common functions of New Generation Entropy library
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
+ *  You can contact the author at :
+ *  - FSE+HUF source repository : https://github.com/Cyan4973/FiniteStateEntropy
+ *  - Public forum : https://groups.google.com/forum/#!forum/lz4c
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+****************************************************************** */
+
+/* *************************************
+*  Dependencies
+***************************************/
+
+==> lib/common/error_private.c <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+
+/* The purpose of this file is to have a single list of error strings embedded in binary */
+
+==> lib/common/error_private.h <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+
+/* Note : this module is expected to remain private, do not expose it */
+
+==> lib/common/fse.h <==
+/* ******************************************************************
+ * FSE : Finite State Entropy codec
+ * Public Prototypes declaration
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
+ * You can contact the author at :
+ * - Source repository : https://github.com/Cyan4973/FiniteStateEntropy
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+****************************************************************** */
+
+==> lib/common/fse_decompress.c <==
+/* ******************************************************************
+ * FSE : Finite State Entropy decoder
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
+ *  You can contact the author at :
+ *  - FSE source repository : https://github.com/Cyan4973/FiniteStateEntropy
+ *  - Public forum : https://groups.google.com/forum/#!forum/lz4c
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+****************************************************************** */
+
+
+/* **************************************************************
+*  Includes
+****************************************************************/
+
+==> lib/common/huf.h <==
+/* ******************************************************************
+ * huff0 huffman codec,
+ * part of Finite State Entropy library
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
+ * You can contact the author at :
+ * - Source repository : https://github.com/Cyan4973/FiniteStateEntropy
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+****************************************************************** */
+
+==> lib/common/mem.h <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+
+==> lib/common/pool.c <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+
+
+/* ======   Dependencies   ======= */
+
+==> lib/common/pool.h <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+
+==> lib/common/portability_macros.h <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+
+==> lib/common/threading.c <==
+/**
+ * Copyright (c) 2016 Tino Reichardt
+ * All rights reserved.
+ *
+ * You can contact the author at:
+ * - zstdmt source repository: https://github.com/mcmilk/zstdmt
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+
+/**
+ * This file will hold wrapper for systems, which do not support pthreads
+ */
+
+==> lib/common/threading.h <==
+/**
+ * Copyright (c) 2016 Tino Reichardt
+ * All rights reserved.
+ *
+ * You can contact the author at:
+ * - zstdmt source repository: https://github.com/mcmilk/zstdmt
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+
+==> lib/common/xxhash.c <==
+/*
+ * xxHash - Extremely Fast Hash algorithm
+ * Copyright (c) Yann Collet - Meta Platforms, Inc
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+
+/*
+ * xxhash.c instantiates functions defined in xxhash.h
+ */
+
+==> lib/common/xxhash.h <==
+/*
+ * xxHash - Extremely Fast Hash algorithm
+ * Header File
+ * Copyright (c) Yann Collet - Meta Platforms, Inc
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+
+/* Local adaptations for Zstandard */
+
+==> lib/common/zstd_common.c <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+
+
+
+/*-*************************************
+*  Dependencies
+***************************************/
+
+==> lib/common/zstd_deps.h <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+
+/* This file provides common libc dependencies that zstd requires.
+ * The purpose is to allow replacing this file with a custom implementation
+ * to compile zstd without libc support.
+ */
+
+/* Need:
+ * NULL
+ * INT_MAX
+ * UINT_MAX
+ * ZSTD_memcpy()
+ * ZSTD_memset()
+ * ZSTD_memmove()
+ */
+
+==> lib/common/zstd_internal.h <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+
+==> lib/common/zstd_trace.h <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+
+==> lib/compress/clevels.h <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+
+==> lib/compress/fse_compress.c <==
+/* ******************************************************************
+ * FSE : Finite State Entropy encoder
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
+ *  You can contact the author at :
+ *  - FSE source repository : https://github.com/Cyan4973/FiniteStateEntropy
+ *  - Public forum : https://groups.google.com/forum/#!forum/lz4c
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+****************************************************************** */
+
+/* **************************************************************
+*  Includes
+****************************************************************/
+
+==> lib/compress/hist.c <==
+/* ******************************************************************
+ * hist : Histogram functions
+ * part of Finite State Entropy project
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
+ *  You can contact the author at :
+ *  - FSE source repository : https://github.com/Cyan4973/FiniteStateEntropy
+ *  - Public forum : https://groups.google.com/forum/#!forum/lz4c
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+****************************************************************** */
+
+/* --- dependencies --- */
+
+==> lib/compress/hist.h <==
+/* ******************************************************************
+ * hist : Histogram functions
+ * part of Finite State Entropy project
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
+ *  You can contact the author at :
+ *  - FSE source repository : https://github.com/Cyan4973/FiniteStateEntropy
+ *  - Public forum : https://groups.google.com/forum/#!forum/lz4c
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+****************************************************************** */
+
+/* --- dependencies --- */
+
+==> lib/compress/huf_compress.c <==
+/* ******************************************************************
+ * Huffman encoder, part of New Generation Entropy library
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
+ *  You can contact the author at :
+ *  - FSE+HUF source repository : https://github.com/Cyan4973/FiniteStateEntropy
+ *  - Public forum : https://groups.google.com/forum/#!forum/lz4c
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+****************************************************************** */
+
+/* **************************************************************
+*  Compiler specifics
+****************************************************************/
+
+==> lib/compress/zstd_compress.c <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+
+/*-*************************************
+*  Dependencies
+***************************************/
+
+==> lib/compress/zstd_compress_internal.h <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+
+/* This header contains definitions
+ * that shall **only** be used by modules within lib/compress.
+ */
+
+==> lib/compress/zstd_compress_literals.c <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+
+ /*-*************************************
+ *  Dependencies
+ ***************************************/
+
+==> lib/compress/zstd_compress_literals.h <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+
+==> lib/compress/zstd_compress_sequences.c <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+
+ /*-*************************************
+ *  Dependencies
+ ***************************************/
+
+==> lib/compress/zstd_compress_sequences.h <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+
+==> lib/compress/zstd_compress_superblock.c <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+
+ /*-*************************************
+ *  Dependencies
+ ***************************************/
+
+==> lib/compress/zstd_compress_superblock.h <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+
+==> lib/compress/zstd_cwksp.h <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+
+==> lib/compress/zstd_double_fast.c <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+
+==> lib/compress/zstd_double_fast.h <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+
+==> lib/compress/zstd_fast.c <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+
+==> lib/compress/zstd_fast.h <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+
+==> lib/compress/zstd_lazy.c <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+
+==> lib/compress/zstd_lazy.h <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+
+==> lib/compress/zstd_ldm.c <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+
+==> lib/compress/zstd_ldm.h <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+
+==> lib/compress/zstd_ldm_geartab.h <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+
+==> lib/compress/zstd_opt.c <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+
+==> lib/compress/zstd_opt.h <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+
+==> lib/compress/zstd_preSplit.c <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+
+==> lib/compress/zstd_preSplit.h <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+
+==> lib/compress/zstdmt_compress.c <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+
+
+/* ======   Compiler specifics   ====== */
+
+==> lib/compress/zstdmt_compress.h <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+
+==> lib/decompress/huf_decompress.c <==
+/* ******************************************************************
+ * huff0 huffman decoder,
+ * part of Finite State Entropy library
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
+ *  You can contact the author at :
+ *  - FSE+HUF source repository : https://github.com/Cyan4973/FiniteStateEntropy
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+****************************************************************** */
+
+/* **************************************************************
+*  Dependencies
+****************************************************************/
+
+==> lib/decompress/huf_decompress_amd64.S <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+
+==> lib/decompress/zstd_ddict.c <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+
+/* zstd_ddict.c :
+ * concentrates all logic that needs to know the internals of ZSTD_DDict object */
+
+/*-*******************************************************
+*  Dependencies
+*********************************************************/
+
+==> lib/decompress/zstd_ddict.h <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+
+==> lib/decompress/zstd_decompress.c <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+
+
+/* ***************************************************************
+*  Tuning parameters
+*****************************************************************/
+/*!
+ * HEAPMODE :
+ * Select how default decompression function ZSTD_decompress() allocates its context,
+ * on stack (0), or into heap (1, default; requires malloc()).
+ * Note that functions with explicit context such as ZSTD_decompressDCtx() are unaffected.
+ */
+
+==> lib/decompress/zstd_decompress_block.c <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+
+/* zstd_decompress_block :
+ * this module takes care of decompressing _compressed_ block */
+
+/*-*******************************************************
+*  Dependencies
+*********************************************************/
+
+==> lib/decompress/zstd_decompress_block.h <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+
+==> lib/decompress/zstd_decompress_internal.h <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+
+
+/* zstd_decompress_internal:
+ * objects and definitions shared within lib/decompress modules */
+
+==> lib/deprecated/zbuff.h <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+
+/* ***************************************************************
+*  NOTES/WARNINGS
+******************************************************************/
+/* The streaming API defined here is deprecated.
+ * Consider migrating towards ZSTD_compressStream() API in `zstd.h`
+ * See 'lib/README.md'.
+ *****************************************************************/
+
+==> lib/deprecated/zbuff_common.c <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+
+/*-*************************************
+*  Dependencies
+***************************************/
+
+==> lib/deprecated/zbuff_compress.c <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+
+
+
+/* *************************************
+*  Dependencies
+***************************************/
+
+==> lib/deprecated/zbuff_decompress.c <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+
+
+
+/* *************************************
+*  Dependencies
+***************************************/
+
+==> lib/dictBuilder/cover.c <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+
+/* *****************************************************************************
+ * Constructs a dictionary using a heuristic based on the following paper:
+ *
+ * Liao, Petri, Moffat, Wirth
+ * Effective Construction of Relative Lempel-Ziv Dictionaries
+ * Published in WWW 2016.
+ *
+ * Adapted from code originally written by @ot (Giuseppe Ottaviano).
+ ******************************************************************************/
+
+/*-*************************************
+*  Dependencies
+***************************************/
+/* qsort_r is an extension. */
+
+==> lib/dictBuilder/cover.h <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+
+==> lib/dictBuilder/divsufsort.c <==
+/*
+ * divsufsort.c for libdivsufsort-lite
+ * Copyright (c) 2003-2008 Yuta Mori All Rights Reserved.
+ *
+ * Permission is hereby granted, free of charge, to any person
+ * obtaining a copy of this software and associated documentation
+ * files (the "Software"), to deal in the Software without
+ * restriction, including without limitation the rights to use,
+ * copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the
+ * Software is furnished to do so, subject to the following
+ * conditions:
+ *
+ * The above copyright notice and this permission notice shall be
+ * included in all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+ * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+ * OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+ * HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+ * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+ * OTHER DEALINGS IN THE SOFTWARE.
+ */
+
+/*- Compiler specifics -*/
+
+==> lib/dictBuilder/divsufsort.h <==
+/*
+ * divsufsort.h for libdivsufsort-lite
+ * Copyright (c) 2003-2008 Yuta Mori All Rights Reserved.
+ *
+ * Permission is hereby granted, free of charge, to any person
+ * obtaining a copy of this software and associated documentation
+ * files (the "Software"), to deal in the Software without
+ * restriction, including without limitation the rights to use,
+ * copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the
+ * Software is furnished to do so, subject to the following
+ * conditions:
+ *
+ * The above copyright notice and this permission notice shall be
+ * included in all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+ * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+ * OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+ * HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+ * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+ * OTHER DEALINGS IN THE SOFTWARE.
+ */
+
+==> lib/dictBuilder/fastcover.c <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+
+/*-*************************************
+*  Dependencies
+***************************************/
+
+==> lib/dictBuilder/zdict.c <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+
+
+/*-**************************************
+*  Tuning parameters
+****************************************/
+
+==> lib/legacy/zstd_legacy.h <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+
+==> lib/legacy/zstd_v01.c <==
+/*
+ * Copyright (c) Yann Collet, Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+
+
+/******************************************
+*  Includes
+******************************************/
+
+==> lib/legacy/zstd_v01.h <==
+/*
+ * Copyright (c) Yann Collet, Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+
+==> lib/legacy/zstd_v02.c <==
+/*
+ * Copyright (c) Yann Collet, Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+
+==> lib/legacy/zstd_v02.h <==
+/*
+ * Copyright (c) Yann Collet, Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+
+==> lib/legacy/zstd_v03.c <==
+/*
+ * Copyright (c) Yann Collet, Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+
+==> lib/legacy/zstd_v03.h <==
+/*
+ * Copyright (c) Yann Collet, Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+
+==> lib/legacy/zstd_v04.c <==
+/*
+ * Copyright (c) Yann Collet, Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+
+
+ /******************************************
+ *  Includes
+ ******************************************/
+
+==> lib/legacy/zstd_v04.h <==
+/*
+ * Copyright (c) Yann Collet, Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+
+==> lib/legacy/zstd_v05.c <==
+/*
+ * Copyright (c) Yann Collet, Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+
+
+/*- Dependencies -*/
+
+==> lib/legacy/zstd_v05.h <==
+/*
+ * Copyright (c) Yann Collet, Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+
+==> lib/legacy/zstd_v06.c <==
+/*
+ * Copyright (c) Yann Collet, Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+
+
+/*- Dependencies -*/
+
+==> lib/legacy/zstd_v06.h <==
+/*
+ * Copyright (c) Yann Collet, Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+
+==> lib/legacy/zstd_v07.c <==
+/*
+ * Copyright (c) Yann Collet, Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+
+
+/*- Dependencies -*/
+
+==> lib/legacy/zstd_v07.h <==
+/*
+ * Copyright (c) Yann Collet, Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+
+==> lib/zdict.h <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+
+==> lib/zstd.h <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+
+==> lib/zstd_errors.h <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+
+==> programs/benchfn.c <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+
+
+
+/* *************************************
+*  Includes
+***************************************/
+
+==> programs/benchfn.h <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+
+
+/* benchfn :
+ * benchmark any function on a set of input
+ * providing result in nanoSecPerRun
+ * or detecting and returning an error
+ */
+
+==> programs/benchzstd.c <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+
+/* **************************************
+ *  Tuning parameters
+ ****************************************/
+
+==> programs/benchzstd.h <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+
+ /* benchzstd :
+  * benchmark Zstandard compression / decompression
+  * over a set of files or buffers
+  * and display progress result and final summary
+  */
+
+==> programs/datagen.c <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+
+
+
+/*-************************************
+*  Dependencies
+**************************************/
+
+==> programs/datagen.h <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+
+==> programs/dibio.c <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+
+
+
+/* **************************************
+*  Compiler Warnings
+****************************************/
+
+==> programs/dibio.h <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+
+/* This library is designed for a single-threaded console application.
+*  It exit() and printf() into stderr when it encounters an error condition. */
+
+==> programs/fileio.c <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+
+
+/* *************************************
+*  Compiler Options
+***************************************/
+
+==> programs/fileio.h <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+
+==> programs/fileio_asyncio.c <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+
+==> programs/fileio_asyncio.h <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+
+ /*
+  * FileIO AsyncIO exposes read/write IO pools that allow doing IO asynchronously.
+  * Current implementation relies on having one thread that reads and one that
+  * writes.
+  * Each IO pool supports up to `MAX_IO_JOBS` that can be enqueued for work, but
+  * are performed serially by the appropriate worker thread.
+  * Most systems exposes better primitives to perform asynchronous IO, such as
+  * io_uring on newer linux systems. The API is built in such a way that in the
+  * future we could replace the threads with better solutions when available.
+  */
+
+==> programs/fileio_common.h <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+
+==> programs/fileio_types.h <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+
+==> programs/lorem.c <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+
+/* Implementation notes:
+ *
+ * This is a very simple lorem ipsum generator
+ * which features a static list of words
+ * and print them one after another randomly
+ * with a fake sentence / paragraph structure.
+ *
+ * The goal is to generate a printable text
+ * that can be used to fake a text compression scenario.
+ * The resulting compression / ratio curve of the lorem ipsum generator
+ * is more satisfying than the previous statistical generator,
+ * which was initially designed for entropy compression,
+ * and lacks a regularity more representative of text.
+ *
+ * The compression ratio achievable on the generated lorem ipsum
+ * is still a bit too good, presumably because the dictionary is a bit too
+ * small. It would be possible to create some more complex scheme, notably by
+ * enlarging the dictionary with a word generator, and adding grammatical rules
+ * (composition) and syntax rules. But that's probably overkill for the intended
+ * goal.
+ */
+
+==> programs/lorem.h <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+
+/* lorem ipsum generator */
+
+==> programs/platform.h <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+
+==> programs/timefn.c <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+
+
+/* ===  Dependencies  === */
+
+==> programs/timefn.h <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+
+==> programs/util.c <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+
+/*-****************************************
+*  Dependencies
+******************************************/
+
+==> programs/util.h <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+
+==> programs/windres/verrsrc.h <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+/* minimal set of defines required to generate zstd.res from zstd.rc */
+
+==> programs/zstdcli.c <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+
+/*-************************************
+*  Dependencies
+**************************************/
+
+==> programs/zstdcli_trace.c <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+
+==> programs/zstdcli_trace.h <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+
+==> tests/DEPRECATED-test-zstd-speed.py <==
+#! /usr/bin/env python3
+# THIS BENCHMARK IS BEING REPLACED BY automated-bencmarking.py
+
+# ################################################################
+# Copyright (c) Meta Platforms, Inc. and affiliates.
+# All rights reserved.
+#
+# This source code is licensed under both the BSD-style license (found in the
+# LICENSE file in the root directory of this source tree) and the GPLv2 (found
+# in the COPYING file in the root directory of this source tree).
+# You may select, at your option, one of the above-listed licenses.
+# ##########################################################################
+
+# Limitations:
+# - doesn't support filenames with spaces
+# - dir1/zstd and dir2/zstd will be merged in a single results file
+
+==> tests/automated_benchmarking.py <==
+# ################################################################
+# Copyright (c) Meta Platforms, Inc. and affiliates.
+# All rights reserved.
+#
+# This source code is licensed under both the BSD-style license (found in the
+# LICENSE file in the root directory of this source tree) and the GPLv2 (found
+# in the COPYING file in the root directory of this source tree).
+# You may select, at your option, one of the above-listed licenses.
+# ##########################################################################
+
+==> tests/bigdict.c <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+
+==> tests/checkTag.c <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+
+/* checkTag : validation tool for libzstd
+ * command :
+ * $ ./checkTag tag
+ * checkTag validates tags of following format : v[0-9].[0-9].[0-9]{any}
+ * The tag is then compared to zstd version number.
+ * They are compatible if first 3 digits are identical.
+ * Anything beyond that is free, and doesn't impact validation.
+ * Example : tag v1.8.1.2 is compatible with version 1.8.1
+ * When tag and version are not compatible, program exits with error code 1.
+ * When they are compatible, it exists with a code 0.
+ * checkTag is intended to be used in automated testing environment.
+ */
+
+==> tests/check_size.py <==
+#!/usr/bin/env python3
+# ################################################################
+# Copyright (c) Meta Platforms, Inc. and affiliates.
+# All rights reserved.
+#
+# This source code is licensed under both the BSD-style license (found in the
+# LICENSE file in the root directory of this source tree) and the GPLv2 (found
+# in the COPYING file in the root directory of this source tree).
+# You may select, at your option, one of the above-listed licenses.
+# ################################################################
+
+==> tests/cli-tests/run.py <==
+#!/usr/bin/env python3
+# ################################################################
+# Copyright (c) Meta Platforms, Inc. and affiliates.
+# All rights reserved.
+#
+# This source code is licensed under both the BSD-style license (found in the
+# LICENSE file in the root directory of this source tree) and the GPLv2 (found
+# in the COPYING file in the root directory of this source tree).
+# You may select, at your option, one of the above-listed licenses.
+# ##########################################################################
+
+==> tests/datagencli.c <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+
+/*-************************************
+ *  Dependencies
+ **************************************/
+
+==> tests/decodecorpus.c <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+
+==> tests/external_matchfinder.c <==
+/*
+ * Copyright (c) Yann Collet, Meta Platforms, Inc.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+
+==> tests/external_matchfinder.h <==
+/*
+ * Copyright (c) Yann Collet, Meta Platforms, Inc.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+
+==> tests/fullbench.c <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+
+
+/*_************************************
+*  Includes
+**************************************/
+
+==> tests/fuzz/block_decompress.c <==
+/**
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+
+/**
+ * This fuzz target attempts to decompress the fuzzed data with the simple
+ * decompression function to ensure the decompressor never crashes.
+ */
+
+==> tests/fuzz/block_round_trip.c <==
+/**
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+
+/**
+ * This fuzz target performs a zstd round-trip test (compress & decompress),
+ * compares the result with the original, and calls abort() on corruption.
+ */
+
+==> tests/fuzz/decompress_cross_format.c <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+
+// This fuzz target validates decompression of magicless-format compressed data.
+
+==> tests/fuzz/decompress_dstSize_tooSmall.c <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+
+/**
+ * This fuzz target attempts to decompress a valid compressed frame into
+ * an output buffer that is too small to ensure we always get
+ * ZSTD_error_dstSize_tooSmall.
+ */
+
+==> tests/fuzz/dictionary_decompress.c <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+
+/**
+ * This fuzz target attempts to decompress the fuzzed data with the dictionary
+ * decompression function to ensure the decompressor never crashes. It does not
+ * fuzz the dictionary.
+ */
+
+==> tests/fuzz/dictionary_loader.c <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+
+/**
+ * This fuzz target makes sure that whenever a compression dictionary can be
+ * loaded, the data can be round tripped.
+ */
+
+==> tests/fuzz/dictionary_round_trip.c <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+
+/**
+ * This fuzz target performs a zstd round-trip test (compress & decompress) with
+ * a dictionary, compares the result with the original, and calls abort() on
+ * corruption.
+ */
+
+==> tests/fuzz/dictionary_stream_round_trip.c <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+
+/**
+ * This fuzz target performs a zstd round-trip test (compress & decompress),
+ * compares the result with the original, and calls abort() on corruption.
+ */
+
+==> tests/fuzz/fse_read_ncount.c <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+
+/**
+ * This fuzz target round trips the FSE normalized count with FSE_writeNCount()
+ * and FSE_readNcount() to ensure that it can always round trip correctly.
+ */
+
+==> tests/fuzz/fuzz.h <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+
+/**
+ * Fuzz target interface.
+ * Fuzz targets have some common parameters passed as macros during compilation.
+ * Check the documentation for each individual fuzzer for more parameters.
+ *
+ * @param STATEFUL_FUZZING:
+ *        Define this to reuse state between fuzzer runs. This can be useful to
+ *        test code paths which are only executed when contexts are reused.
+ *        WARNING: Makes reproducing crashes much harder.
+ *        Default: Not defined.
+ * @param DEBUGLEVEL:
+ *        This is a parameter for the zstd library. Defining `DEBUGLEVEL=1`
+ *        enables assert() statements in the zstd library. Higher levels enable
+ *        logging, so aren't recommended. Defining `DEBUGLEVEL=1` is
+ *        recommended.
+ * @param MEM_FORCE_MEMORY_ACCESS:
+ *        This flag controls how the zstd library accesses unaligned memory.
+ *        It can be undefined, or 0 through 2. If it is undefined, it selects
+ *        the method to use based on the compiler.
+ * @param FUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION
+ *        This is the canonical flag to enable deterministic builds for fuzzing.
+ *        Changes to zstd for fuzzing are gated behind this define.
+ *        It is recommended to define this when building zstd for fuzzing.
+ * @param FUZZ_THIRD_PARTY_SEQ_PROD
+ *        This flag allows sequence producer plugin authors to replace the built-in
+ *        default sequence producer with their own code. If you are not a plugin
+ *        author, you should not define this flag. See the docs at
+ *        fuzz_third_party_seq_prod.h for more information.
+ */
+
+==> tests/fuzz/fuzz.py <==
+#!/usr/bin/env python
+
+# ################################################################
+# Copyright (c) Meta Platforms, Inc. and affiliates.
+# All rights reserved.
+#
+# This source code is licensed under both the BSD-style license (found in the
+# LICENSE file in the root directory of this source tree) and the GPLv2 (found
+# in the COPYING file in the root directory of this source tree).
+# You may select, at your option, one of the above-listed licenses.
+# ##########################################################################
+
+==> tests/fuzz/fuzz_data_producer.c <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+
+==> tests/fuzz/fuzz_data_producer.h <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+
+/**
+ * Helper APIs for generating random data from input data stream.
+ The producer reads bytes from the end of the input and appends them together
+ to generate  a random number in the requested range. If it runs out of input
+ data, it will keep returning the same value (min) over and over again.
+
+ */
+
+==> tests/fuzz/fuzz_helpers.c <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+
+==> tests/fuzz/fuzz_helpers.h <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+
+/**
+ * Helper functions for fuzzing.
+ */
+
+==> tests/fuzz/fuzz_third_party_seq_prod.h <==
+/*
+ * Copyright (c) Yann Collet, Meta Platforms, Inc.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+
+==> tests/fuzz/generate_sequences.c <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+
+==> tests/fuzz/huf_decompress.c <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+
+/**
+ * This fuzz target performs a zstd round-trip test (compress & decompress),
+ * compares the result with the original, and calls abort() on corruption.
+ */
+
+==> tests/fuzz/huf_round_trip.c <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+
+/**
+ * This fuzz target performs a zstd round-trip test (compress & decompress),
+ * compares the result with the original, and calls abort() on corruption.
+ */
+
+==> tests/fuzz/raw_dictionary_round_trip.c <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+
+/**
+ * This fuzz target performs a zstd round-trip test (compress & decompress) with
+ * a raw content dictionary, compares the result with the original, and calls
+ * abort() on corruption.
+ */
+
+==> tests/fuzz/regression_driver.c <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+
+==> tests/fuzz/seekable_roundtrip.c <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+
+==> tests/fuzz/seq_prod_fuzz_example/example_seq_prod.c <==
+/*
+ * Copyright (c) Yann Collet, Meta Platforms, Inc.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+
+==> tests/fuzz/sequence_compression_api.c <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+
+/**
+ * This fuzz target performs a zstd round-trip test by generating an arbitrary
+ * array of sequences, generating the associated source buffer, calling
+ * ZSTD_compressSequences(), and then decompresses and compares the result with
+ * the original generated source buffer.
+ */
+
+==> tests/fuzz/simple_compress.c <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+
+/**
+ * This fuzz target attempts to compress the fuzzed data with the simple
+ * compression function with an output buffer that may be too small to
+ * ensure that the compressor never crashes.
+ */
+
+==> tests/fuzz/simple_decompress.c <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+
+/**
+ * This fuzz target attempts to decompress the fuzzed data with the simple
+ * decompression function to ensure the decompressor never crashes.
+ */
+
+==> tests/fuzz/simple_round_trip.c <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+
+/**
+ * This fuzz target performs a zstd round-trip test (compress & decompress),
+ * compares the result with the original, and calls abort() on corruption.
+ */
+
+==> tests/fuzz/stream_decompress.c <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+
+/**
+ * This fuzz target attempts to decompress the fuzzed data with the simple
+ * decompression function to ensure the decompressor never crashes.
+ */
+
+==> tests/fuzz/stream_round_trip.c <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+
+/**
+ * This fuzz target performs a zstd round-trip test (compress & decompress),
+ * compares the result with the original, and calls abort() on corruption.
+ */
+
+==> tests/fuzz/zstd_frame_info.c <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+
+/**
+ * This fuzz target fuzzes all of the helper functions that consume compressed
+ * input.
+ */
+
+==> tests/fuzz/zstd_helpers.c <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+
+==> tests/fuzz/zstd_helpers.h <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+/**
+ * Helper functions for fuzzing.
+ */
+
+==> tests/fuzzer.c <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+
+
+/*-************************************
+*  Compiler specific
+**************************************/
+
+==> tests/invalidDictionaries.c <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+
+==> tests/largeDictionary.c <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+
+==> tests/legacy.c <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+
+/*
+    This program uses hard-coded data compressed with Zstd legacy versions
+    and tests that the API decompresses them correctly
+*/
+
+/*===========================================
+*   Dependencies
+*==========================================*/
+
+==> tests/longmatch.c <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+
+==> tests/loremOut.c <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+
+/* Implementation notes:
+ * Generates a stream of Lorem ipsum paragraphs to stdout,
+ * up to the requested size, which can be very large (> 4 GB).
+ * Note that, beyond 1 paragraph, this generator produces
+ * a different content than LOREM_genBuffer (even when using same seed).
+ */
+
+==> tests/loremOut.h <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+
+/* LOREM_genOut():
+ * Generate @size bytes of compressible data using lorem ipsum generator into
+ * stdout.
+ */
+
+==> tests/paramgrill.c <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+
+
+/*-************************************
+*  Dependencies
+**************************************/
+
+==> tests/poolTests.c <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+
+==> tests/rateLimiter.py <==
+#!/usr/bin/env python3
+
+# ################################################################
+# Copyright (c) Meta Platforms, Inc. and affiliates.
+# All rights reserved.
+#
+# This source code is licensed under both the BSD-style license (found in the
+# LICENSE file in the root directory of this source tree) and the GPLv2 (found
+# in the COPYING file in the root directory of this source tree).
+# You may select, at your option, one of the above-listed licenses.
+# ##########################################################################
+
+# Rate limiter, replacement for pv
+# this rate limiter does not "catch up" after a blocking period
+# Limitations:
+# - only accepts limit speed in MB/s
+
+==> tests/regression/config.c <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+
+==> tests/regression/config.h <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+
+==> tests/regression/data.c <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+
+==> tests/regression/data.h <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+
+==> tests/regression/levels.h <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+
+==> tests/regression/method.c <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+
+==> tests/regression/method.h <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+
+==> tests/regression/result.c <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+
+==> tests/regression/result.h <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+
+==> tests/regression/test.c <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+
+==> tests/roundTripCrash.c <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+
+/*
+  This program takes a file in input,
+  performs a zstd round-trip test (compression - decompress)
+  compares the result with original
+  and generates a crash (double free) on corruption detection.
+*/
+
+/*===========================================
+*   Dependencies
+*==========================================*/
+
+==> tests/seqgen.c <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+
+==> tests/seqgen.h <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+
+==> tests/test-license.py <==
+#!/usr/bin/env python3
+
+# ################################################################
+# Copyright (c) Meta Platforms, Inc. and affiliates.
+# All rights reserved.
+#
+# This source code is licensed under both the BSD-style license (found in the
+# LICENSE file in the root directory of this source tree) and the GPLv2 (found
+# in the COPYING file in the root directory of this source tree).
+# You may select, at your option, one of the above-listed licenses.
+# ################################################################
+
+==> tests/zstreamtest.c <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+
+
+/*-************************************
+ *  Compiler specific
+ **************************************/
+
+==> zlibWrapper/examples/example.c <==
+/* example.c contains minimal changes required to be compiled with zlibWrapper:
+ * - #include "zlib.h" was changed to #include "zstd_zlibwrapper.h"
+ * - test_flush() and test_sync() use functions not supported by zlibWrapper
+     therefore they are disabled while zstd compression is turned on     */
+
+/* example.c -- usage example of the zlib compression library
+ */
+/*
+  Copyright (c) 1995-2006, 2011 Jean-loup Gailly
+
+ This software is provided 'as-is', without any express or implied
+ warranty. In no event will the authors be held liable for any damages
+ arising from the use of this software.
+
+ Permission is granted to anyone to use this software for any purpose,
+ including commercial applications, and to alter it and redistribute it
+ freely, subject to the following restrictions:
+
+ 1. The origin of this software must not be misrepresented; you must not
+    claim that you wrote the original software. If you use this software
+    in a product, an acknowledgement in the product documentation would be
+    appreciated but is not required.
+ 2. Altered source versions must be plainly marked as such, and must not be
+    misrepresented as being the original software.
+ 3. This notice may not be removed or altered from any source distribution.
+ */
+
+/* @(#) $Id$ */
+
+==> zlibWrapper/examples/example_original.c <==
+/* example.c -- usage example of the zlib compression library
+ */
+/*
+ Copyright (c) 1995-2006, 2011 Jean-loup Gailly
+
+This software is provided 'as-is', without any express or implied
+warranty. In no event will the authors be held liable for any damages
+arising from the use of this software.
+
+Permission is granted to anyone to use this software for any purpose,
+including commercial applications, and to alter it and redistribute it
+freely, subject to the following restrictions:
+
+1. The origin of this software must not be misrepresented; you must not
+   claim that you wrote the original software. If you use this software
+   in a product, an acknowledgement in the product documentation would be
+   appreciated but is not required.
+2. Altered source versions must be plainly marked as such, and must not be
+   misrepresented as being the original software.
+3. This notice may not be removed or altered from any source distribution.
+*/
+
+/* @(#) $Id$ */
+
+==> zlibWrapper/examples/fitblk.c <==
+/* fitblk.c contains minimal changes required to be compiled with zlibWrapper:
+ * - #include "zlib.h" was changed to #include "zstd_zlibwrapper.h"
+ * - writing block to stdout was disabled                          */
+
+/* fitblk.c: example of fitting compressed output to a specified size
+   Not copyrighted -- provided to the public domain
+   Version 1.1  25 November 2004  Mark Adler */
+
+/* Version history:
+   1.0  24 Nov 2004  First version
+   1.1  25 Nov 2004  Change deflateInit2() to deflateInit()
+                     Use fixed-size, stack-allocated raw buffers
+                     Simplify code moving compression to subroutines
+                     Use assert() for internal errors
+                     Add detailed description of approach
+ */
+
+/* Approach to just fitting a requested compressed size:
+
+   fitblk performs three compression passes on a portion of the input
+   data in order to determine how much of that input will compress to
+   nearly the requested output block size.  The first pass generates
+   enough deflate blocks to produce output to fill the requested
+   output size plus a specified excess amount (see the EXCESS define
+   below).  The last deflate block may go quite a bit past that, but
+   is discarded.  The second pass decompresses and recompresses just
+   the compressed data that fit in the requested plus excess sized
+   buffer.  The deflate process is terminated after that amount of
+   input, which is less than the amount consumed on the first pass.
+   The last deflate block of the result will be of a comparable size
+   to the final product, so that the header for that deflate block and
+   the compression ratio for that block will be about the same as in
+   the final product.  The third compression pass decompresses the
+   result of the second step, but only the compressed data up to the
+   requested size minus an amount to allow the compressed stream to
+   complete (see the MARGIN define below).  That will result in a
+   final compressed stream whose length is less than or equal to the
+   requested size.  Assuming sufficient input and a requested size
+   greater than a few hundred bytes, the shortfall will typically be
+   less than ten bytes.
+
+   If the input is short enough that the first compression completes
+   before filling the requested output size, then that compressed
+   stream is return with no recompression.
+
+   EXCESS is chosen to be just greater than the shortfall seen in a
+   two pass approach similar to the above.  That shortfall is due to
+   the last deflate block compressing more efficiently with a smaller
+   header on the second pass.  EXCESS is set to be large enough so
+   that there is enough uncompressed data for the second pass to fill
+   out the requested size, and small enough so that the final deflate
+   block of the second pass will be close in size to the final deflate
+   block of the third and final pass.  MARGIN is chosen to be just
+   large enough to assure that the final compression has enough room
+   to complete in all cases.
+ */
+
+==> zlibWrapper/examples/fitblk_original.c <==
+/* fitblk.c: example of fitting compressed output to a specified size
+   Not copyrighted -- provided to the public domain
+   Version 1.1  25 November 2004  Mark Adler */
+
+/* Version history:
+   1.0  24 Nov 2004  First version
+   1.1  25 Nov 2004  Change deflateInit2() to deflateInit()
+                     Use fixed-size, stack-allocated raw buffers
+                     Simplify code moving compression to subroutines
+                     Use assert() for internal errors
+                     Add detailed description of approach
+ */
+
+/* Approach to just fitting a requested compressed size:
+
+   fitblk performs three compression passes on a portion of the input
+   data in order to determine how much of that input will compress to
+   nearly the requested output block size.  The first pass generates
+   enough deflate blocks to produce output to fill the requested
+   output size plus a specified excess amount (see the EXCESS define
+   below).  The last deflate block may go quite a bit past that, but
+   is discarded.  The second pass decompresses and recompresses just
+   the compressed data that fit in the requested plus excess sized
+   buffer.  The deflate process is terminated after that amount of
+   input, which is less than the amount consumed on the first pass.
+   The last deflate block of the result will be of a comparable size
+   to the final product, so that the header for that deflate block and
+   the compression ratio for that block will be about the same as in
+   the final product.  The third compression pass decompresses the
+   result of the second step, but only the compressed data up to the
+   requested size minus an amount to allow the compressed stream to
+   complete (see the MARGIN define below).  That will result in a
+   final compressed stream whose length is less than or equal to the
+   requested size.  Assuming sufficient input and a requested size
+   greater than a few hundred bytes, the shortfall will typically be
+   less than ten bytes.
+
+   If the input is short enough that the first compression completes
+   before filling the requested output size, then that compressed
+   stream is return with no recompression.
+
+   EXCESS is chosen to be just greater than the shortfall seen in a
+   two pass approach similar to the above.  That shortfall is due to
+   the last deflate block compressing more efficiently with a smaller
+   header on the second pass.  EXCESS is set to be large enough so
+   that there is enough uncompressed data for the second pass to fill
+   out the requested size, and small enough so that the final deflate
+   block of the second pass will be close in size to the final deflate
+   block of the third and final pass.  MARGIN is chosen to be just
+   large enough to assure that the final compression has enough room
+   to complete in all cases.
+ */
+
+==> zlibWrapper/examples/minigzip.c <==
+/* minigzip.c contains minimal changes required to be compiled with zlibWrapper:
+ * - #include "zlib.h" was changed to #include "zstd_zlibwrapper.h"        */
+
+/* minigzip.c -- simulate gzip using the zlib compression library
+ * Copyright (C) 1995-2006, 2010, 2011 Jean-loup Gailly.
+ * For conditions of distribution and use, see https://www.zlib.net/zlib_license.html
+ */
+
+/*
+ * minigzip is a minimal implementation of the gzip utility. This is
+ * only an example of using zlib and isn't meant to replace the
+ * full-featured gzip. No attempt is made to deal with file systems
+ * limiting names to 14 or 8+3 characters, etc... Error checking is
+ * very limited. So use minigzip only for testing; use gzip for the
+ * real thing. On MSDOS, use only on file names without extension
+ * or in pipe mode.
+ */
+
+/* @(#) $Id$ */
+
+==> zlibWrapper/examples/zwrapbench.c <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ */
+
+
+/* *************************************
+*  Includes
+***************************************/
+
+==> zlibWrapper/gzclose.c <==
+/* gzclose.c contains minimal changes required to be compiled with zlibWrapper:
+ * - gz_statep was converted to union to work with -Wstrict-aliasing=1      */
+
+/* gzclose.c -- zlib gzclose() function
+ * Copyright (C) 2004, 2010 Mark Adler
+ * For conditions of distribution and use, see https://www.zlib.net/zlib_license.html
+ */
+
+==> zlibWrapper/gzcompatibility.h <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+
+==> zlibWrapper/gzguts.h <==
+/* gzguts.h contains minimal changes required to be compiled with zlibWrapper:
+ * - #include "zlib.h" was changed to #include "zstd_zlibwrapper.h"
+ * - gz_statep was converted to union to work with -Wstrict-aliasing=1      */
+
+/* gzguts.h -- zlib internal header definitions for gz* operations
+ * Copyright (C) 2004, 2005, 2010, 2011, 2012, 2013, 2016 Mark Adler
+ * For conditions of distribution and use, see https://www.zlib.net/zlib_license.html
+ */
+
+==> zlibWrapper/gzlib.c <==
+/* gzlib.c contains minimal changes required to be compiled with zlibWrapper:
+ * - gz_statep was converted to union to work with -Wstrict-aliasing=1      */
+
+/* gzlib.c -- zlib functions common to reading and writing gzip files
+ * Copyright (C) 2004-2017 Mark Adler
+ * For conditions of distribution and use, see https://www.zlib.net/zlib_license.html
+ */
+
+==> zlibWrapper/gzread.c <==
+/* gzread.c contains minimal changes required to be compiled with zlibWrapper:
+ * - gz_statep was converted to union to work with -Wstrict-aliasing=1      */
+
+ /* gzread.c -- zlib functions for reading gzip files
+ * Copyright (C) 2004, 2005, 2010, 2011, 2012, 2013, 2016 Mark Adler
+ * For conditions of distribution and use, see https://www.zlib.net/zlib_license.html
+ */
+
+==> zlibWrapper/gzwrite.c <==
+/* gzwrite.c contains minimal changes required to be compiled with zlibWrapper:
+ * - gz_statep was converted to union to work with -Wstrict-aliasing=1      */
+
+ /* gzwrite.c -- zlib functions for writing gzip files
+ * Copyright (C) 2004-2017 Mark Adler
+ * For conditions of distribution and use, see https://www.zlib.net/zlib_license.html
+ */
+
+==> zlibWrapper/zstd_zlibwrapper.c <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
+
+
+/* ===   Tuning parameters   === */
+
+==> zlibWrapper/zstd_zlibwrapper.h <==
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */

@@ -18,12 +18,14 @@ Only the outer app's exact XML code-signature metadata path is exempt.
 Files inside the Guest Tools ISO and Debian package are checked separately against the inventory.
 Adding a file inside an already covered directory does not bypass the check.
 
-`pins/` contains unmodified build scripts from Try Omarchy commit `13d63df8da2947f833c04025ff5ade187d39ba81`.
-The tests apply our checked-in diff to the source-build script before comparing its pins.
-With `.deps/` installed, they also compare the actual build scripts, helper source, archive checksums, license bytes, versions and runtime files.
-Without `.deps/`, the script pin and manifest coverage tests still run.
-The actual archive and runtime tests report a skip.
-These snapshots are test data, not another runtime build path.
+Pin checks clone the pinned Try Omarchy commit into a temporary directory and apply our current diff.
+They use `.deps/try-omarchy` as a local clone source when it exists.
+Otherwise they clone the pinned tag from GitHub, as the runtime build tests do.
+They compare the real patched builder and `runtime/source-pins.sh` against the manifest.
+With `.deps/` installed, they also compare the actual build scripts, helper source, source objects, archive checksums, license bytes, versions and runtime files.
+Supplemental source and release archives are downloaded to `build/license-inputs/` and verified by checksum.
+No dependency checkout or archive in `.deps/` is modified by these checks.
+Without `.deps/`, actual archive and runtime tests report a skip.
 The runtime's build tools are recorded as build-only inputs because their code is not shipped.
 libfdt and keycodemapdb are shipped inside QEMU and have component entries of their own.
 
@@ -31,12 +33,14 @@ libfdt and keycodemapdb are shipped inside QEMU and have component entries of th
 
 Add a component entry with its version, SPDX expression, exact bundle paths, input IDs and license filenames.
 Add immutable source or bottle URLs and SHA-256 values under `inputs`.
-For git archives, record the repository URL, commit, archive command and checksum of the actual bytes.
+For git sources, record the repository URL and commit.
+Verify the git objects with `git fsck` and compare archive members against those objects.
+Locally generated QEMU and keycodemapdb archives have no transport checksum pin.
 Do not describe locally generated git archives as the bytes served by GitLab.
 Copy the matching upstream license text into `texts/` and record its input, member and SHA-256 under `license_texts`.
 Keep required copyright notices, including embedded third-party notices.
 Use an explicit provenance blocker if the pinned input cannot establish the license.
-A later Sparkle component can use the same fields and list its framework files individually.
+Sparkle lists its framework files individually, including the nested updater app and signature metadata.
 Record framework symlinks in the component's `bundle_symlinks` map, from bundle path to relative target.
 The checker verifies each target and rejects links that escape the bundle.
 
@@ -66,17 +70,14 @@ It promises complete corresponding source at no more than physical distribution 
 It covers GPL and LGPL source, patches, interface definitions and build and installation scripts.
 The distributor must actually retain and provide those materials.
 
-The checked-in inventory also blocks Developer ID builds for the following gaps in the supplied inputs.
-ANGLE's metadata declares BSD-2-Clause, but its bottle has no license text or third-party notices and its `commit.txt` is empty.
-The preserved ANGLE metadata and header notice are evidence of that gap, not a replacement license text.
-Zstandard's SBOM declares additional BSD-2-Clause and MIT code, but its bottle contains only the main BSD and GPL texts.
-Obtain and audit the exact corresponding source and missing notices before resolving these blockers.
-The checked-in icon renderer also uses Apple's `chevron.right` SF Symbol.
-Its SF Symbols version and matching license text are unrecorded.
-Apple's [SF Symbols guidance](https://developer.apple.com/design/human-interface-guidelines/sf-symbols) prohibits using those symbols in app icons.
-The icon must be replaced or permission established before release.
-The icon is unchanged because this workstream excludes UI changes.
-An ad hoc development build preserves these findings in its notices.
+ANGLE remains a provenance blocker.
+Its bottle's verified formula source fetches moving ANGLE and dependency revisions and leaves `commit.txt` empty.
+The tag formula also has a source checksum mismatch.
+See [the audit](ANGLE-AUDIT.md) for the exact evidence and what is missing.
+Zstandard's checksum-pinned 1.5.7 source establishes xxHash and libdivsufsort-lite notices.
+The library and CLI retain those notices and the full source copyright collection.
+The app icon is original artwork drawn with paths and has no SF Symbols blocker.
+An ad hoc build reports the remaining ANGLE gap in its notices.
 The checker cannot prove that an opaque prebuilt bottle contains only the subcomponents declared by its producer.
 
 ## Legal review points

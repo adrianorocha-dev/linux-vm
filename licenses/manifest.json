@@ -5,12 +5,10 @@
     "qemu": {
       "archive": "qemu-c3d48b7d1e89604920e5b81b91140c2ad39a1943.tar.gz",
       "url": "https://github.com/qemu/qemu.git",
-      "sha256": "db14020067babeb646ba35e3cffdf1f252a04157114684fa5c0f5da98015ffdf",
       "pin": "qemu",
       "pin_file": "build-qemu-gpu-runtime.sh",
-      "upstream_url": "https://gitlab.com/qemu-project/qemu/-/archive/c3d48b7d1e89604920e5b81b91140c2ad39a1943/qemu-c3d48b7d1e89604920e5b81b91140c2ad39a1943.tar.gz",
       "commit": "c3d48b7d1e89604920e5b81b91140c2ad39a1943",
-      "format": "git archive --format=tar --prefix=<name>-<commit>/ <commit> | gzip -n; see runtime/README.md",
+      "format": "git archive from fsck-verified commit; archive compression is not an identity pin",
       "scope": "distributed code or build headers/patches for distributed code",
       "component": "qemu"
     },
@@ -26,12 +24,10 @@
     "keycodemap": {
       "archive": "keycodemapdb-f5772a62ec52591ff6870b7e8ef32482371f22c6.tar.gz",
       "url": "https://github.com/qemu/keycodemapdb.git",
-      "sha256": "6a73ce24e06299eb0a6ad7128c2b4c19aaf6eeb78ee871de019bc930bb52468e",
       "pin": "keycodemap",
       "pin_file": "build-qemu-gpu-runtime.sh",
-      "upstream_url": "https://gitlab.com/qemu-project/keycodemapdb/-/archive/f5772a62ec52591ff6870b7e8ef32482371f22c6/keycodemapdb-f5772a62ec52591ff6870b7e8ef32482371f22c6.tar.gz",
       "commit": "f5772a62ec52591ff6870b7e8ef32482371f22c6",
-      "format": "git archive --format=tar --prefix=<name>-<commit>/ <commit> | gzip -n; see runtime/README.md",
+      "format": "git archive from fsck-verified commit; archive compression is not an identity pin",
       "scope": "distributed code or build headers/patches for distributed code",
       "component": "keycodemapdb"
     },
@@ -259,6 +255,27 @@
       "version": "5.8.3",
       "scope": "distributed code or build headers/patches for distributed code",
       "component": "lzma"
+    },
+    "zstd-source": {
+      "archive": "zstd-1.5.7.tar.gz",
+      "url": "https://github.com/facebook/zstd/archive/refs/tags/v1.5.7.tar.gz",
+      "sha256": "37d7284556b20954e56e1ca85b80226768902e2edabd3b649e9e72c0c9012ee3",
+      "pin_file": "supplemental",
+      "component": "zstd"
+    },
+    "sparkle-release": {
+      "archive": "Sparkle-2.10.0.tar.xz",
+      "url": "https://github.com/sparkle-project/Sparkle/releases/download/2.10.0/Sparkle-2.10.0.tar.xz",
+      "sha256": "c2bf58aa8387266ac179357b1415d6f2635f044da8be41042af32425dae6da0c",
+      "pin_file": "supplemental",
+      "component": "sparkle"
+    },
+    "angle-build-source": {
+      "archive": "homebrew-angle-97987d9531ea8feeaf0fcc126be2bd97ffdf6479.tar.gz",
+      "url": "https://github.com/startergo/homebrew-angle/archive/97987d9531ea8feeaf0fcc126be2bd97ffdf6479.tar.gz",
+      "sha256": "f1b6c6c047714a023c89412b736408e3e28d7b5beffc29d577fc69bf460b6e85",
+      "pin_file": "supplemental",
+      "component": "angle"
     }
   },
   "license_texts": {
@@ -455,8 +472,32 @@
       "sha256": "1ddeaed2e7d2e9ecb960bdfc1b8ee45387aff70d056d985d145949af3951657c"
     },
     "AppIcon-provenance.txt": {
-      "authored": true,
-      "sha256": "c3bd5261a3e0a5c956da0f289a3a6c279ab2192a941c7c1d0fffbbb5222eedeb"
+      "local": "licenses/texts/AppIcon-provenance.txt",
+      "sha256": "4f746f90587d607d97cea146add7b30296a99237fdd99819f7d20daa1af50608"
+    },
+    "Zstandard-divsufsort-MIT.txt": {
+      "input": "zstd-source",
+      "mode": "comment",
+      "sha256": "49ea9487741f926c49d0e6a4da9ffde7e315d413f5f823830acd743fdedb2afa",
+      "member": "zstd-1.5.7/lib/dictBuilder/divsufsort.c"
+    },
+    "Zstandard-xxhash-notice.txt": {
+      "input": "zstd-source",
+      "mode": "comment",
+      "sha256": "305a98499dcac175386474653b2355032da0105a4c78ebbbf3fe7d318151b6ea",
+      "member": "zstd-1.5.7/lib/common/xxhash.h"
+    },
+    "Zstandard-source-notices.txt": {
+      "input": "zstd-source",
+      "mode": "source-notices",
+      "sha256": "6d86347ea5f67494f107784723be79c24fb6ff098691b8370a2d872c0b5b970c",
+      "subdir": ""
+    },
+    "Sparkle-LICENSE.txt": {
+      "input": "sparkle-release",
+      "member": "./LICENSE",
+      "mode": "file",
+      "sha256": "389a4e4e9a32f059775b13a06e25a591445ba229d2838d26dd3e7c0c45127cfe"
     }
   },
   "components": [
@@ -480,11 +521,11 @@
         "url": "https://github.com/adrianorocha-dev/linux-vm",
         "kind": "local checkout; build revision recorded in NOTICES.txt",
         "files": {
-          "macos/Package.swift": "237e0cadce380e34a91dec69f05134a4c043dc26a31af12df83289dc432fadc4",
-          "macos/Resources/AppIcon.icns": "d04bd6ae263ba0594a1cc431b353a68a2350ffaa73cf2f380dbbc9aff9955c9d",
-          "macos/Resources/Info.plist": "9a4a70f9504fe7d9d0cc8a3cdbe0951deb9dd3f7647b00a519801ac9af2a0672",
+          "macos/Package.swift": "25c850464f14893ffdde50110a2eff42426ac735a54343a2516752a6a70684d9",
+          "macos/Resources/AppIcon.icns": "74d205028ed83410a7bd90d1dccfb433ab8c64172cbe74b45727b7a15991f304",
+          "macos/Resources/Info.plist": "48eda977b262e52f7e4d4f09191d43fe783dc7e7592e4721f9e8be59cb9ebc0c",
           "macos/Sources/LinuxVM/LibraryModel.swift": "6e028c8b365b393b0c1e88936402f9c8297155aec0e2a4137fa752f663c0c131",
-          "macos/Sources/LinuxVM/LinuxVMApp.swift": "fa742698e06d1fb020581dfdcbe9f2187242a653403001de58dbe42a820a3d8b",
+          "macos/Sources/LinuxVM/LinuxVMApp.swift": "a5a64eacb1df72ddc58244a1edba25a7fbf35fb403733971d218a3a1f88feb88",
           "macos/Sources/LinuxVM/MachineDetailView.swift": "1f1de67693e25dcdecd3be2941707cd3a172569396dc0e1cf42365a4a1c59963",
           "macos/Sources/LinuxVM/Sheets.swift": "dbccc5daffed22c2a1350e977ecc5e92faa6c549adcfb7f69ae95660e92d8818",
           "macos/Sources/LinuxVM/WindowSnapshot.swift": "c735bf7b679de39123fa9eab2b212d2ace0fa2393b49c54c4c6a12f74e202c5d",
@@ -500,9 +541,11 @@
           "macos/Sources/LinuxVMCore/VMConfiguration.swift": "f0d8b9cbc5638a7b9ac911861218ebc7092eb27317c8905d0f2f11c446a4c1b9",
           "macos/Sources/LinuxVMCore/VMLibrary.swift": "df34f40f494707479b591fc07b85d206d0378bf064640d3ebb80e740e230f894",
           "macos/Sources/linuxvmctl/main.swift": "0b4033d5985f6d299fc8d8b7044c10a7517eef563b365d11dc7d540fa94cb526",
-          "scripts/render-icon.swift": "1c59b537bad8f79ea67aeea7896a4888fe382c956302d442f20076f6dd48d486"
+          "scripts/render-icon.swift": "68664cbd83fd9b8085abe0f9747bcaf1510514698f1b51712c531f622bdc7434",
+          "macos/Sources/LinuxVM/Updates.swift": "383597f28b5758902e554a5d9ac18f81378f1fae70edaa2d9d5cba2ff4bc8583",
+          "macos/Package.resolved": "ff1b4f5a7e9516e5b6afbb0b55c015c9e70830feb62187b635cba983c9495f30"
         },
-        "sha256": "962b6b308a262d19d382920699deaa4ffa4d4e621b0ecb760b456d8fe740fea9",
+        "sha256": "962c051add25dd4d1cb6d6432f2268c7efd27035b1b4d6f4be2e6067482e70c5",
         "format": "SHA-256 of JSON path-to-SHA-256 map, sorted keys, default Python JSON separators"
       },
       "optional_files": [
@@ -512,9 +555,9 @@
     },
     {
       "id": "app-icon",
-      "name": "AppIcon with Apple SF Symbol chevron.right",
-      "version": "asset SHA-256 d04bd6ae263ba0594a1cc431b353a68a2350ffaa73cf2f380dbbc9aff9955c9d",
-      "license": "LicenseRef-Linux-VM-Undecided AND LicenseRef-Apple-SF-Symbols-Unverified",
+      "name": "Linux VM app icon drawn with paths",
+      "version": "asset SHA-256 74d205028ed83410a7bd90d1dccfb433ab8c64172cbe74b45727b7a15991f304",
+      "license": "LicenseRef-Linux-VM-Undecided",
       "bundle_files": [
         "Contents/Resources/AppIcon.icns"
       ],
@@ -528,10 +571,9 @@
       ],
       "source": {
         "path": "scripts/render-icon.swift",
-        "sha256": "1c59b537bad8f79ea67aeea7896a4888fe382c956302d442f20076f6dd48d486"
+        "sha256": "68664cbd83fd9b8085abe0f9747bcaf1510514698f1b51712c531f622bdc7434"
       },
-      "notes": "Glyph loaded from AppKit. Its SF Symbols release and matching license text are unrecorded. Apple prohibits SF Symbols in app icons; this component is a public-release blocker. The exact checked-in generated asset is pinned in the app source map.",
-      "license_status": "incomplete; see release_blockers"
+      "notes": "Original artwork rendered with paths by scripts/render-icon.swift. No SF Symbol is used."
     },
     {
       "id": "guest",
@@ -602,7 +644,7 @@
       ],
       "source": {
         "path": "runtime/try-omarchy-v1.3.0.diff",
-        "sha256": "c338f06cc935e3a129078d2760e00374898cb392022ece98b4f40a03ffccfeb6"
+        "sha256": "76b4e4684f5a50776ef1ad4d903f3f611ab4d0fe313040a8f048aae531e769cb"
       }
     },
     {
@@ -882,33 +924,37 @@
         "Contents/Resources/runtime/lib/libGLESv2.dylib"
       ],
       "inputs": [
-        "angle"
+        "angle",
+        "angle-build-source"
       ],
       "license_files": [
         "ANGLE-bottle-metadata.json",
         "ANGLE-header-notice.txt"
       ],
-      "notes": "BSD-2-Clause is the bottle metadata declaration, not an audited conclusion. The pinned bottle has no LICENSE or third-party notices and its commit.txt is empty. Metadata and a header are preserved as evidence, not substitutes for the missing license text.",
+      "notes": "ANGLE: its verified bottle formula source (tap commit 97987d9531ea8feeaf0fcc126be2bd97ffdf6479) fetches ANGLE main and moving dependency heads, never sets ANGLE_COMMIT, and installs an empty commit.txt. Obtain the exact ANGLE and dependency commits plus build graph/logs to recover matching LICENSE and compiled third-party notices. See licenses/ANGLE-AUDIT.md for the v1.0.16 tag checksum mismatch.",
       "license_status": "incomplete; see release_blockers"
     },
     {
       "id": "zstd",
       "name": "Zstandard",
       "version": "1.5.7 (Homebrew revision 1)",
-      "license": "(BSD-3-Clause OR GPL-2.0-only) AND BSD-2-Clause AND MIT",
+      "license": "(BSD-3-Clause OR GPL-2.0-only) AND MIT",
       "bundle_files": [
         "Contents/Resources/runtime/lib/libzstd.1.dylib",
         "Contents/Resources/runtime/bin/zstd"
       ],
       "inputs": [
-        "bottle-zstd"
+        "bottle-zstd",
+        "zstd-source"
       ],
       "license_files": [
         "Zstandard-BSD.txt",
-        "Zstandard-GPL.txt"
+        "Zstandard-GPL.txt",
+        "Zstandard-divsufsort-MIT.txt",
+        "Zstandard-xxhash-notice.txt",
+        "Zstandard-source-notices.txt"
       ],
-      "notes": "Bottle SBOM also declares BSD-2-Clause and MIT; corresponding bundled subcomponent notices are absent from this bottle.",
-      "license_status": "incomplete; see release_blockers"
+      "notes": "Homebrew CMake enables common, compression, decompression, dictionary builder and legacy sources. Includes xxHash (lib/common/xxhash.c and .h, BSD/GPL alternative) and libdivsufsort-lite (lib/dictBuilder/divsufsort.c and .h, MIT). zstd links the shared libzstd and compiles programs/*.c. BSD-2-Clause applies to zstdgrep and libzstd.pc.in, neither shipped. LZ4 and liblzma are separate dylib components; zlib is supplied by macOS. Full source header collections retain additional upstream notices."
     },
     {
       "id": "edk2",
@@ -931,6 +977,79 @@
         "contains": "edk2-stable202408"
       },
       "notes": "Aggregate firmware license expression; the complete upstream composite notice is authoritative and includes historical notices. Composite notice includes Berkeley SoftFloat Release 3e and OpenSSL; the embedded OpenSSL version is not recorded."
+    },
+    {
+      "id": "sparkle",
+      "name": "Sparkle updater and embedded external code",
+      "version": "2.10.0",
+      "license": "MIT AND BSD-2-Clause AND Zlib",
+      "inputs": [
+        "sparkle-release"
+      ],
+      "license_files": [
+        "Sparkle-LICENSE.txt"
+      ],
+      "bundle_files": [
+        "Contents/Frameworks/Sparkle.framework/Versions/B/Autoupdate",
+        "Contents/Frameworks/Sparkle.framework/Versions/B/Resources/Base.lproj/Sparkle.strings",
+        "Contents/Frameworks/Sparkle.framework/Versions/B/Resources/Info.plist",
+        "Contents/Frameworks/Sparkle.framework/Versions/B/Resources/ReleaseNotesColorStyle.css",
+        "Contents/Frameworks/Sparkle.framework/Versions/B/Resources/SUUpdateAlert.nib",
+        "Contents/Frameworks/Sparkle.framework/Versions/B/Resources/SUUpdatePermissionPrompt.nib",
+        "Contents/Frameworks/Sparkle.framework/Versions/B/Resources/ar.lproj/Sparkle.strings",
+        "Contents/Frameworks/Sparkle.framework/Versions/B/Resources/ca.lproj/Sparkle.strings",
+        "Contents/Frameworks/Sparkle.framework/Versions/B/Resources/cs.lproj/Sparkle.strings",
+        "Contents/Frameworks/Sparkle.framework/Versions/B/Resources/da.lproj/Sparkle.strings",
+        "Contents/Frameworks/Sparkle.framework/Versions/B/Resources/de.lproj/Sparkle.strings",
+        "Contents/Frameworks/Sparkle.framework/Versions/B/Resources/el.lproj/Sparkle.strings",
+        "Contents/Frameworks/Sparkle.framework/Versions/B/Resources/es.lproj/Sparkle.strings",
+        "Contents/Frameworks/Sparkle.framework/Versions/B/Resources/fa.lproj/Sparkle.strings",
+        "Contents/Frameworks/Sparkle.framework/Versions/B/Resources/fi.lproj/Sparkle.strings",
+        "Contents/Frameworks/Sparkle.framework/Versions/B/Resources/fr.lproj/Sparkle.strings",
+        "Contents/Frameworks/Sparkle.framework/Versions/B/Resources/he.lproj/Sparkle.strings",
+        "Contents/Frameworks/Sparkle.framework/Versions/B/Resources/hr.lproj/Sparkle.strings",
+        "Contents/Frameworks/Sparkle.framework/Versions/B/Resources/hu.lproj/Sparkle.strings",
+        "Contents/Frameworks/Sparkle.framework/Versions/B/Resources/is.lproj/Sparkle.strings",
+        "Contents/Frameworks/Sparkle.framework/Versions/B/Resources/it.lproj/Sparkle.strings",
+        "Contents/Frameworks/Sparkle.framework/Versions/B/Resources/ja.lproj/Sparkle.strings",
+        "Contents/Frameworks/Sparkle.framework/Versions/B/Resources/ko.lproj/Sparkle.strings",
+        "Contents/Frameworks/Sparkle.framework/Versions/B/Resources/nb.lproj/Sparkle.strings",
+        "Contents/Frameworks/Sparkle.framework/Versions/B/Resources/nl.lproj/Sparkle.strings",
+        "Contents/Frameworks/Sparkle.framework/Versions/B/Resources/nn.lproj/Sparkle.strings",
+        "Contents/Frameworks/Sparkle.framework/Versions/B/Resources/pl.lproj/Sparkle.strings",
+        "Contents/Frameworks/Sparkle.framework/Versions/B/Resources/pt-BR.lproj/Sparkle.strings",
+        "Contents/Frameworks/Sparkle.framework/Versions/B/Resources/pt-PT.lproj/Sparkle.strings",
+        "Contents/Frameworks/Sparkle.framework/Versions/B/Resources/ro.lproj/Sparkle.strings",
+        "Contents/Frameworks/Sparkle.framework/Versions/B/Resources/ru.lproj/Sparkle.strings",
+        "Contents/Frameworks/Sparkle.framework/Versions/B/Resources/sk.lproj/Sparkle.strings",
+        "Contents/Frameworks/Sparkle.framework/Versions/B/Resources/sl.lproj/Sparkle.strings",
+        "Contents/Frameworks/Sparkle.framework/Versions/B/Resources/sv.lproj/Sparkle.strings",
+        "Contents/Frameworks/Sparkle.framework/Versions/B/Resources/th.lproj/Sparkle.strings",
+        "Contents/Frameworks/Sparkle.framework/Versions/B/Resources/tr.lproj/Sparkle.strings",
+        "Contents/Frameworks/Sparkle.framework/Versions/B/Resources/uk.lproj/Sparkle.strings",
+        "Contents/Frameworks/Sparkle.framework/Versions/B/Resources/vi.lproj/Sparkle.strings",
+        "Contents/Frameworks/Sparkle.framework/Versions/B/Resources/zh_CN.lproj/Sparkle.strings",
+        "Contents/Frameworks/Sparkle.framework/Versions/B/Resources/zh_HK.lproj/Sparkle.strings",
+        "Contents/Frameworks/Sparkle.framework/Versions/B/Resources/zh_TW.lproj/Sparkle.strings",
+        "Contents/Frameworks/Sparkle.framework/Versions/B/Sparkle",
+        "Contents/Frameworks/Sparkle.framework/Versions/B/Updater.app/Contents/Info.plist",
+        "Contents/Frameworks/Sparkle.framework/Versions/B/Updater.app/Contents/MacOS/Updater",
+        "Contents/Frameworks/Sparkle.framework/Versions/B/Updater.app/Contents/PkgInfo",
+        "Contents/Frameworks/Sparkle.framework/Versions/B/Updater.app/Contents/_CodeSignature/CodeResources",
+        "Contents/Frameworks/Sparkle.framework/Versions/B/_CodeSignature/CodeResources"
+      ],
+      "bundle_symlinks": {
+        "Contents/Frameworks/Sparkle.framework/Resources": "Versions/Current/Resources",
+        "Contents/Frameworks/Sparkle.framework/Autoupdate": "Versions/Current/Autoupdate",
+        "Contents/Frameworks/Sparkle.framework/Updater.app": "Versions/Current/Updater.app",
+        "Contents/Frameworks/Sparkle.framework/Sparkle": "Versions/Current/Sparkle",
+        "Contents/Frameworks/Sparkle.framework/Versions/Current": "B"
+      },
+      "source": {
+        "url": "https://github.com/sparkle-project/Sparkle.git",
+        "commit": "eef1a539a373c1f1a320624b1130fc5de7b2e100"
+      },
+      "notes": "SwiftPM Package.resolved pins the release revision. LICENSE from the checksum-pinned release includes bsdiff/bspatch, sais-lite, Ed25519 and SUSignatureVerifier notices. XPC services, headers and modules are removed by build-app.sh."
     }
   ],
   "guest_files": {
@@ -1048,13 +1167,6 @@
     }
   },
   "release_blockers": [
-    "ANGLE: license text, third-party notices and underlying source commit are missing from the pinned bottle. Obtain and audit the matching source before a public release.",
-    "Zstandard: bottle SBOM declares additional BSD-2-Clause and MIT code but contains no corresponding subcomponent notices. Audit the matching source and retain those notices before a public release.",
-    "AppIcon: render-icon.swift uses the Apple SF Symbol chevron.right. Its source version and license text are unrecorded, and Apple prohibits SF Symbols in app icons. Replace this artwork or establish permission before release."
-  ],
-  "pin_snapshots": {
-    "pinned-runtime-bottles.sh": "0b0098ad10aeeab29974c7a40a39ee28def330d0dd1ee9d29e651ecbd051b9f4",
-    "build-qemu-gpu-runtime.sh": "fa23634e6f4311f12db08f0108f13cbeb132ad5b0b756855b5f5bf1c06bebf2c",
-    "prepare-qemu-gpu-runtime.sh": "52b173396caf3f5243fde178e8030f3bf8497c9f2703db9b22e2c9e3bd268c4e"
-  }
+    "ANGLE: its verified bottle formula source (tap commit 97987d9531ea8feeaf0fcc126be2bd97ffdf6479) fetches ANGLE main and moving dependency heads, never sets ANGLE_COMMIT, and installs an empty commit.txt. Obtain the exact ANGLE and dependency commits plus build graph/logs to recover matching LICENSE and compiled third-party notices. See licenses/ANGLE-AUDIT.md for the v1.0.16 tag checksum mismatch."
+  ]
 }

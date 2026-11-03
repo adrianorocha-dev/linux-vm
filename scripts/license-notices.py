@@ -1,9 +1,11 @@
 #!/usr/bin/env python3
 """Assemble notices and reject unreviewed bundle or Guest Tools contents."""
 import argparse
+from contextlib import contextmanager
 import hashlib
 import io
 import json
+import os
 from pathlib import Path, PurePosixPath
 import plistlib
 import re
@@ -12,6 +14,7 @@ import subprocess
 import sys
 import tarfile
 import tempfile
+import urllib.request
 
 ROOT = Path(__file__).resolve().parents[1]
 MANIFEST = ROOT / 'licenses/manifest.json'
@@ -52,17 +55,53 @@ def shell_assignments(source):
     return result
 
 
-def patched_builder(root=ROOT):
-    source = (root / 'licenses/pins/build-qemu-gpu-runtime.sh').read_text()
-    diff = (root / 'runtime/try-omarchy-v1.3.0.diff').read_text()
-    section = diff.split('diff --git a/macos/build-qemu-gpu-runtime.sh ', 1)[1].split('\ndiff --git ', 1)[0]
-    patch = '--- build-qemu-gpu-runtime.sh\n+++ build-qemu-gpu-runtime.sh\n' + section[section.index('@@ '):]
+@contextmanager
+def patched_checkout(root=ROOT):
+    pins = shell_assignments((root / 'runtime/source-pins.sh').read_text())
     with tempfile.TemporaryDirectory() as directory:
-        path = Path(directory) / 'build-qemu-gpu-runtime.sh'
-        path.write_text(source)
-        subprocess.run(['patch', '--batch', '--forward', str(path)], input=patch,
-                       text=True, capture_output=True, check=True)
-        return path.read_text()
+        checkout = Path(directory) / 'try-omarchy'
+        reference = root / '.deps/try-omarchy'
+        command = ['git', 'clone', '--quiet', '--no-hardlinks', str(reference), str(checkout)] if reference.is_dir() else [
+            'git', 'clone', '--quiet', '--depth=1', '--branch', pins['try_omarchy_tag'],
+            'https://github.com/omacom/try-omarchy.git', str(checkout)]
+        subprocess.run(command, check=True, capture_output=True)
+        subprocess.run(['git', '-C', str(checkout), 'checkout', '--quiet', '--detach', pins['try_omarchy_commit']], check=True)
+        subprocess.run(['git', '-C', str(checkout), 'apply', '--index', str(root / 'runtime/try-omarchy-v1.3.0.diff')], check=True)
+        yield checkout
+
+
+def supplemental_archive(item, root=ROOT):
+    path = root / 'build/license-inputs' / item['archive']
+    if not path.exists():
+        path.parent.mkdir(parents=True, exist_ok=True)
+        partial = path.with_suffix(path.suffix + '.partial')
+        try:
+            with urllib.request.urlopen(item['url'], timeout=60) as response, partial.open('wb') as output:
+                shutil.copyfileobj(response, output)
+            require(digest(partial.read_bytes()) == item['sha256'], f"{item['archive']}: downloaded checksum differs")
+            partial.replace(path)
+        finally:
+            partial.unlink(missing_ok=True)
+    require(digest(path.read_bytes()) == item['sha256'], f"{item['archive']}: checksum differs")
+    return path
+
+
+def verify_git_archive(item, path, directory):
+    repository = directory / 'git' / (path.name.removesuffix('.tar.gz') + '.git')
+    env = dict(os.environ, GIT_NO_REPLACE_OBJECTS='1')
+    command = ['git', '--git-dir=' + str(repository)]
+    actual = subprocess.check_output(command + ['rev-parse', item['commit'] + '^{commit}'], env=env, text=True).strip()
+    require(actual == item['commit'], 'git source commit differs')
+    subprocess.run(command + ['fsck', '--full', '--no-reflogs'], env=env, check=True, capture_output=True)
+    with tempfile.TemporaryFile() as output:
+        subprocess.run(command + ['archive', '--format=tar', '--prefix=' + path.name.removesuffix('.tar.gz') + '/', item['commit']],
+                       env=env, stdout=output, check=True)
+        output.seek(0)
+        with tarfile.open(fileobj=output) as expected, tarfile.open(path) as archive:
+            def entries(source):
+                return {m.name: (m.type, m.mode, m.linkname, digest(source.extractfile(m).read()) if m.isfile() else '')
+                        for m in source}
+            require(entries(expected) == entries(archive), f"{path.name}: archive differs from verified git objects")
 
 
 def source_notices(archive, subdir=''):
@@ -122,20 +161,33 @@ def validate_manifest(manifest, root=ROOT, identity='-'):
 
 
 def validate_pins(manifest, root=ROOT, deps=None):
-    for name, expected in manifest['pin_snapshots'].items():
-        require(digest((root / 'licenses/pins' / name).read_bytes()) == expected,
-                f'upstream pin snapshot changed: {name}')
-    builder = patched_builder(root)
-    bottle_source = (root / 'licenses/pins/pinned-runtime-bottles.sh').read_text()
+    with patched_checkout(root) as checkout:
+        validate_checkout_pins(manifest, checkout, root, deps)
+
+
+def validate_checkout_pins(manifest, checkout, root=ROOT, deps=None):
+    builder = (checkout / 'macos/build-qemu-gpu-runtime.sh').read_text()
+    bottle_source = (checkout / 'macos/pinned-runtime-bottles.sh').read_text()
+    shared_pins = shell_assignments((root / 'runtime/source-pins.sh').read_text())
     variables = shell_assignments(builder)
     rows = bottle_source.split('pinned_core_bottle_manifest()')[1].split('EOF')[1].strip().splitlines()
     bottles = {row.split('\t')[0]: row.split('\t') for row in rows}
     seen = set()
     for key, item in manifest['inputs'].items():
-        require(re.fullmatch('[a-f0-9]{64}', item['sha256']), f'{key}: invalid sha256')
+        if 'sha256' in item:
+            require(re.fullmatch('[a-f0-9]{64}', item['sha256']), f'{key}: invalid sha256')
+        else:
+            require(re.fullmatch('[a-f0-9]{40}', item.get('commit', '')), f'{key}: invalid source commit')
+        if item['pin_file'] == 'supplemental':
+            continue
         if item['pin_file'] == 'build-qemu-gpu-runtime.sh':
             prefix = item['pin']
-            require(variables[prefix + '_sha256'] == item['sha256'], f'{key}: checksum differs from runtime pin')
+            if key in ('qemu', 'keycodemap'):
+                require(variables[prefix + '_commit'] == shared_pins[prefix + '_commit'] == item['commit'],
+                        f'{key}: source commit differs from shared pin')
+                require(prefix + '_sha256' not in variables, f'{key}: obsolete archive hash pin')
+            else:
+                require(variables[prefix + '_sha256'] == item['sha256'], f'{key}: checksum differs from runtime pin')
             require(variables[prefix + '_archive_name'] == item['archive'], f'{key}: archive version differs from pin')
             require(variables[prefix + '_url'] == item.get('upstream_url', item['url']), f'{key}: URL differs from pin')
             if 'commit' in item:
@@ -152,9 +204,10 @@ def validate_pins(manifest, root=ROOT, deps=None):
             'a runtime build input is missing from the inventory')
     require({item['pin'] for item in manifest['inputs'].values() if item['pin_file'] == 'pinned-runtime-bottles.sh'} == set(bottles),
             'a pinned bottle is missing from the inventory')
-    app_vars = shell_assignments((root / 'scripts/build-app.sh').read_text())
-    require(app_vars['qemu_archive_sha256'] == manifest['inputs']['qemu']['sha256'], 'build-app QEMU hash differs')
-    require(app_vars['qemu_commit'] == variables['qemu_commit'], 'build-app QEMU commit differs')
+    app_script = (root / 'scripts/build-app.sh').read_text()
+    require('source "$root/runtime/source-pins.sh"' in app_script, 'build-app does not load shared pins')
+    require('pinned_git_source_archive https://github.com/qemu/qemu.git "$qemu_commit"' in app_script,
+            'build-app does not verify QEMU by commit')
     components = {c['id']: c for c in manifest['components']}
     for key, item in manifest['inputs'].items():
         if item['pin_file'] == 'pinned-runtime-bottles.sh':
@@ -185,10 +238,17 @@ def validate_pins(manifest, root=ROOT, deps=None):
                      if 'source' in record}
     require(digest(json.dumps(guest_sources, sort_keys=True).encode()) == components['guest']['source']['sha256'],
             'Guest Tools source snapshot checksum differs')
+    sparkle = json.loads((root / 'macos/Package.resolved').read_text())['pins']
+    sparkle = next(p for p in sparkle if p['identity'] == 'sparkle')['state']
+    require(sparkle['version'] == components['sparkle']['version'] and
+            sparkle['revision'] == components['sparkle']['source']['commit'], 'Sparkle package pin differs')
+    expected_checkout = checkout
+    require(shared_pins['try_omarchy_commit'] == components['try-omarchy']['source']['commit'], 'Try Omarchy shared pin differs')
     if deps and (deps / 'try-omarchy').is_dir():
         checkout = deps / 'try-omarchy'
         for name, expected in [('build-qemu-gpu-runtime.sh', builder), ('pinned-runtime-bottles.sh', bottle_source),
-                               ('prepare-qemu-gpu-runtime.sh', (root / 'licenses/pins/prepare-qemu-gpu-runtime.sh').read_text())]:
+                               ('prepare-qemu-gpu-runtime.sh', (expected_checkout / 'macos/prepare-qemu-gpu-runtime.sh').read_text()),
+                               ('pinned-git-source.sh', (expected_checkout / 'macos/pinned-git-source.sh').read_text())]:
             require((checkout / 'macos' / name).read_text() == expected, f'actual runtime script differs: {name}')
         source = components['try-omarchy']['source']
         actual = subprocess.check_output(['git', '-C', str(checkout), 'rev-parse', 'HEAD'], text=True).strip()
@@ -225,15 +285,21 @@ def validate_pins(manifest, root=ROOT, deps=None):
 
 
 def validate_archives(manifest, directory, root=ROOT):
+    archives = {}
     for key, item in manifest['inputs'].items():
-        path = directory / item['archive']
-        require(path.is_file() and digest(path.read_bytes()) == item['sha256'], f'{key}: archive missing or checksum differs')
+        path = supplemental_archive(item, root) if item['pin_file'] == 'supplemental' else directory / item['archive']
+        require(path.is_file(), f'{key}: archive missing')
+        if 'sha256' in item:
+            require(digest(path.read_bytes()) == item['sha256'], f'{key}: archive checksum differs')
+        else:
+            verify_git_archive(item, path, directory)
+        archives[key] = path
     for key in manifest['inputs']:
         records = [(name, value) for name, value in manifest['license_texts'].items() if value.get('input') == key]
         evidence = [c['version_evidence'] for c in manifest['components'] if c.get('version_evidence', {}).get('input') == key]
         if not records and not evidence:
             continue
-        with tarfile.open(directory / manifest['inputs'][key]['archive']) as archive:
+        with tarfile.open(archives[key]) as archive:
             for name, record in records:
                 if record['mode'] == 'source-notices':
                     data = source_notices(archive, record['subdir'])
@@ -378,7 +444,9 @@ def notices(manifest, root=ROOT):
                   'License files: ' + ', '.join(component['license_files'])]
         for key in component['inputs']:
             item = manifest['inputs'][key]
-            lines += ['Input: ' + item['url'], 'SHA-256: ' + item['sha256']]
+            lines += ['Input: ' + item['url']]
+            if 'sha256' in item:
+                lines += ['SHA-256: ' + item['sha256']]
             if 'commit' in item:
                 lines += ['Commit: ' + item['commit'], 'Archive format: ' + item['format']]
         if 'source' in component:

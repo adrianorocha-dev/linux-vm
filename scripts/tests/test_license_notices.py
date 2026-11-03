@@ -3,6 +3,8 @@ import importlib.util
 from pathlib import Path
 import shutil
 import tempfile
+import io
+import tarfile
 import unittest
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -34,13 +36,32 @@ class LicenseTests(unittest.TestCase):
 
     def test_changed_pin_and_component_version_fail(self):
         broken = copy.deepcopy(self.manifest)
-        broken['inputs']['qemu']['sha256'] = '0' * 64
+        broken['inputs']['slirp']['sha256'] = '0' * 64
         with self.assertRaisesRegex(notices.LicenseError, 'checksum differs'):
             notices.validate_pins(broken)
         broken = copy.deepcopy(self.manifest)
         next(c for c in broken['components'] if c['id'] == 'glib')['version'] = '99.0'
         with self.assertRaisesRegex(notices.LicenseError, 'component version differs'):
             notices.validate_pins(broken)
+
+    def test_git_commit_pin_change_fails(self):
+        self.manifest['inputs']['qemu']['commit'] = '0' * 40
+        with self.assertRaisesRegex(notices.LicenseError, 'source commit differs'):
+            notices.validate_pins(self.manifest)
+
+    @unittest.skipUnless((ROOT / '.deps/source-archives/git').is_dir(), 'git sources not installed')
+    def test_git_archive_members_are_verified_without_a_transport_hash(self):
+        item = self.manifest['inputs']['keycodemap']
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            (root / 'git').symlink_to(ROOT / '.deps/source-archives/git', target_is_directory=True)
+            path = root / item['archive']
+            with tarfile.open(path, 'w:gz') as archive:
+                member = tarfile.TarInfo('injected.c')
+                member.size = 8
+                archive.addfile(member, io.BytesIO(b'injected'))
+            with self.assertRaisesRegex(notices.LicenseError, 'archive differs from verified git objects'):
+                notices.verify_git_archive(item, path, root)
 
     @unittest.skipUnless((ROOT / '.deps/source-archives').is_dir(), 'pinned dependency archives are not installed')
     def test_versions_and_license_bytes_from_actual_pinned_inputs(self):
@@ -59,6 +80,11 @@ class LicenseTests(unittest.TestCase):
                 path = bundle / name
                 path.parent.mkdir(parents=True, exist_ok=True)
                 path.write_bytes(b'test fixture')
+        for component in self.manifest['components']:
+            for name, target in component.get('bundle_symlinks', {}).items():
+                path = bundle / name
+                path.parent.mkdir(parents=True, exist_ok=True)
+                path.symlink_to(target)
         notices.write_notices(self.manifest, bundle)
         return bundle
 
@@ -68,7 +94,8 @@ class LicenseTests(unittest.TestCase):
             notices.validate_bundle(self.manifest, bundle)
             for name, data in [('Contents/Resources/runtime/lib/new.dylib', b'\xcf\xfa\xed\xfe'),
                                ('Contents/Helpers/new-tool', b'\xca\xfe\xba\xbe'),
-                               ('Contents/Resources/new-component.dat', b'new')]:
+                               ('Contents/Resources/new-component.dat', b'new'),
+                               ('Contents/Frameworks/Sparkle.framework/Versions/B/new.dylib', b'new')]:
                 path = bundle / name
                 path.parent.mkdir(parents=True, exist_ok=True)
                 path.write_bytes(data)
@@ -105,7 +132,7 @@ class LicenseTests(unittest.TestCase):
             path.mkdir(parents=True)
             with self.assertRaisesRegex(notices.LicenseError, 'uncovered bundle directory'):
                 notices.validate_bundle(self.manifest, bundle)
-            shutil.rmtree(bundle / 'Contents/Frameworks')
+            shutil.rmtree(path)
             path = bundle / 'Contents/Resources/link'
             path.symlink_to('/tmp')
             with self.assertRaisesRegex(notices.LicenseError, 'unreviewed bundle symlink'):
@@ -145,7 +172,8 @@ class LicenseTests(unittest.TestCase):
             notices.validate_guest(broken, iso)
 
     def test_runtime_member_pins_are_covered_offline(self):
-        source = (ROOT / 'licenses/pins/pinned-runtime-bottles.sh').read_text()
+        with notices.patched_checkout() as checkout:
+            source = (checkout / 'macos/pinned-runtime-bottles.sh').read_text()
         rows = source.split('pinned_runtime_member_manifest()')[1].split('EOF')[1].strip().splitlines()
         covered = {name for c in self.manifest['components'] for name in c['bundle_files']}
         for row in rows:
