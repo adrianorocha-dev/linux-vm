@@ -38,14 +38,20 @@ source "$omarchy/macos/pinned-git-source.sh"
 pinned_git_source_archive https://github.com/qemu/qemu.git "$qemu_commit" "qemu-$qemu_commit" "$qemu_archive" "$archives" ||
   fail "could not verify QEMU firmware source at $qemu_commit"
 
+license_args=(--identity "$identity")
+if [[ $identity != - ]]; then
+  license_args+=(--inputs)
+fi
+python3 "$root/scripts/license-notices.py" "${license_args[@]}"
+
 echo "[build-app] Building the app and supervisor"
 swift build --package-path "$root/macos" -c release --product LinuxVM
 swift build --package-path "$root/macos" -c release --product linuxvmctl
 products=$(swift build --package-path "$root/macos" -c release --show-bin-path)
 
 echo "[build-app] Building Try Omarchy's bridge helper"
-swift build --package-path "$omarchy/macos" -c release --product omarchy-vm-helper
-helper=$(swift build --package-path "$omarchy/macos" -c release --show-bin-path)/omarchy-vm-helper
+swift build --package-path "$omarchy/macos" --scratch-path "$root/build/omarchy-helper" -c release --product omarchy-vm-helper
+helper=$(swift build --package-path "$omarchy/macos" --scratch-path "$root/build/omarchy-helper" -c release --show-bin-path)/omarchy-vm-helper
 
 staging="$root/build/.Linux VM.app.partial"
 rm -rf "$staging"
@@ -103,6 +109,8 @@ elif [[ $identity != - ]]; then
 fi
 install -m 0644 "$omarchy/LICENSE" "$staging/Contents/Resources/LICENSE.try-omarchy"
 
+python3 "$root/scripts/license-notices.py" --bundle "$staging" --write --identity "$identity"
+
 # Never sign with --deep: it would strip the QEMU runtime's entitlements.
 if [[ $identity == - ]]; then
   # Ad hoc, for this Mac: the runtime keeps the signatures its build gave it.
@@ -137,6 +145,8 @@ else
 fi
 codesign -d --entitlements - "$staging/Contents/Resources/runtime/bin/qemu-system-aarch64" 2>/dev/null | grep -q com.apple.security.hypervisor ||
   fail "the QEMU runtime lost its hypervisor entitlement"
+
+python3 "$root/scripts/license-notices.py" --bundle "$staging" --identity "$identity"
 
 rm -rf "$app"
 mv "$staging" "$app"

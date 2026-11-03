@@ -74,4 +74,21 @@ The tool is at `Linux VM.app/Contents/Helpers/linuxvmctl`.
 
 ## Licenses
 
-The QEMU runtime and the bridge helper come from Try Omarchy (MIT, `Contents/Resources/LICENSE.try-omarchy`) and QEMU (GPLv2 with component exceptions). The edk2 firmware's licenses ship beside it. Review the full bundle before distributing it.
+The app's notices, source offer, license texts and provenance manifest live in `Contents/Resources/Licenses/`.
+`scripts/build-app.sh` checks license texts, every bundle file and the files inside the Guest Tools disc before signing, then checks coverage again after signing.
+Developer ID builds and tests also verify all third-party input pins, checksums and upstream license bytes.
+Ad hoc builds use local checks without cloning or downloading inputs.
+Original app and Guest Tools code has no manifest checksums.
+Their notice versions come from Info.plist and guest/build.py.
+An unlisted component or missing license text stops the build.
+Developer ID builds also require a source-offer contact and resolved provenance gaps.
+The original Linux VM code has no selected license yet.
+See [licenses/README.md](licenses/README.md) for the inventory, current release blockers and how to add a component.
+
+Retain release source outside the app with `python3 scripts/retain-release-source.py --output /path/to/retained/linux-vm-VERSION-source.tar.gz`.
+The collector verifies sources, bottle formulas and patches and records their checksums.
+Keep a complete archive for at least three years after the release's last distribution.
+ANGLE's revision comes from its binary version string.
+Its permissive dependency notices use pinned DEPS reference revisions and impose no source-distribution obligation.
+The collector requires all copyleft sources and treats ANGLE's source as best effort.
+See [source retention](licenses/README.md#retaining-release-source) for the contents and subset test.

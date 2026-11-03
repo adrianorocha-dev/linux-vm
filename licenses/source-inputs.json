@@ -1,0 +1,211 @@
+{
+  "schema_version": 1,
+  "bottles": {
+    "angle": {
+      "formula_member": "angle/1.0.16/.brew/angle.rb",
+      "formula_sha256": "9b1dfc017d02b0038d7b228331eda227481a43ff3907efda9b71c6102bc0b923",
+      "sources": [
+        {
+          "id": "angle-upstream",
+          "url": "https://github.com/startergo/homebrew-angle/archive/97987d9531ea8feeaf0fcc126be2bd97ffdf6479.tar.gz",
+          "sha256": "f1b6c6c047714a023c89412b736408e3e28d7b5beffc29d577fc69bf460b6e85",
+          "archive": "97987d9531ea8feeaf0fcc126be2bd97ffdf6479.tar.gz"
+        }
+      ],
+      "patches": []
+    },
+    "epoxy": {
+      "formula_member": "libepoxy/1.0.5/.brew/libepoxy.rb",
+      "formula_sha256": "a4322a55a87fa1697888909b247711eaca39db707dcbbc9b474a7d0dc6e9c4af",
+      "sources": [
+        {
+          "id": "epoxy-upstream",
+          "url": "https://github.com/startergo/homebrew-libepoxy/archive/4e946212a1db4b237af72a23c2acbf54f3c5aae1.tar.gz",
+          "sha256": "e6c1f1d0cc5eb4ad64c78a0af4991775052faffb783cb7bc321e88cd9ce468bf",
+          "archive": "4e946212a1db4b237af72a23c2acbf54f3c5aae1.tar.gz"
+        },
+        {
+          "id": "epoxy-implementation",
+          "url": "https://github.com/anholt/libepoxy.git",
+          "commit": "1b6d7db184bb1a0d9af0e200e06a0331028eaaae",
+          "archive": "libepoxy-1b6d7db184bb1a0d9af0e200e06a0331028eaaae.tar.gz"
+        }
+      ],
+      "patches": []
+    },
+    "bottle-glib": {
+      "formula_member": "glib/2.88.3/.brew/glib.rb",
+      "formula_sha256": "0105d4552c1cc68b38cdcd23c4df05c2cb0d93ce44929f581204a6d33dd16d59",
+      "sources": [
+        {
+          "id": "bottle-glib-upstream",
+          "url": "https://download.gnome.org/sources/glib/2.88/glib-2.88.3.tar.xz",
+          "sha256": "ab24d24e698dfa1e408b7bcdb508f4aafc906185a8b8ce72fdf79bbbdc9b383b",
+          "archive": "glib-2.88.3.tar.xz"
+        },
+        {
+          "id": "bottle-glib-gobject-introspection",
+          "url": "https://download.gnome.org/sources/gobject-introspection/1.86/gobject-introspection-1.86.0.tar.xz",
+          "sha256": "920d1a3fcedeadc32acff95c2e203b319039dd4b4a08dd1a2dfd283d19c0b9ae",
+          "archive": "gobject-introspection-1.86.0.tar.xz"
+        }
+      ],
+      "patches": [
+        {
+          "id": "glib-hardcoded-paths",
+          "formula_path": "Patches/glib/hardcoded-paths.diff",
+          "url": "https://raw.githubusercontent.com/Homebrew/homebrew-core/1cf441a09f572566b1b7c4695a4d169d1177248a/Patches/glib/hardcoded-paths.diff",
+          "sha256": "d846efd0bf62918350da94f850db33b0f8727fece9bfaf8164566e3094e80c97",
+          "archive": "glib-hardcoded-paths.diff"
+        }
+      ]
+    },
+    "bottle-pixman": {
+      "formula_member": "pixman/0.46.4/.brew/pixman.rb",
+      "formula_sha256": "095e2b0d518e8b29a5f977fb95722b38315f43cc704d7a1dfe43f6c1b0ef254c",
+      "sources": [
+        {
+          "id": "bottle-pixman-upstream",
+          "url": "https://cairographics.org/releases/pixman-0.46.4.tar.gz",
+          "sha256": "d09c44ebc3bd5bee7021c79f922fe8fb2fb57f7320f55e97ff9914d2346a591c",
+          "archive": "pixman-0.46.4.tar.gz"
+        }
+      ],
+      "patches": []
+    },
+    "bottle-libslirp": {
+      "formula_member": "libslirp/4.9.4/.brew/libslirp.rb",
+      "formula_sha256": "e416881f5d79946f0e27855344dc32575d146de157567ad42e49391036749006",
+      "sources": [
+        {
+          "id": "bottle-libslirp-upstream",
+          "url": "https://gitlab.freedesktop.org/slirp/libslirp/-/archive/v4.9.4/libslirp-v4.9.4.tar.gz",
+          "sha256": "3998863b020aeda34bddc567097c6efba55a78cdf6eeee6bcd42c11ef23967da",
+          "archive": "libslirp-v4.9.4.tar.gz"
+        }
+      ],
+      "patches": []
+    },
+    "bottle-libusb": {
+      "formula_member": "libusb/1.0.30/.brew/libusb.rb",
+      "formula_sha256": "fad2c080e3d107b6c1e453864992fd26b89202e7b894aabc4d2facfed2193340",
+      "sources": [
+        {
+          "id": "bottle-libusb-upstream",
+          "url": "https://github.com/libusb/libusb/releases/download/v1.0.30/libusb-1.0.30.tar.bz2",
+          "sha256": "fea36f34f9156400209595e300840767ab1a385ede1dc7ee893015aea9c6dbaf",
+          "archive": "libusb-1.0.30.tar.bz2"
+        }
+      ],
+      "patches": []
+    },
+    "bottle-sdl2-compat": {
+      "formula_member": "sdl2-compat/2.32.70/.brew/sdl2-compat.rb",
+      "formula_sha256": "f8cd643b8086300ace0cbdb33d95f951aa2bc60688fc00e96519151d649be033",
+      "sources": [
+        {
+          "id": "bottle-sdl2-compat-upstream",
+          "url": "https://github.com/libsdl-org/sdl2-compat/releases/download/release-2.32.70/sdl2-compat-2.32.70.tar.gz",
+          "sha256": "998fa62557eb46ffe7e5c3e2c123bc332f7df9d9f593b3ceed88ed1158428a44",
+          "archive": "sdl2-compat-2.32.70.tar.gz"
+        }
+      ],
+      "patches": []
+    },
+    "bottle-sdl3": {
+      "formula_member": "sdl3/3.4.14/.brew/sdl3.rb",
+      "formula_sha256": "ecf1e6b89d7ceda1af2a845d64867ac38d142750a4e53c74c7a8f9ce95dd2d07",
+      "sources": [
+        {
+          "id": "bottle-sdl3-upstream",
+          "url": "https://github.com/libsdl-org/SDL/releases/download/release-3.4.14/SDL3-3.4.14.tar.gz",
+          "sha256": "30d4aa2b3037718142b32dffd4e72f917ebb6cc5227150e7bb9c45efb2153aeb",
+          "archive": "SDL3-3.4.14.tar.gz"
+        }
+      ],
+      "patches": []
+    },
+    "bottle-gettext": {
+      "formula_member": "gettext/1.0/.brew/gettext.rb",
+      "formula_sha256": "dd8d1b5914bb96c9c59140dd8cf76ad1d270f65a88111a395f79fe22106367c6",
+      "sources": [
+        {
+          "id": "bottle-gettext-upstream",
+          "url": "https://ftpmirror.gnu.org/gnu/gettext/gettext-1.0.tar.gz",
+          "sha256": "85d99b79c981a404874c02e0342176cf75c7698e2b51fe41031cf6526d974f1a",
+          "archive": "gettext-1.0.tar.gz"
+        }
+      ],
+      "patches": []
+    },
+    "bottle-pcre2": {
+      "formula_member": "pcre2/10.47_1/.brew/pcre2.rb",
+      "formula_sha256": "40d07c0619cc42e570dfe34e22f02841254777c8a7eab72da2a4af5d60a5310e",
+      "sources": [
+        {
+          "id": "bottle-pcre2-upstream",
+          "url": "https://github.com/PCRE2Project/pcre2/releases/download/pcre2-10.47/pcre2-10.47.tar.bz2",
+          "sha256": "47fe8c99461250d42f89e6e8fdaeba9da057855d06eb7fc08d9ca03fd08d7bc7",
+          "archive": "pcre2-10.47.tar.bz2"
+        }
+      ],
+      "patches": []
+    },
+    "bottle-zstd": {
+      "formula_member": "zstd/1.5.7_1/.brew/zstd.rb",
+      "formula_sha256": "9a9b0183896886e82b915af4db576f27d34d1cee7757d6c5beb0e1eb74c68e0d",
+      "sources": [
+        {
+          "id": "bottle-zstd-upstream",
+          "url": "https://github.com/facebook/zstd/archive/refs/tags/v1.5.7.tar.gz",
+          "sha256": "37d7284556b20954e56e1ca85b80226768902e2edabd3b649e9e72c0c9012ee3",
+          "archive": "v1.5.7.tar.gz"
+        }
+      ],
+      "patches": []
+    },
+    "bottle-lz4": {
+      "formula_member": "lz4/1.10.0/.brew/lz4.rb",
+      "formula_sha256": "25463465ff98da6204feebc4aa26a520f2db9e8e25202d38b283ead478d9efbc",
+      "sources": [
+        {
+          "id": "bottle-lz4-upstream",
+          "url": "https://github.com/lz4/lz4/archive/refs/tags/v1.10.0.tar.gz",
+          "sha256": "537512904744b35e232912055ccf8ec66d768639ff3abe5788d90d792ec5f48b",
+          "archive": "v1.10.0.tar.gz"
+        }
+      ],
+      "patches": []
+    },
+    "bottle-xz": {
+      "formula_member": "xz/5.8.3/.brew/xz.rb",
+      "formula_sha256": "0812ffeca3c6631a261e87c76ff26368eee0df6ecedfe0f458d67494fdf6e9cc",
+      "sources": [
+        {
+          "id": "bottle-xz-upstream",
+          "url": "https://github.com/tukaani-project/xz/releases/download/v5.8.3/xz-5.8.3.tar.gz",
+          "sha256": "3d3a1b973af218114f4f889bbaa2f4c037deaae0c8e815eec381c3d546b974a0",
+          "archive": "xz-5.8.3.tar.gz"
+        }
+      ],
+      "patches": []
+    }
+  },
+  "extra_sources": {
+    "try-omarchy": {
+      "url": "https://github.com/omacom/try-omarchy.git",
+      "commit": "13d63df8da2947f833c04025ff5ade187d39ba81",
+      "archive": "try-omarchy-13d63df8da2947f833c04025ff5ade187d39ba81.tar.gz"
+    },
+    "sparkle": {
+      "url": "https://github.com/sparkle-project/Sparkle.git",
+      "commit": "eef1a539a373c1f1a320624b1130fc5de7b2e100",
+      "archive": "sparkle-eef1a539a373c1f1a320624b1130fc5de7b2e100.tar.gz"
+    }
+  },
+  "gaps": [],
+  "findings": [
+    "ANGLE external build revisions and patch application were not recorded. DEPS references establish permissive notices; corresponding source is not required.",
+    "ANGLE tag archive differs from tag formula checksum. Retention uses the verified formula embedded in the bottle."
+  ]
+}

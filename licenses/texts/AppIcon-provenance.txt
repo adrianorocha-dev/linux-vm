@@ -1,0 +1,1 @@
+Original artwork rendered with paths by scripts/render-icon.swift. No SF Symbol is used.
