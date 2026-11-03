@@ -340,6 +340,16 @@ class ReleaseIntegrationTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'does not match its checksum file'):
             release.check_retained_source(source, 'a' * 40)
 
+    def test_an_archive_from_another_commit_is_replaced(self):
+        source = self.root / 'build/release/0.1.0' / release.source_name('0.1.0')
+        source.parent.mkdir(parents=True)
+        source.write_bytes(b'stale')
+        with patch('builtins.input', side_effect=AssertionError('dry run must not prompt')):
+            _, output = self.execute()
+        self.assertIn('Replacing a source archive from another commit', output)
+        self.assertEqual(sum(c[0] == 'retain-release-source.py' for c in self.commands()), 1)
+        release.check_retained_source(source, 'a' * 40)
+
     def test_cli_dry_run_with_temporary_config(self):
         shutil.copyfile(ROOT / 'scripts/release.py', self.root / 'scripts/release.py')
         self.env['STUB_FIRST_RELEASE'] = '1'

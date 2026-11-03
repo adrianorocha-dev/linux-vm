@@ -201,7 +201,7 @@ def collect(args):
             required = retention_required(manifest, key, item)
             print(f'retain-release-source: collecting {key}', file=sys.stderr, flush=True)
             try:
-                if 'commit' in item and 'sha256' not in item:
+                if 'commit' in item and 'sha256' not in item and 'content_sha256' not in item:
                     prefix = item.get('archive', '').removesuffix('.tar.gz')
                     local = args.inputs / 'git' / (prefix + '.git')
                     if key == 'source-try-omarchy':

@@ -102,6 +102,34 @@ class RetentionTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, 'copyleft'):
                 retention.retention_required(manifest, key, item)
 
+    def test_content_pinned_archives_are_downloaded_not_fetched_with_git(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            git(root, 'init', '--quiet')
+            (root / 'licenses').mkdir()
+            item = {'retention': 'best-effort', 'archive': 'vma.tar.gz', 'commit': 'c' * 40, 'content_sha256': 'd' * 64,
+                    'url': 'https://chromium.googlesource.com/example/+archive/' + 'c' * 40 + '.tar.gz'}
+            manifest = {'components': [{'id': 'angle', 'inputs': ['angle-vma'], 'license': 'MIT'}], 'inputs': {'angle-vma': item}}
+            (root / 'licenses/manifest.json').write_text(json.dumps(manifest))
+            (root / 'licenses/source-inputs.json').write_text(json.dumps({'extra_sources': {}, 'bottles': {}, 'gaps': []}))
+            git(root, 'add', '.')
+            git(root, '-c', 'user.name=Test', '-c', 'user.email=test@example.invalid', 'commit', '--quiet', '-m', 'fixture')
+            args = Namespace(subset=None, output=root / 'complete.tar.gz', inputs=root, cache=root / 'cache')
+            downloaded = []
+
+            def download(collector, key, item, existing):
+                downloaded.append(key)
+                payload = collector.stage / key
+                payload.write_bytes(b'archive')
+                collector.record(key, payload, item)
+
+            with patch.object(retention, 'ROOT', root), patch.object(retention.notices, 'load', return_value=manifest), \
+                    patch.object(retention, 'formula_sources', return_value={}), \
+                    patch.object(retention.Collector, 'download', download), \
+                    patch.object(retention.Collector, 'git', side_effect=AssertionError('fetched with git')):
+                retention.collect(args)
+            self.assertEqual(downloaded, ['angle-vma'])
+
     def test_optional_angle_failure_does_not_hide_required_source_failure(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)

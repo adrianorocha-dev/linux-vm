@@ -337,7 +337,13 @@ def release(version, dry_run=False, config_path=None, root=ROOT, env=None):
     # A dry run keeps the archive, so the real run of the same commit reuses it.
     retained = source.exists()
     if retained:
-        check_retained_source(source, revision)
+        try:
+            check_retained_source(source, revision)
+        except (ValueError, OSError, KeyError, tarfile.TarError):
+            print(f'Replacing a source archive from another commit: {source}', flush=True)
+            source.unlink()
+            source.with_suffix(source.suffix + '.sha256').unlink(missing_ok=True)
+            retained = False
     tools = sparkle_tools(root)
     public_key = run(tools / 'generate_keys', '-p', cwd=root).stdout.strip()
     require(public_key == config['public_key'], 'keychain EdDSA public key differs from release config; run generate_keys during setup')
