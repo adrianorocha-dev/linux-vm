@@ -152,9 +152,18 @@ index 0000000..e9a5f56
 +if __name__ == "__main__":
 +    unittest.main()
 diff --git a/macos/build-qemu-gpu-runtime.sh b/macos/build-qemu-gpu-runtime.sh
-index e2a7110..9810f5f 100755
+index e2a7110..1bdd6be 100755
 --- a/macos/build-qemu-gpu-runtime.sh
 +++ b/macos/build-qemu-gpu-runtime.sh
+@@ -14,7 +14,7 @@ atomically stage it at:
+ 
+ The build is Apple-Silicon/HVF-only. It enables Cocoa+VirGL, SLIRP user
+ networking, SDL duplex audio, and virtio-9p folder sharing. All downloaded source archives and wheels are
+-immutable and checksum-pinned; scratch sources are removed on every exit.
++immutable and checksum-pinned (QEMU and keycodemapdb use verified Git commits); scratch sources are removed on every exit.
+ 
+ Set OMARCHY_RUNTIME_BUILD_JOBS to a positive integer to bound compilation.
+ With --archive-dir, reuse already-downloaded pinned archives from DIR. Every
 @@ -65,6 +65,8 @@ pause_ownership_patch="$native_dir/patches/qemu-cocoa-pause-ownership.patch"
  pinch_patch="$native_dir/patches/qemu-cocoa-pinch-zoom.patch"
  precise_scroll_patch="$native_dir/patches/qemu-cocoa-precise-scroll.patch"
@@ -164,7 +173,7 @@ index e2a7110..9810f5f 100755
  iso_swap_patch="$native_dir/patches/qemu-cocoa-iso-section-grave-swap.patch"
  injected_text_patch="$native_dir/patches/qemu-cocoa-injected-text.patch"
  command_chord_patch="$native_dir/patches/qemu-cocoa-command-chord-hold.patch"
-@@ -89,6 +91,7 @@ udp_patch="$native_dir/patches/libslirp-ipv4-udp-translation.patch"
+@@ -89,14 +91,14 @@ udp_patch="$native_dir/patches/libslirp-ipv4-udp-translation.patch"
  fence_poll_patch="$native_dir/patches/qemu-darwin-gpu-fence-poll.patch"
  virgl_native_patch="$native_dir/patches/virgl-native-opengl.patch"
  virgl_upload_flush_patch="$native_dir/patches/virgl-ctx0-upload-flush.patch"
@@ -172,19 +181,16 @@ index e2a7110..9810f5f 100755
  prepare_runtime="$native_dir/prepare-qemu-gpu-runtime.sh"
  pinned_bottles="$native_dir/pinned-runtime-bottles.sh"
  
-@@ -96,7 +99,10 @@ qemu_commit=c3d48b7d1e89604920e5b81b91140c2ad39a1943
+ qemu_commit=c3d48b7d1e89604920e5b81b91140c2ad39a1943
  qemu_root="qemu-$qemu_commit"
  qemu_archive_name="$qemu_root.tar.gz"
- qemu_url="https://gitlab.com/qemu-project/qemu/-/archive/$qemu_commit/$qemu_archive_name"
+-qemu_url="https://gitlab.com/qemu-project/qemu/-/archive/$qemu_commit/$qemu_archive_name"
 -qemu_sha256=7563781d7dec46f11509801e027f852597235d29ca7afa44a07ed9d8b108b8cd
-+# Ubuntu prototype: gitlab.com archives sit behind a Cloudflare challenge, so
-+# this archive is `git archive` of the same commit fetched from github.com/qemu/qemu
-+# (upstream archive sha256 7563781d7dec46f11509801e027f852597235d29ca7afa44a07ed9d8b108b8cd).
-+qemu_sha256=db14020067babeb646ba35e3cffdf1f252a04157114684fa5c0f5da98015ffdf
++qemu_url="https://github.com/qemu/qemu.git"
  
  texture_patch_sha256=b8e107ecd82813854bac7f6bb110722f52937d64b6f98611c4dd02842977fc2f
  gpu_fix_patch_sha256=b554e1ef9910d0891d69ee0fe84e479559c057dc28291e36e1524031808fc69f
-@@ -109,6 +115,8 @@ pause_ownership_patch_sha256=1a5729b36eb3e437395d41883a10c3c652df71d289d5df84d95
+@@ -109,6 +111,8 @@ pause_ownership_patch_sha256=1a5729b36eb3e437395d41883a10c3c652df71d289d5df84d95
  pinch_patch_sha256=618c17eef1c2ab97d48ed82b58d9fa2b727ea3f26a0d30225199ac97985a9f06
  precise_scroll_patch_sha256=54252b3b19358aa7e2c75d5f50775a7f488ef2d8b4db8723ba4768b56316a78f
  touch_scroll_patch_sha256=e4aa6c3661ee9265724a6236153630ed3870ef5e6f21e5cfe7af3023b6c870e4
@@ -193,7 +199,7 @@ index e2a7110..9810f5f 100755
  iso_swap_patch_sha256=57f33a5fb08fb90a7813b13bb7037a13198e4d7db230085b1faa28b284cf2387
  injected_text_patch_sha256=18d64d52f715d0cf1b2b6d1761059371e1859ee61faf3cc4800e2effc1ed4dd1
  command_chord_patch_sha256=d2a6cc3827ddac15f5baa063b36ab857b9571221ca1ce4ef25896cae914ff9f6
-@@ -122,6 +130,7 @@ mapped_sections_patch_sha256=2991378d565faeaf114bb5948bfa9ad05c39b078e4e1f4c2a67
+@@ -122,6 +126,7 @@ mapped_sections_patch_sha256=2991378d565faeaf114bb5948bfa9ad05c39b078e4e1f4c2a67
  fence_poll_patch_sha256=1ac407bdb617dfc52d004d0ebd0d07641d920f7d3a9756223c6426a207fb1499
  virgl_native_patch_sha256=692ed73cf88780b4c0e04c56e3cfb21cec761768dea909d755624e07d82fc60c
  virgl_upload_flush_patch_sha256=e5de1617bfeeb2e0ea0fa5cc5c4192f34c896c86efc51e0f68cfa14057afcac0
@@ -201,18 +207,42 @@ index e2a7110..9810f5f 100755
  strchrnul_patch_sha256=ec1048dd0e8ebe53bf7e8a3bca9bf2f5f4336cd607d4cd077437470e9a32094a
  usb_exact_bus_patch_sha256=5e39159171295c566d014a1ef2744130f80fa02b742c349fa47373b00ae697ec
  minimum_guest_size_patch_sha256=f01e20999bf87821639c93f3489eb093b292c48b107a14ba4fbdad5cbf5840a5
-@@ -149,7 +158,9 @@ keycodemap_commit=f5772a62ec52591ff6870b7e8ef32482371f22c6
+@@ -148,8 +153,7 @@ macos_deployment_target=15.0
+ keycodemap_commit=f5772a62ec52591ff6870b7e8ef32482371f22c6
  keycodemap_root="keycodemapdb-$keycodemap_commit"
  keycodemap_archive_name="$keycodemap_root.tar.gz"
- keycodemap_url="https://gitlab.com/qemu-project/keycodemapdb/-/archive/$keycodemap_commit/$keycodemap_archive_name"
+-keycodemap_url="https://gitlab.com/qemu-project/keycodemapdb/-/archive/$keycodemap_commit/$keycodemap_archive_name"
 -keycodemap_sha256=d014b53382dbb17b8196ad12f50de7f20d0ef1b9f7d54b0be51a6cbb14209195
-+# Ubuntu prototype: `git archive` of the same commit from github.com/qemu/keycodemapdb
-+# (upstream archive sha256 d014b53382dbb17b8196ad12f50de7f20d0ef1b9f7d54b0be51a6cbb14209195).
-+keycodemap_sha256=6a73ce24e06299eb0a6ad7128c2b4c19aaf6eeb78ee871de019bc930bb52468e
++keycodemap_url="https://github.com/qemu/keycodemapdb.git"
  
  dtc_commit=b6910bec11614980a21e46fbccc35934b671bd81
  dtc_root="dtc-$dtc_commit"
-@@ -502,6 +513,10 @@ verify_file_sha "Try Omarchy Cocoa precise-scroll patch" \
+@@ -225,9 +229,10 @@ log() {
+ }
+ # shellcheck source=macos/pinned-runtime-bottles.sh
+ source "$pinned_bottles"
++source "$native_dir/pinned-git-source.sh"
+ 
+ for tool in awk bash chmod curl ditto file grep install mkdir mktemp patch \
+-  pkg-config python3 rm sed shasum sw_vers tar uname; do
++  git gzip pkg-config python3 rm sed shasum sw_vers tar uname; do
+   command -v "$tool" >/dev/null 2>&1 || die "required tool is unavailable: $tool"
+ done
+ 
+@@ -420,8 +425,10 @@ pip_archive="$archive_dir/$pip_archive_name"
+ 
+ obtain_and_verify "libslirp source" "$slirp_url" "$slirp_sha256" "$slirp_archive"
+ obtain_and_verify "Meson" "$meson_url" "$meson_sha256" "$meson_archive"
+-obtain_and_verify "QEMU $qemu_commit" "$qemu_url" "$qemu_sha256" "$qemu_archive"
+-obtain_and_verify "keycodemapdb $keycodemap_commit" "$keycodemap_url" "$keycodemap_sha256" "$keycodemap_archive"
++pinned_git_source_archive "$qemu_url" "$qemu_commit" "$qemu_root" "$qemu_archive" \
++  "${OMARCHY_DOWNLOAD_CACHE:-$work_dir/git-cache}" || die "could not verify QEMU source at $qemu_commit"
++pinned_git_source_archive "$keycodemap_url" "$keycodemap_commit" "$keycodemap_root" "$keycodemap_archive" \
++  "${OMARCHY_DOWNLOAD_CACHE:-$work_dir/git-cache}" || die "could not verify keycodemapdb source at $keycodemap_commit"
+ obtain_and_verify "dtc $dtc_commit" "$dtc_url" "$dtc_sha256" "$dtc_archive"
+ obtain_and_verify "Ninja $ninja_version" "$ninja_url" "$ninja_sha256" "$ninja_archive"
+ obtain_and_verify "virglrenderer source" "$virgl_url" "$virgl_sha256" "$virgl_archive"
+@@ -502,6 +509,10 @@ verify_file_sha "Try Omarchy Cocoa precise-scroll patch" \
    "$precise_scroll_patch" "$precise_scroll_patch_sha256"
  verify_file_sha "Try Omarchy Cocoa touch-scroll patch" \
    "$touch_scroll_patch" "$touch_scroll_patch_sha256"
@@ -223,7 +253,7 @@ index e2a7110..9810f5f 100755
  verify_file_sha "Try Omarchy Cocoa ISO Section/Grave swap patch" \
    "$iso_swap_patch" "$iso_swap_patch_sha256"
  verify_file_sha "Try Omarchy Cocoa injected-text patch" \
-@@ -573,8 +588,10 @@ patch -d "$source_dir" -p1 -f -i "$main_loop_qos_patch"
+@@ -573,8 +584,10 @@ patch -d "$source_dir" -p1 -f -i "$main_loop_qos_patch"
  patch -d "$source_dir" -p1 -f -i "$notch_patch"
  patch -d "$source_dir" -p1 -f -i "$command_chord_patch"
  patch -d "$source_dir" -p1 -f -i "$touch_scroll_patch"
@@ -234,7 +264,7 @@ index e2a7110..9810f5f 100755
  
  virgl_root="$dependency_root/virglrenderer/$virgl_version"
  angle_root="$dependency_root/angle/$angle_version"
-@@ -694,6 +711,8 @@ verify_file_sha "Native OpenGL browser compatibility patch" "$virgl_native_patch
+@@ -694,6 +707,8 @@ verify_file_sha "Native OpenGL browser compatibility patch" "$virgl_native_patch
  patch -d "$virgl_source" -p1 -f -i "$virgl_native_patch"
  verify_file_sha "Context 0 upload flush patch" "$virgl_upload_flush_patch" "$virgl_upload_flush_patch_sha256"
  patch -d "$virgl_source" -p1 -f -i "$virgl_upload_flush_patch"
@@ -429,3 +459,31 @@ index 0000000..e1d1c89
 +          if (ctx->shader_req_bits & shader_req_table[i].key) {
 +             emit_ext(glsl_strbufs, shader_req_table[i].string, "require");
 +          }
+diff --git a/macos/pinned-git-source.sh b/macos/pinned-git-source.sh
+new file mode 100644
+index 0000000..f49e044
+--- /dev/null
++++ b/macos/pinned-git-source.sh
+@@ -0,0 +1,22 @@
++#!/bin/bash
++
++# Archives are transport only. Recreate them from verified Git objects on every
++# use, so neither gzip metadata nor a cached archive can change the source.
++pinned_git_source_archive() {
++  local url=$1 commit=$2 prefix=$3 output=$4 cache=$5
++  local repository="$cache/git/$prefix.git"
++  [[ $commit =~ ^[a-f0-9]{40}$ ]] || { echo "invalid source commit: $commit" >&2; return 1; }
++  mkdir -p "$cache/git" "$(dirname "$output")"
++  if [[ ! -e $repository ]]; then
++    git init --bare --quiet "$repository" || return 1
++  fi
++  [[ -d $repository && ! -L $repository ]] || return 1
++  if ! GIT_NO_REPLACE_OBJECTS=1 git --git-dir="$repository" cat-file -e "$commit^{commit}" 2>/dev/null; then
++    GIT_NO_REPLACE_OBJECTS=1 git --git-dir="$repository" fetch --quiet --depth=1 "$url" "$commit" || return 1
++  fi
++  [[ $(GIT_NO_REPLACE_OBJECTS=1 git --git-dir="$repository" rev-parse "$commit^{commit}") == "$commit" ]] || return 1
++  GIT_NO_REPLACE_OBJECTS=1 git --git-dir="$repository" fsck --full --no-reflogs || return 1
++  GIT_NO_REPLACE_OBJECTS=1 git --git-dir="$repository" archive --format=tar --prefix="$prefix/" "$commit" |
++    gzip -n >"$output.partial" || return 1
++  mv -f "$output.partial" "$output"
++}

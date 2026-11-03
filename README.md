@@ -33,16 +33,18 @@ If a drive is forcibly removed or disconnected, losing the VM folder stops QEMU 
 
 ## Building
 
-Prerequisites: the patched QEMU runtime and the pinned QEMU source archive, set up as described in [runtime/README.md](runtime/README.md).
+Prerequisites: an Apple Silicon Mac with macOS 15 or newer, Xcode command line tools, pkg-config, and Python 3.11 or newer with working venvs (`brew install pkgconf python@3.14`). See [runtime/README.md](runtime/README.md).
 
 Steps:
-1. Build the guest tools: `python3 guest/build.py` and `guest/build-tools-iso.sh`. The disc needs `xorriso` (`brew install xorriso`).
-2. Build the app: `scripts/build-app.sh`. It ends with a runtime capability check. To share it, see [Sharing the app](#sharing-the-app).
+1. Build the QEMU runtime: `scripts/build-runtime.sh`.
+2. Build the guest tools: `python3 guest/build.py` and `guest/build-tools-iso.sh`. The disc needs `xorriso` (`brew install xorriso`).
+3. Build the app: `scripts/build-app.sh`. It ends with a runtime capability check. To share it, see [Sharing the app](#sharing-the-app).
 
 Tests:
 - `swift test --package-path macos`
 - `python3 -m unittest discover guest/tests`
 - `python3 -m unittest discover scripts/harness/tests`
+- `python3 -m unittest discover scripts/tests` (clones the pinned Try Omarchy source if `.deps/try-omarchy` is absent; does not build it)
 
 ## Sharing the app
 

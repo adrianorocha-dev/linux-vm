@@ -1,0 +1,5 @@
+# Source commits shared by the runtime bootstrap and the app's firmware build.
+try_omarchy_tag=v1.3.0
+try_omarchy_commit=13d63df8da2947f833c04025ff5ade187d39ba81
+qemu_commit=c3d48b7d1e89604920e5b81b91140c2ad39a1943
+keycodemap_commit=f5772a62ec52591ff6870b7e8ef32482371f22c6
