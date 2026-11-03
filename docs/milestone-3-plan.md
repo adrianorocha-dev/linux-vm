@@ -18,6 +18,7 @@ Milestone 2 made the app dependable on this Mac ([plan](milestone-2-plan.md)). M
 - **Enforced by the build.** `scripts/build-app.sh` fails when the bundle holds an executable, library or component that the notices don't cover.
 - **In the app.** The app can show the notices, for example from its About window.
 - **Source.** The source isn't bundled (decision of 2 November). QEMU's GPLv2 requires the source, or a written offer of it, to go with the binary. So the notices carry a written offer to provide the complete source on request. Because the DMG will be public, this covers anyone who downloads it.
+- **Source kept for requests.** An offer is only good if the source still exists. A script gathers each release's complete corresponding source into one archive, kept outside the app for three years. That covers every pinned archive and git source, the upstream source and formula of every Homebrew bottle we ship, our patches, and the build scripts.
 
 ### 2. Releases and automatic updates
 
