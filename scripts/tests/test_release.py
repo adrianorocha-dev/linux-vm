@@ -237,8 +237,14 @@ elif name == 'package-dmg.sh':
     subprocess.run(['xcrun', 'notarytool', 'submit', 'fixture', '--keychain-profile', 'linuxvm-notary'], check=True)
     (root / 'build/Linux VM 0.1.0.dmg').write_bytes(b'fixture DMG bytes\\n')
 elif name == 'retain-release-source.py':
+    import hashlib, io, tarfile
     target = pathlib.Path(args[args.index('--output') + 1]); target.parent.mkdir(parents=True, exist_ok=True)
-    target.write_bytes(b'fixture source archive')
+    index = json.dumps({'complete': True, 'revision': 'a' * 40}).encode()
+    with tarfile.open(target, 'w:gz') as archive:
+        member = tarfile.TarInfo('release-source/SOURCE-INDEX.json'); member.size = len(index)
+        archive.addfile(member, io.BytesIO(index))
+    digest = hashlib.sha256(target.read_bytes()).hexdigest()
+    target.with_suffix(target.suffix + '.sha256').write_text(f'{digest}  {target.name}\\n')
 '''
 
 
@@ -307,6 +313,20 @@ class ReleaseIntegrationTests(unittest.TestCase):
             for name in ('appcast.xml', 'LinuxVM-0.1.0.dmg', 'summary.txt'):
                 shutil.copyfile(directory / name, target / name)
             (target / 'dry-run-output.txt').write_text(output)
+
+    def test_a_later_run_reuses_the_retained_source_of_the_same_commit(self):
+        with patch('builtins.input', side_effect=AssertionError('dry run must not prompt')):
+            self.execute()
+            directory, output = self.execute()
+        self.assertIn('Reusing the retained source', output)
+        self.assertEqual(sum(c[0] == 'retain-release-source.py' for c in self.commands()), 1)
+        source = next((Path(self.scratch.name) / 'retained').glob('*-source.tar.gz'))
+        release.check_retained_source(source, 'a' * 40)
+        with self.assertRaisesRegex(ValueError, 'not a complete archive'):
+            release.check_retained_source(source, 'b' * 40)
+        source.with_suffix(source.suffix + '.sha256').write_text('0' * 64 + '  x\n')
+        with self.assertRaisesRegex(ValueError, 'does not match its checksum file'):
+            release.check_retained_source(source, 'a' * 40)
 
     def test_cli_dry_run_with_temporary_config(self):
         shutil.copyfile(ROOT / 'scripts/release.py', self.root / 'scripts/release.py')

@@ -92,7 +92,7 @@ Keep that archive for at least three years after the version's last distribution
 The script pushes an annotated source tag, creates a public draft release, publishes it, and checks the public bytes.
 Artifacts stay in `build/release/VERSION/`, including `LinuxVM-VERSION.dmg` and `appcast.xml`.
 Use `--dry-run` to do all preparation, including signing and notarization, without tagging, pushing, or publishing.
-Repeated attempts need another source archive directory because retained archives are never overwritten.
+A later run of the same commit reuses the retained archive, so a dry run and then the real release collect the source once. Retained archives are never overwritten.
 If publication fails partway through, inspect the origin tag and public release before retrying.
 
 ## Command line

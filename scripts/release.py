@@ -261,6 +261,16 @@ def sparkle_tools(root):
     return tools
 
 
+def check_retained_source(path, revision):
+    checksum = path.with_suffix(path.suffix + '.sha256')
+    require(checksum.is_file() and checksum.read_text().split()[0] == sha(path),
+            f'retained source does not match its checksum file: {path}')
+    with tarfile.open(path) as archive:
+        index = json.loads(archive.extractfile('release-source/SOURCE-INDEX.json').read())
+    require(index.get('complete') is True and index.get('revision') == revision,
+            f'retained source is not a complete archive of {revision}: {path}')
+
+
 def verify_app(app, info, config):
     built = read_info(app / 'Contents/Info.plist')
     expected = {key: info[key] for key in ('CFBundleShortVersionString', 'CFBundleVersion', 'LSMinimumSystemVersion')}
@@ -316,7 +326,10 @@ def release(version, dry_run=False, config_path=None, root=ROOT, env=None):
     previous = parse_feed(old_feed) if old_feed is not None else []
     check_build(build, previous)
     source = config['source_archive_directory'] / f'linux-vm-{version}-{revision[:12]}-source.tar.gz'
-    require(not source.exists(), f'retained source already exists; keep it safe and choose another archive directory: {source}')
+    # A dry run keeps the archive, so the real run of the same commit reuses it.
+    retained = source.exists()
+    if retained:
+        check_retained_source(source, revision)
     tools = sparkle_tools(root)
     public_key = run(tools / 'generate_keys', '-p', cwd=root).stdout.strip()
     require(public_key == config['public_key'], 'keychain EdDSA public key differs from release config; run generate_keys during setup')
@@ -339,9 +352,13 @@ def release(version, dry_run=False, config_path=None, root=ROOT, env=None):
     run(tools / 'sign_update', '--verify', dmg, signature, cwd=root)
     feed = directory / 'appcast.xml'
     feed.write_bytes(appcast(version, info, config, signature, dmg.stat().st_size, notes_path.read_text(), previous))
-    print('Retaining release source…', flush=True)
-    run(sys.executable, root / 'scripts/retain-release-source.py', '--output', source, cwd=root, env=env)
-    require(source.is_file(), f'source retention did not produce {source}')
+    if retained:
+        print(f'Reusing the retained source from an earlier run: {source}', flush=True)
+    else:
+        print('Retaining release source…', flush=True)
+        run(sys.executable, root / 'scripts/retain-release-source.py', '--output', source, cwd=root, env=env)
+        require(source.is_file(), f'source retention did not produce {source}')
+    check_retained_source(source, revision)
     notes = directory / 'release-notes.md'
     shutil.copyfile(notes_path, notes)
     hashes = {path: sha(path) for path in (dmg, feed, notes, source)}
