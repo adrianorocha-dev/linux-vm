@@ -81,6 +81,17 @@ GPT-6.1-Sol built it in three rounds. Claude reviewed each round, redrew the ico
 - **Fixed at merge.** Two ANGLE dependency archives come from Gitiles, which regenerates its archives on every request. They are now pinned by their contents rather than their bytes.
 - **Left open:** the source-offer contact, which blocks Developer ID builds until it's set, and a license for our own code.
 
+### Release script (3 November 2026)
+
+GPT-6.1-Sol built it, and Claude reviewed and merged it with one fix.
+
+- **`scripts/release.py VERSION`** checks that `main` is clean and pushed, that the version matches Info.plist, and that the build number beats every published one. It also requires release notes in `docs/releases/VERSION.md`, and an EdDSA key in the keychain that matches the config.
+- **It prepares everything first.** It builds, signs and notarizes the app, then verifies the DMG and signs the update. It writes `appcast.xml` with the new release first, followed by the published history, and retains the source. Then it shows a summary.
+- **Publishing waits for "publish".** Then it pushes the tag, creates a draft release with the DMG and feed, publishes it, and checks the public bytes. `--dry-run` stops before that step.
+- **Config.** `scripts/release-config.json` holds the releases repository, the public key and the folder for retained source. While they are placeholders, a release refuses to start and names what's missing.
+- **Fixed at merge.** A dry run kept the source archive, so the real release of the same commit then refused to run. A verified, complete archive of the same commit is now reused.
+- **Verified** with stubbed commands only: 24 tests. Nothing was signed, notarized or published. The first real release will be the end-to-end check.
+
 ## Steps that belong to the user
 
 - **The EdDSA key pair.** Sparkle's `generate_keys` keeps the private key in your login keychain and prints the public key for Info.plist. Back the private key up: without it, installed copies can't be updated.
