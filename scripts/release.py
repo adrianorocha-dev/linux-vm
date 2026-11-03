@@ -66,13 +66,7 @@ def load_config(path, root, env):
         missing.append('repository (public GitHub owner/name)')
     if not valid_base64(config.get('public_key'), 32):
         missing.append('public_key (Sparkle EdDSA public key)')
-    directory = env.get('LINUXVM_RELEASE_SOURCE_DIR') or config.get('source_archive_directory', '')
-    if not isinstance(directory, str) or not directory or '<' in directory or not Path(directory).expanduser().is_absolute():
-        missing.append('source_archive_directory (absolute path, or LINUXVM_RELEASE_SOURCE_DIR)')
     require(not missing, f'incomplete release config {path}: ' + '; '.join(missing))
-    directory = Path(directory).expanduser().resolve()
-    require(not directory.is_relative_to(root.resolve()), 'source_archive_directory must be outside the repository')
-    config['source_archive_directory'] = directory
     config['feed_url'] = f'https://github.com/{repository}/releases/latest/download/appcast.xml'
     return config
 
@@ -208,6 +202,10 @@ def dmg_name(version):
     return f'LinuxVM-{version}.dmg'
 
 
+def source_name(version):
+    return f'linux-vm-{version}-source.tar.gz'
+
+
 def appcast(version, info, config, signature, length, notes, previous, now=None):
     require(valid_base64(signature, 64), 'sign_update did not return a valid EdDSA signature')
     require(length > 0, 'DMG is empty')
@@ -307,6 +305,16 @@ def verify_public(config, version, dmg, feed, directory):
             target.unlink(missing_ok=True)
 
 
+def verify_source_asset(config, version, source, root):
+    # The source archive is large, so compare GitHub's record of it instead of downloading it again.
+    published = json.loads(run('gh', 'api', f'repos/{config["repository"]}/releases/tags/v{version}', cwd=root).stdout)
+    assets = [a for a in published.get('assets', []) if a.get('name') == source.name]
+    require(len(assets) == 1 and assets[0].get('size') == source.stat().st_size,
+            f'the release does not carry {source.name} at its full size')
+    digest = assets[0].get('digest')
+    require(digest in (None, 'sha256:' + sha(source)), f'the published {source.name} differs from the retained archive')
+
+
 def release(version, dry_run=False, config_path=None, root=ROOT, env=None):
     env = dict(os.environ if env is None else env)
     config = load_config(config_path or root / 'scripts/release-config.json', root, env)
@@ -325,7 +333,7 @@ def release(version, dry_run=False, config_path=None, root=ROOT, env=None):
     old_feed = published_feed(config, directory)
     previous = parse_feed(old_feed) if old_feed is not None else []
     check_build(build, previous)
-    source = config['source_archive_directory'] / f'linux-vm-{version}-{revision[:12]}-source.tar.gz'
+    source = directory / source_name(version)
     # A dry run keeps the archive, so the real run of the same commit reuses it.
     retained = source.exists()
     if retained:
@@ -366,7 +374,7 @@ def release(version, dry_run=False, config_path=None, root=ROOT, env=None):
                f'Public repository: {config["repository"]}\nFeed: {config["feed_url"]}\n'
                f'DMG: {dmg} ({dmg.stat().st_size} bytes, SHA-256 {hashes[dmg]})\n'
                f'Appcast: {feed} ({len(previous) + 1} items)\nRelease notes: {notes}\n'
-               f'Retained source: {source}\nKeep this archive for at least three years after this version’s last distribution.\n')
+               f'Source: {source} ({source.stat().st_size} bytes), attached to the release next to the DMG\n')
     (directory / 'summary.txt').write_text(summary)
     print('\n' + summary, flush=True)
     if dry_run:
@@ -382,9 +390,10 @@ def release(version, dry_run=False, config_path=None, root=ROOT, env=None):
     run('git', 'tag', '-a', tag, revision, '-m', f'Linux VM {version}', cwd=root)
     run('git', 'push', 'origin', f'refs/tags/{tag}', cwd=root)
     run('gh', 'release', 'create', tag, '--repo', config['repository'], '--draft',
-        '--title', f'Linux VM {version}', '--notes-file', notes, dmg, feed, cwd=root)
+        '--title', f'Linux VM {version}', '--notes-file', notes, dmg, feed, source, cwd=root)
     run('gh', 'release', 'edit', tag, '--repo', config['repository'], '--draft=false', '--latest', cwd=root)
     verify_public(config, version, dmg, feed, directory)
+    verify_source_asset(config, version, source, root)
     print(f'Published and verified https://github.com/{config["repository"]}/releases/tag/{tag}')
     return directory
 

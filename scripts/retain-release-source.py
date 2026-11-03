@@ -232,7 +232,7 @@ def collect(args):
                   'gaps': plan['gaps'], 'findings': plan.get('findings', []),
                   'optional_failures': optional_failures, 'artifacts': collector.artifacts,
                   'artifact_bytes': sum(a['bytes'] for a in collector.artifacts.values()),
-                  'retention': 'Keep through at least three years after the last distribution of this version.'}
+                  'retention': 'Published with the release of this version, next to its DMG.'}
         (stage / 'SOURCE-INDEX.json').write_text(json.dumps(report, indent=2) + '\n')
         checksums = {p.relative_to(stage).as_posix(): sha(p) for p in sorted(stage.rglob('*')) if p.is_file()}
         (stage / 'SHA256SUMS').write_text(''.join(f'{value}  {name}\n' for name, value in checksums.items()))

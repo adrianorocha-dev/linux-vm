@@ -1,5 +1,4 @@
 {
-  "repository": "<owner>/<releases-repository>",
-  "public_key": "<Sparkle EdDSA public key>",
-  "source_archive_directory": "<absolute path outside this repository>"
+  "repository": "adrianorocha-dev/linux-vm",
+  "public_key": "qAguOkdMh2mVIrqQ5Rc+eI4ohWr5zadQVqht1dMJ3cg="
 }

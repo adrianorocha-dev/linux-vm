@@ -65,15 +65,14 @@ Keep the corresponding source for every distributed binary, including Homebrew's
 A bottle URL and upstream repository alone are not the corresponding source.
 Do not delete retained release source during the offer period.
 
-## Source offer and release blockers
+## Source and release blockers
 
-Set `offer_contact` in `manifest.json` to the distributor's durable contact address.
-That is the only source-offer contact setting.
-A Developer ID build fails before compilation while that setting is unset.
-The written offer covers any third party and lasts at least three years after the last distribution of a version.
-It promises complete corresponding source at no more than physical distribution cost.
-It covers GPL and LGPL source, patches, interface definitions and build and installation scripts.
-The distributor must actually retain and provide those materials.
+Each release publishes its complete corresponding source next to its DMG, as `linux-vm-VERSION-source.tar.gz` on the GitHub release.
+GPLv2 and LGPLv2.1 count source offered from the same place as the binary as distributing it, so no written offer is needed.
+The notices name that release page, using the repository in `scripts/release-config.json`.
+`offer_contact` in `manifest.json` is where questions and source requests go: the repository's Issues page.
+A Developer ID build fails before compilation while the contact or the repository is unset.
+The archive covers GPL and LGPL source, patches, interface definitions and build and installation scripts.
 
 ANGLE is pinned to the commit recorded in its shipped library.
 Its full license and embedded dependency notices come from immutable source revisions.
@@ -98,11 +97,9 @@ Run this after building the release from a clean committed checkout:
 python3 scripts/retain-release-source.py --output /path/to/retained/linux-vm-VERSION-source.tar.gz
 ```
 
-The archive is outside the app.
-Keep it with the release's DMG and build log.
-Keep it through at least three years after that version's last distribution.
-Back it up somewhere durable before distributing the binary.
-A successful complete run is required before answering a source request from this archive.
+The archive is outside the app. `scripts/release.py` runs this for every release and attaches the result to the release.
+Don't delete a release's source archive while that version is distributed.
+Only a complete run may be published.
 
 The collector requires all copyleft source and build inputs, including bottle formulas, resources and patches.
 It also retains manifest archives, including bottles and build tools.
@@ -138,7 +135,7 @@ python3 scripts/retain-release-source.py --subset keycodemap,zstd-source,bottle-
 ```
 
 A subset always has `complete: false` in its index.
-It is a test artifact and cannot fulfill the written offer.
+It is a test artifact and must not be published with a release.
 See [verification](VERIFICATION.md) for measured build overhead, test results and the retained archive result.
 
 ## Legal review points
@@ -149,8 +146,8 @@ The procedure leaves the release signing settings intact.
 It was checked with ad hoc signatures only.
 Developer ID signing, notarization and a replacement library built by another team still need verification.
 
-Review the written offer against [GPLv2 section 3](https://www.gnu.org/licenses/old-licenses/gpl-2.0.html) and [LGPLv2.1 sections 4 and 6](https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html) before release.
-The LGPL offer is intended to cover the complete linked QEMU work under section 6(c), including the library source and QEMU source needed to rebuild it.
+Publishing the source next to the binary relies on the last paragraph of [GPLv2 section 3](https://www.gnu.org/licenses/old-licenses/gpl-2.0.html) and on [LGPLv2.1 sections 4 and 6](https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html).
+The archive is meant to cover the complete linked QEMU work, including the library source and QEMU source needed to rebuild it.
 Whether that also satisfies section 4 for separately shipped dylibs needs legal review.
 The bundled instructions expressly permit modification and reverse engineering to debug library changes.
 No license has been selected for the original app, artwork, guest code or local patch contributions.

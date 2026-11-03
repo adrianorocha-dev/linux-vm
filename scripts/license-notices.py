@@ -207,6 +207,7 @@ def validate_manifest(manifest, root=ROOT, identity='-'):
         # The marked sentinel is defined only in manifest.json.
         require(contact and not contact.endswith('_UNSET'),
                 'set offer_contact in licenses/manifest.json before Developer ID signing')
+        require(release_repository(root), 'set repository in scripts/release-config.json before Developer ID signing')
         require(not manifest.get('release_blockers'),
                 'unresolved license provenance: ' + '; '.join(manifest['release_blockers']))
         require(all(not c.get('license_status', '').startswith('incomplete') for c in manifest['components']),
@@ -470,25 +471,31 @@ def validate_guest(manifest, iso, root=ROOT):
             'Guest Tools disc version differs; rebuild the disc')
 
 
+def release_repository(root=ROOT):
+    try:
+        repository = json.loads((root / 'scripts/release-config.json').read_text()).get('repository', '')
+    except (OSError, ValueError, AttributeError):
+        return None
+    return repository if isinstance(repository, str) and re.fullmatch(r'[A-Za-z0-9_-]+/[A-Za-z0-9_.-]+', repository) else None
+
+
 def notices(manifest, root=ROOT):
     revision = subprocess.check_output(['git', '-C', str(root), 'rev-parse', 'HEAD'], text=True).strip()
+    version = component_version(next(c for c in manifest['components'] if c['id'] == 'linux-vm'), root)
+    repository = release_repository(root) or '<repository not configured>'
+    release_page = f'https://github.com/{repository}/releases/tag/v{version}'
     lines = ['Linux VM — third-party notices and provenance', '', 'Build source revision: ' + revision,
              'Local modifications may be present; see the accompanying manifest.json.', '',
-             'WRITTEN OFFER FOR COMPLETE CORRESPONDING SOURCE', '',
-             'The distributor of this copy of Linux VM offers to provide to any third',
-             'party a complete machine-readable copy of the corresponding source code',
-             'for the GPL and LGPL software distributed with this copy, under the terms',
-             'of the applicable licenses. This includes QEMU, the LGPL libraries, all',
-             'local and upstream patches, interface definitions, and the scripts used',
-             'to control compilation and installation. The offer is valid for at least',
-             'three years after the last distribution of this version. The charge will',
-             'not exceed the cost of physically performing source distribution.',
-             'This offer applies to anyone, including recipients of public downloads.',
-             'Send a request identifying the app version and build to:',
-             manifest['offer_contact'], '',
-             'This offer must be fulfilled with the exact source for the binaries,',
-             'including the Homebrew bottle sources and patches; upstream URLs alone',
-             'are not a substitute for complete corresponding source.', '',
+             'SOURCE CODE', '',
+             'The complete corresponding source code for the GPL and LGPL software in',
+             'this copy is published with this version’s release, next to the app:',
+             f'  {release_page}',
+             f'  linux-vm-{version}-source.tar.gz',
+             'It includes QEMU, the LGPL libraries, all local and upstream patches,',
+             'interface definitions, and the scripts used to control compilation and',
+             'installation. Linux VM’s own source is in the repository, and this build',
+             'came from the revision above.',
+             'Questions and source requests: ' + manifest['offer_contact'], '',
              'See LGPL-REPLACEMENT.txt for replacing LGPL libraries in a personal copy.',
              'Linux VM’s own code and artwork are available under the MIT License; see Linux-VM.txt.', '']
     if release_blockers(manifest):

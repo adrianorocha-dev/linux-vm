@@ -103,28 +103,34 @@ class ReleaseLogicTests(unittest.TestCase):
     def test_config_placeholders_refuse_before_any_external_work(self):
         with tempfile.TemporaryDirectory() as directory:
             config = Path(directory) / 'config.json'
-            config.write_text(json.dumps({'repository': '<owner>/<repo>', 'public_key': '<public key>',
-                                          'source_archive_directory': '<absolute directory>'}))
+            config.write_text(json.dumps({'repository': '<owner>/<repo>', 'public_key': '<public key>'}))
             with patch.object(release, 'run') as command:
-                with self.assertRaisesRegex(ValueError, r'incomplete release config.*repository.*public_key.*source_archive_directory'):
+                with self.assertRaisesRegex(ValueError, r'incomplete release config.*repository.*public_key'):
                     release.release('0.1.0', dry_run=True, config_path=config)
             command.assert_not_called()
 
-    def test_complete_config_derives_feed_and_keeps_source_outside_repository(self):
+    def test_complete_config_derives_feed(self):
         with tempfile.TemporaryDirectory() as directory:
-            root = Path(directory) / 'repo'
-            root.mkdir()
-            path = root / 'config.json'
-            config = dict(CONFIG, source_archive_directory=str(Path(directory) / 'archives'))
-            path.write_text(json.dumps(config))
-            loaded = release.load_config(path, root, {})
-            self.assertEqual(loaded['feed_url'], CONFIG['feed_url'])
-            config['source_archive_directory'] = str(root / 'retained')
-            path.write_text(json.dumps(config))
-            with self.assertRaisesRegex(ValueError, 'outside the repository'):
-                release.load_config(path, root, {})
-            override = str(Path(directory) / 'elsewhere')
-            self.assertEqual(release.load_config(path, root, {'LINUXVM_RELEASE_SOURCE_DIR': override})['source_archive_directory'], Path(override).resolve())
+            path = Path(directory) / 'config.json'
+            path.write_text(json.dumps({'repository': CONFIG['repository'], 'public_key': KEY}))
+            self.assertEqual(release.load_config(path, Path(directory), {})['feed_url'], CONFIG['feed_url'])
+
+    def test_the_checked_in_config_is_complete(self):
+        config = release.load_config(ROOT / 'scripts/release-config.json', ROOT, {})
+        self.assertEqual(config['feed_url'], f'https://github.com/{config["repository"]}/releases/latest/download/appcast.xml')
+
+    def test_published_source_must_match_the_retained_archive(self):
+        with tempfile.TemporaryDirectory() as directory:
+            source = Path(directory) / release.source_name('0.1.0')
+            source.write_bytes(b'source')
+            def answer(assets):
+                return subprocess.CompletedProcess([], 0, json.dumps({'assets': assets}), '')
+            good = {'name': source.name, 'size': 6, 'digest': 'sha256:' + release.sha(source)}
+            with patch.object(release, 'run', return_value=answer([good])):
+                release.verify_source_asset(CONFIG, '0.1.0', source, Path(directory))
+            for bad in ([], [dict(good, size=5)], [dict(good, digest='sha256:' + '0' * 64)]):
+                with patch.object(release, 'run', return_value=answer(bad)), self.assertRaises(ValueError):
+                    release.verify_source_asset(CONFIG, '0.1.0', source, Path(directory))
 
     def test_checkout_preconditions(self):
         cases = [(['topic'], 'branch main'), (['main', ' M README.md'], 'clean checkout'),
@@ -213,7 +219,13 @@ if name == 'git':
     elif args[:1] == ['rev-parse']: print('a' * 40)
 elif name == 'gh':
     if args[0] == 'api':
-        if args[-1].endswith('/releases/latest'):
+        if '/releases/tags/v' in args[-1]:
+            import hashlib
+            version = args[-1].rsplit('/v', 1)[1]
+            source = root / 'build/release' / version / f'linux-vm-{version}-source.tar.gz'
+            print(json.dumps({'assets': [{'name': source.name, 'size': source.stat().st_size,
+                                          'digest': 'sha256:' + hashlib.sha256(source.read_bytes()).hexdigest()}]}))
+        elif args[-1].endswith('/releases/latest'):
             if os.environ.get('STUB_FIRST_RELEASE'):
                 print('gh: Not Found (HTTP 404)', file=sys.stderr); sys.exit(1)
             print(json.dumps({'assets': [{'name': 'appcast.xml'}]}))
@@ -259,7 +271,7 @@ class ReleaseIntegrationTests(unittest.TestCase):
         (self.root / 'macos/Resources/Info.plist').write_bytes(plistlib.dumps(INFO))
         (self.root / 'docs/releases/0.1.0.md').write_text('# Linux VM 0.1.0\n\n- **Fixture** release.\n- [Details](https://example.invalid/notes).\n')
         self.config = self.root / 'scripts/release-config.json'
-        self.config.write_text(json.dumps(dict(CONFIG, source_archive_directory=str(Path(self.scratch.name) / 'retained'))))
+        self.config.write_text(json.dumps(CONFIG))
         for name in ('git', 'gh', 'codesign', 'spctl', 'xcrun'):
             self.stub(self.root / 'stub-bin' / name)
         for name in ('build-runtime.sh', 'build-app.sh', 'package-dmg.sh', 'retain-release-source.py'):
@@ -269,7 +281,7 @@ class ReleaseIntegrationTests(unittest.TestCase):
         self.env = dict(os.environ, PATH=str(self.root / 'stub-bin') + os.pathsep + os.environ['PATH'],
                         STUB_ROOT=str(self.root), STUB_PUBLIC_KEY=KEY, STUB_SIGNATURE=SIGNATURE,
                         LINUXVM_SIGN_IDENTITY='Developer ID Application: Fixture (TEST)')
-        for key in ('LINUXVM_NOTARY_PROFILE', 'LINUXVM_RELEASE_SOURCE_DIR', 'STUB_FIRST_RELEASE'):
+        for key in ('LINUXVM_NOTARY_PROFILE', 'STUB_FIRST_RELEASE'):
             self.env.pop(key, None)
         self.downloads = []
 
@@ -299,7 +311,7 @@ class ReleaseIntegrationTests(unittest.TestCase):
         self.assertEqual((directory / 'LinuxVM-0.1.0.dmg').read_bytes(), b'fixture DMG bytes\n')
         self.assertEqual(len(release.parse_feed((directory / 'appcast.xml').read_bytes())), 2)
         self.assertIn('build 2', output)
-        self.assertIn('Keep this archive for at least three years', output)
+        self.assertIn('attached to the release next to the DMG', output)
         self.assertIn('Nothing was tagged, pushed or published', output)
         commands = self.commands()
         self.assertIn(['xcrun', 'stapler', 'validate', str(directory / 'LinuxVM-0.1.0.dmg')], commands)
@@ -320,7 +332,7 @@ class ReleaseIntegrationTests(unittest.TestCase):
             directory, output = self.execute()
         self.assertIn('Reusing the retained source', output)
         self.assertEqual(sum(c[0] == 'retain-release-source.py' for c in self.commands()), 1)
-        source = next((Path(self.scratch.name) / 'retained').glob('*-source.tar.gz'))
+        source = self.root / 'build/release/0.1.0' / release.source_name('0.1.0')
         release.check_retained_source(source, 'a' * 40)
         with self.assertRaisesRegex(ValueError, 'not a complete archive'):
             release.check_retained_source(source, 'b' * 40)
@@ -407,6 +419,8 @@ class ReleaseIntegrationTests(unittest.TestCase):
         self.assertLess(push, draft)
         self.assertLess(draft, publish)
         self.assertIn('--draft', commands[draft])
+        self.assertIn(str(self.root / 'build/release/0.1.0' / release.source_name('0.1.0')), commands[draft])
+        self.assertTrue(any(c[:2] == ['gh', 'api'] and c[-1].endswith('/releases/tags/v0.1.0') for c in commands[publish:]))
         self.assertIn('--draft=false', commands[publish])
         self.assertIn('--latest', commands[publish])
         self.assertEqual(len(self.downloads), 4)

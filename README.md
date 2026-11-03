@@ -62,19 +62,14 @@ Recipients need an Apple Silicon Mac with macOS 15 or later. Without `LINUXVM_NO
 
 Complete the certificate and notary setup in [Sharing the app](#sharing-the-app).
 Install GitHub CLI (`brew install gh`) and sign in with `gh auth login`.
-Create a public releases repository with an initial README commit and no app source.
-Set its owner/name in `scripts/release-config.json`.
-The script derives the feed URL as `https://github.com/<owner>/<name>/releases/latest/download/appcast.xml`.
+Releases are published from this repository, `adrianorocha-dev/linux-vm`, which `scripts/release-config.json` names.
+The script derives the feed URL from it: `https://github.com/adrianorocha-dev/linux-vm/releases/latest/download/appcast.xml`.
 
 Run `.deps/sparkle-2.10.0/bin/generate_keys` once to create the EdDSA key in your login keychain.
 If needed, unpack [Sparkle 2.10.0](https://github.com/sparkle-project/Sparkle/releases/download/2.10.0/Sparkle-2.10.0.tar.xz) there after verifying its SHA-256 is `c2bf58aa8387266ac179357b1415d6f2635f044da8be41042af32425dae6da0c`.
-Put the printed public key in the config's `public_key`.
-Back up the private key securely.
+The config's `public_key` holds the public key it printed.
+Back up the private key securely: without it, installed copies can't be updated.
 The release script fetches and verifies absent tools.
-
-Set `source_archive_directory` to a durable absolute folder outside the repository, or set `LINUXVM_RELEASE_SOURCE_DIR` on this Mac.
-Set `offer_contact` in `licenses/manifest.json` to your source-offer contact.
-Commit these settings; placeholders block a release.
 
 For each release, set `CFBundleShortVersionString` in `macos/Resources/Info.plist` to `MAJOR.MINOR.PATCH` and raise the integer `CFBundleVersion` above every published build.
 Add `docs/releases/VERSION.md` using the [notes format](docs/releases/README.md).
@@ -85,14 +80,14 @@ Commit and push these changes, then run from a clean `main` equal to `origin/mai
 LINUXVM_SIGN_IDENTITY="Developer ID Application: <name> (<team ID>)" python3 scripts/release.py VERSION
 ```
 
-The script builds, signs, notarizes, and retains source before asking to publish.
+The script builds, signs and notarizes the app, and collects the release's complete source, before asking to publish.
 It uses `linuxvm-notary` unless `LINUXVM_NOTARY_PROFILE` names another profile.
-Review the summary and back up the retained source archive before typing `publish`.
-Keep that archive for at least three years after the version's last distribution.
-The script pushes an annotated source tag, creates a public draft release, publishes it, and checks the public bytes.
-Artifacts stay in `build/release/VERSION/`, including `LinuxVM-VERSION.dmg` and `appcast.xml`.
+Review the summary, then type `publish`.
+The script pushes an annotated tag, creates a draft release with the DMG, `appcast.xml` and the source archive, publishes it, and checks what GitHub serves.
+Artifacts stay in `build/release/VERSION/`: `LinuxVM-VERSION.dmg`, `appcast.xml` and `linux-vm-VERSION-source.tar.gz`.
 Use `--dry-run` to do all preparation, including signing and notarization, without tagging, pushing, or publishing.
-A later run of the same commit reuses the retained archive, so a dry run and then the real release collect the source once. Retained archives are never overwritten.
+A later run of the same commit reuses the source archive, so a dry run and then the real release collect the source once.
+Don't delete a release's source archive while that version is distributed.
 If publication fails partway through, inspect the origin tag and public release before retrying.
 
 ## Command line
@@ -111,20 +106,19 @@ The tool is at `Linux VM.app/Contents/Helpers/linuxvmctl`.
 
 ## Licenses
 
-The app's notices, source offer, license texts and provenance manifest live in `Contents/Resources/Licenses/`.
+The app's notices, license texts and provenance manifest live in `Contents/Resources/Licenses/`. The notices point to the release page that carries the version's complete source.
 `scripts/build-app.sh` checks license texts, every bundle file and the files inside the Guest Tools disc before signing, then checks coverage again after signing.
 Developer ID builds and tests also verify all third-party input pins, checksums and upstream license bytes.
 Ad hoc builds use local checks without cloning or downloading inputs.
 Original app and Guest Tools code has no manifest checksums.
 Their notice versions come from Info.plist and guest/build.py.
 An unlisted component or missing license text stops the build.
-Developer ID builds also require a source-offer contact and resolved provenance gaps.
+Developer ID builds also require the release repository, the source-request contact and resolved provenance gaps.
 Linux VM’s own code is available under the MIT License ([LICENSE](LICENSE)).
 See [licenses/README.md](licenses/README.md) for the inventory, current release blockers and how to add a component.
 
-Retain release source outside the app with `python3 scripts/retain-release-source.py --output /path/to/retained/linux-vm-VERSION-source.tar.gz`.
+`scripts/release.py` collects each release's complete corresponding source with `scripts/retain-release-source.py` and attaches it to the GitHub release, next to the DMG.
 The collector verifies sources, bottle formulas and patches and records their checksums.
-Keep a complete archive for at least three years after the release's last distribution.
 ANGLE's revision comes from its binary version string.
 Its permissive dependency notices use pinned DEPS reference revisions and impose no source-distribution obligation.
 The collector requires all copyleft sources and treats ANGLE's source as best effort.

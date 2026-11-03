@@ -17,8 +17,8 @@ Milestone 2 made the app dependable on this Mac ([plan](milestone-2-plan.md)). M
 - **In the bundle.** Ship each license text in `Contents/Resources/Licenses/`, with one notices file that lists every component.
 - **Enforced by the build.** `scripts/build-app.sh` fails when the bundle holds an executable, library or component that the notices don't cover.
 - **In the app.** The app can show the notices, for example from its About window.
-- **Source.** The source isn't bundled (decision of 2 November). QEMU's GPLv2 requires the source, or a written offer of it, to go with the binary. So the notices carry a written offer to provide the complete source on request. Because the DMG will be public, this covers anyone who downloads it.
-- **Source kept for requests.** An offer is only good if the source still exists. A script gathers each release's complete corresponding source into one archive, kept outside the app for three years. That covers every pinned archive and git source, the upstream source and formula of every Homebrew bottle we ship, our patches, and the build scripts.
+- **Source.** The source isn't bundled in the app (decision of 2 November). Instead, each release publishes its complete corresponding source next to its DMG on the GitHub release (decision of 3 November). GPLv2 counts source offered from the same place as the binary as distributing it. The notices name that release page and the repository's Issues page for questions.
+- **Source archive.** A script gathers each release's complete corresponding source into one archive. That covers every pinned archive and git source, the upstream source and formula of every Homebrew bottle we ship, our patches, and the build scripts.
 
 ### 2. Releases and automatic updates
 
@@ -26,7 +26,7 @@ Milestone 2 made the app dependable on this Mac ([plan](milestone-2-plan.md)). M
 - **Sparkle in the app.** Sparkle 2 is embedded in `Contents/Frameworks` and signed with the app. Info.plist names the update feed and the public EdDSA key. The app menu gets "Check for Updates…". Sparkle asks on the second launch whether to check automatically.
 - **Running VMs.** A VM runs from inside the app bundle: the supervisor, QEMU and the bridges, which the supervisor restarts from the bundle's path. Replacing the bundle under a running VM would mix the old QEMU with new bridges. So the app installs an update only when no VM is running, and asks you to shut them down first. What actually happens otherwise gets tested before this rule is relaxed.
 - **Compatibility.** A newer app opens VM folders written by older ones, which saved 0.1.0 configurations test. After installing, the app checks its runtime as it does today.
-- **Hosting.** A public GitHub repository that holds only releases, with no source. Each release carries the DMG, and the update feed (`appcast.xml`) is published there too.
+- **Hosting.** This repository's GitHub releases, now that it's public. Each release carries the DMG, the update feed (`appcast.xml`) and the source archive.
 - **Release script.** From a clean `main`, the script:
   - builds and signs the app, then notarizes and staples the DMG;
   - signs the update with the EdDSA key and writes the feed entry;
@@ -88,14 +88,14 @@ GPT-6.1-Sol built it, and Claude reviewed and merged it with one fix.
 - **`scripts/release.py VERSION`** checks that `main` is clean and pushed, that the version matches Info.plist, and that the build number beats every published one. It also requires release notes in `docs/releases/VERSION.md`, and an EdDSA key in the keychain that matches the config.
 - **It prepares everything first.** It builds, signs and notarizes the app, then verifies the DMG and signs the update. It writes `appcast.xml` with the new release first, followed by the published history, and retains the source. Then it shows a summary.
 - **Publishing waits for "publish".** Then it pushes the tag, creates a draft release with the DMG and feed, publishes it, and checks the public bytes. `--dry-run` stops before that step.
-- **Config.** `scripts/release-config.json` holds the releases repository, the public key and the folder for retained source. While they are placeholders, a release refuses to start and names what's missing.
+- **Config.** `scripts/release-config.json` holds the repository and the public key. While they are placeholders, a release refuses to start and names what's missing. Since the repository went public, the source archive is attached to each release instead of kept in a private folder.
 - **Fixed at merge.** A dry run kept the source archive, so the real release of the same commit then refused to run. A verified, complete archive of the same commit is now reused.
 - **Verified** with stubbed commands only: 24 tests. Nothing was signed, notarized or published. The first real release will be the end-to-end check.
 
 ## Steps that belong to the user
 
 - **The EdDSA key pair.** Sparkle's `generate_keys` keeps the private key in your login keychain and prints the public key for Info.plist. Back the private key up: without it, installed copies can't be updated.
-- **The public releases repository:** its name, and creating it.
+- **Making the repository public:** done on 3 November.
 - **Approving each publish.**
 
 ## How the work is split
