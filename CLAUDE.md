@@ -10,6 +10,7 @@ Read `README.md` for the layout, then `docs/milestone-3-plan.md` for the current
 - Run the tests: `swift test --package-path macos` and `/opt/homebrew/bin/python3.14 -m unittest discover guest/tests`, `python3 -m unittest discover scripts/harness/tests`, and `python3 -m unittest discover scripts/tests`. The last command clones the pinned Try Omarchy source if absent. It does not build it.
 - Rebuild the guest tools: `python3 guest/build.py` and `guest/build-tools-iso.sh`. Then rebuild the app, which bundles the disc.
 - The QEMU runtime and its inputs live in git-ignored `.deps/` ([runtime/README.md](runtime/README.md)).
+- Bundle provenance and license texts live in `licenses/`. Update the manifest when shipped code, artwork, versions or dependencies change. See [licenses/README.md](licenses/README.md).
 
 ## Verifying on this Mac
 
