@@ -60,6 +60,14 @@ Milestone 2 made the app dependable on this Mac ([plan](milestone-2-plan.md)). M
   - the updated copy kept its Developer ID signature, passed its runtime check and started its VM.
 - **Not verified yet:** the path with clicks. That is Sparkle's update window, Install and Relaunch, and the shut-down prompt. It needs someone at the Mac.
 
+### One-command runtime build (3 November 2026)
+
+GPT-6.1-Sol built it, and Claude reviewed and merged it.
+
+- **`scripts/build-runtime.sh`** checks the prerequisites and clones Try Omarchy at the pinned commit. It applies our diff, then builds. It accepts a pristine or an exactly patched checkout and refuses anything else.
+- **Pinned by commit.** QEMU and keycodemapdb are fetched by commit, checked with `git fsck`, and archived again from the verified objects. Local git and gzip versions no longer matter. `scripts/build-app.sh` gets its firmware source the same way. The commits live in `runtime/source-pins.sh`.
+- **Verified.** A fresh clone with no cache built the runtime in 2 minutes 25 seconds, and the app built from it passed `linuxvmctl check`. The result has the same 17 files, libraries, entitlements and patches as the previous runtime. Fourteen files are byte-identical. QEMU, libslirp and virglrenderer differ only by the macOS SDK they were built with (27.2 instead of 27.0). The main checkout was rebuilt the same way in 1 minute 45 seconds.
+
 ## Steps that belong to the user
 
 - **The EdDSA key pair.** Sparkle's `generate_keys` keeps the private key in your login keychain and prints the public key for Info.plist. Back the private key up: without it, installed copies can't be updated.
