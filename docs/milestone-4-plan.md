@@ -110,7 +110,15 @@ Guest tools 0.3.0 ship on the disc of app 0.3.0, which is released the way 0.2.1
   - A Fedora 45 KDE install took about 6 minutes.
 - **KDE's first-run wizard.** On Fedora 45 KDE, `plasma-setup.service` logs in as a `plasma-setup` user instead, unless `/etc/plasma-setup-done` exists. The kickstart creates that file.
 - **In the harness.** GPT-6.1-Sol turned these steps into a Fedora profile of `scripts/harness/fresh-install`, chosen from the image's name or `--profile fedora`. Its session checks follow the desktop: GNOME's extension, or KDE's clipboard state. Claude reviewed and merged it, with two fixes. The harness kept every poll's copy of Anaconda's logs, and now keeps only the latest. It also failed a good Fedora 44 install, on Anaconda's harmless "ERR … setting console font" line; now only a `CmdlineError`, a traceback, or an exit without power-off count as failure.
-- **Ubuntu with Plasma** isn't a harness profile yet. Its test VM was the harness's Ubuntu install with `kubuntu-desktop` added by hand. The `shared/default-x-display-manager` answer kept GDM, and AccountsService set the user's session to `plasma`.
+- **Ubuntu with Plasma** is `--desktop plasma` on the Ubuntu profile, also by GPT-6.1-Sol and reviewed by Claude. After the Ubuntu install, it installs `kubuntu-desktop`. The `shared/default-x-display-manager` answer keeps GDM, and AccountsService sets the user's session to `plasma`. The session check then requires KDE.
+- **Every profile passed unattended** on 5 November, each with the disc's `install.sh` and the desktop's session check:
+
+  | Profile | Time |
+  | --- | --- |
+  | Fedora 44 Workstation | 7 min 22 s |
+  | Fedora 45 KDE | 7 min 47 s |
+  | Ubuntu 26.04 with Plasma | 15 min 34 s, including about 1,000 packages for `kubuntu-desktop` |
+  | Ubuntu 26.04 with GNOME | earlier the same night |
 
 ### Survey (4–5 November 2026)
 
@@ -165,8 +173,11 @@ Guest tools 0.3.0 ship on the disc of app 0.3.0, which is released the way 0.2.1
   - Plasma's version came from `plasmashell --version`, which crashes on Ubuntu; it now comes from KWin.
 - **Fedora 45 KDE:** the clipboard carries text both ways twice, and a PNG both ways byte for byte. The Mac received the status report: KDE, 6.8.1, clipboard active. Removal leaves nothing of ours. `/usr/share/gnome-shell` stays because Firefox's search provider lives in it.
 - **Ubuntu 26.04 with Plasma:**
-  - the clipboard carries text both ways;
+  - the clipboard carries text both ways, and a PNG both ways byte for byte. That install had no `wl-clipboard` at all;
   - the touchpad defaults apply;
+  - the shared folder reads and writes;
+  - the time zone follows the Mac;
+  - after 40 seconds of simulated sleep, the clock ended 0.03 seconds from the Mac's;
   - the power button shut the VM down in 6 seconds;
   - the Mac received the status report: KDE, 6.6.6, clipboard active.
 - **Ubuntu 26.04 with GNOME, on the final 0.3.0:**
@@ -178,6 +189,18 @@ Guest tools 0.3.0 ship on the disc of app 0.3.0, which is released the way 0.2.1
   Ubuntu's harness install also passed with 0.3.0.
 - **The app** shows each VM's desktop ("KDE Plasma 6.8.1") and its clipboard state, from the new keys, or from the extension's state for 0.2 guests. Checked with window snapshots of made-up reports and in `linuxvmctl status`.
 - **Removal leftovers fixed on the way:** an empty `~/.local/state/linuxvm`, and the clipboard state under `/run/user/<uid>/linuxvm`.
+- **The app** also suggests a new VM's name from its installer image, such as "Fedora KDE". The New Virtual Machine sheet links to Fedora's download as well as Ubuntu's.
+
+### What's left (5 November 2026)
+
+- **At the Mac, on the kept test VMs:**
+  - the real trackpad on KDE Plasma and on Fedora: scrolling direction, no taps while scrolling, pinch, and swipes in a browser;
+  - Plasma's display scale and refresh rate in full screen;
+  - whether Plasma's clock follows the clock after the Mac sleeps;
+  - opening the disc in Dolphin and running `install.sh` by hand.
+
+  The VMs are `harness-…-fedora44-workstation`, `harness-…-fedora45-kde` and `harness-…-ubuntu-plasma-harness`. Each logs in automatically, and its run folder in `harness-runs/` holds its SSH key.
+- **The release:** app 0.3.0, the README's Distributions section, and the draft notes in `docs/releases/0.3.0.md`. It's published only with the user's approval.
 
 ## How the work is split
 
