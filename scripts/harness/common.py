@@ -53,7 +53,7 @@ esac
 ENVIRONMENT_REPORT = SESSION + r'''cat /etc/os-release
 uname -a
 case ":${XDG_CURRENT_DESKTOP:-}:" in
- *:KDE:*) QT_QPA_PLATFORM=offscreen plasmashell --version ;;
+ *:KDE:*) QT_QPA_PLATFORM=offscreen kwin_wayland --version ;;
  *) gnome-shell --version ;;
 esac
 if command -v rpm >/dev/null; then

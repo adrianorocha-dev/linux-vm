@@ -367,10 +367,11 @@ class StatusAndStateTests(unittest.TestCase):
             with patch.dict(os.environ, {'XDG_CURRENT_DESKTOP': desktop}):
                 self.assertEqual(status.session_desktop(), expected)
         status.plasma_version.cache_clear()
-        with patch.object(status.subprocess, 'run', return_value=Mock(stdout='plasmashell 6.8.1\n')) as run:
+        with patch.object(status.subprocess, 'run', return_value=Mock(stdout='kwin 6.8.1\n')) as run:
             self.assertEqual(status.plasma_version(), '6.8.1')
             self.assertEqual(status.plasma_version(), '6.8.1')
             run.assert_called_once()
+            self.assertEqual(run.call_args.args[0], ['kwin_wayland', '--version'])
         status.plasma_version.cache_clear()
 
     def test_kde_status_rereports_file_changes_and_queries(self):

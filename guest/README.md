@@ -86,7 +86,7 @@ The report also sends `desktop`, `desktopVersion` (when known), and `clipboard`.
 On GNOME these identify GNOME and Shell's version; clipboard follows the extension
 state, with missing mapped to pending. The `shell` and `extension` keys remain
 compatible with 0.2 hosts. On KDE, `desktopVersion` is the cached result of
-`plasmashell --version`, `extension` is unknown, and `shell` is absent. Other
+`kwin_wayland --version` (KWin ships with each Plasma release; `plasmashell --version` can crash), `extension` is unknown, and `shell` is absent. Other
 desktops use the first entry of `XDG_CURRENT_DESKTOP`, limited to 32 characters.
 
 ## Clipboard on KDE and other Wayland desktops

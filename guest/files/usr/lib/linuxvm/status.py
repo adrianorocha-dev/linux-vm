@@ -115,11 +115,12 @@ def session_desktop():
 def plasma_version():
     import re
     try:
-        # Without a display Qt aborts, and KDE's crash handler would report it.
-        result = subprocess.run(['plasmashell', '--version'], capture_output=True,
+        # KWin ships with each Plasma release. plasmashell --version is not safe to
+        # run: on Plasma 6.6.6 it segfaults even offscreen, and KDE records a crash.
+        result = subprocess.run(['kwin_wayland', '--version'], capture_output=True,
                                 env=dict(os.environ, QT_QPA_PLATFORM='offscreen'),
                                 timeout=5, check=True, text=True)
-        match = re.fullmatch(r'plasmashell\s+([0-9]+(?:\.[0-9]+)+)\s*', result.stdout)
+        match = re.fullmatch(r'kwin\s+([0-9]+(?:\.[0-9]+)+)\s*', result.stdout)
         return match[1][:32] if match else None
     except (OSError, subprocess.SubprocessError, UnicodeError):
         return None
