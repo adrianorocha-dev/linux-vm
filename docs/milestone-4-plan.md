@@ -109,7 +109,8 @@ Guest tools 0.3.0 ship on the disc of app 0.3.0, which is released the way 0.2.1
   - The kickstart names the disk (`ignoredisk --only-use=vda`). Its `%post` sets passwordless sudo and automatic login through GDM or `plasmalogin`, and powers off.
   - A Fedora 45 KDE install took about 6 minutes.
 - **KDE's first-run wizard.** On Fedora 45 KDE, `plasma-setup.service` logs in as a `plasma-setup` user instead, unless `/etc/plasma-setup-done` exists. The kickstart creates that file.
-- **Not yet in the harness.** These steps ran from an exploration script. Workstream 1 still turns them into a harness profile.
+- **In the harness.** GPT-6.1-Sol turned these steps into a Fedora profile of `scripts/harness/fresh-install`, chosen from the image's name or `--profile fedora`. Its session checks follow the desktop: GNOME's extension, or KDE's clipboard state. Claude reviewed and merged it, with two fixes. The harness kept every poll's copy of Anaconda's logs, and now keeps only the latest. It also failed a good Fedora 44 install, on Anaconda's harmless "ERR … setting console font" line; now only a `CmdlineError`, a traceback, or an exit without power-off count as failure.
+- **Ubuntu with Plasma** isn't a harness profile yet. Its test VM was the harness's Ubuntu install with `kubuntu-desktop` added by hand. The `shared/default-x-display-manager` answer kept GDM, and AccountsService set the user's session to `plasma`.
 
 ### Survey (4–5 November 2026)
 
@@ -128,6 +129,12 @@ Guest tools 0.3.0 ship on the disc of app 0.3.0, which is released the way 0.2.1
   - **Disc:** it doesn't mount by itself. Dolphin mounts it when it's clicked.
   - **Power button:** it opens Plasma's logout prompt, which waits for a click and gave up after 5 minutes. So the app's Shut Down never finishes, and neither does Shut Down and Install. With `/etc/xdg/powerdevilrc` set to `PowerButtonAction=8`, the VM shut down 8 seconds after the button.
 - **Ubuntu 26.04 archive:** wl-clipboard 2.2.1, which predates ext-data-control, and KWin 6.6.6. So the guest tools speak data-control themselves instead of depending on wl-clipboard.
+- **Ubuntu 26.04 with `kubuntu-desktop`:**
+  - **Desktop:** Plasma and KWin 6.6.6 on Wayland at `wayland-0`, through GDM. GNOME's session stays available.
+  - **Clipboard:** KWin 6.6.6 also offers only `ext_data_control_manager_v1`.
+  - **Config:** `XDG_CONFIG_DIRS` includes `/etc/xdg`, so the KDE defaults apply here too.
+  - **Disc:** it doesn't mount by itself.
+  - **Plasma's version:** `plasmashell --version` segfaults, even with `QT_QPA_PLATFORM=offscreen`, while `kwin_wayland --version` works.
 
 ### Guest tools 0.3.0 (4–5 November 2026)
 
@@ -151,6 +158,26 @@ Guest tools 0.3.0 ship on the disc of app 0.3.0, which is released the way 0.2.1
   - removal leaves nothing behind.
 - **Fedora 45 KDE:** the unsigned RPM installs too, despite verify level `all`. dnf only warns that it "skipped OpenPGP checks for 1 package from repository: @commandline". Audio, the time zone, the shared folder, clock recovery and the status report work. The clipboard agent crashes, because its GNOME path asks for GNOME Shell's settings schema; the data-control backend replaces that path.
 - **KDE defaults.** The packages now carry `/etc/xdg/kcminputrc` (the touchpad) and `/etc/xdg/powerdevilrc` (the power button). Neither is marked as a user-editable config file, so upgrades replace them and removal deletes them.
+- **The clipboard on KDE.** GPT-6.1-Sol wrote `wayland_clipboard.py`, a data-control client using only Python's standard library, and the desktop-neutral status keys. Claude reviewed it in real KWin and fixed four things:
+  - KWin 6.8.1 sent `cancelled` twice for the agent's own source. The agent destroyed it twice and crashed with "invalid object 8".
+  - The agent forwarded the clipboard that Linux held when it started. Plasma restores that at login, so every login would have replaced the Mac's clipboard.
+  - Early in a login, a missing `WAYLAND_DISPLAY` was saved as an error, so the app would briefly have shown "Failed to start".
+  - Plasma's version came from `plasmashell --version`, which crashes on Ubuntu; it now comes from KWin.
+- **Fedora 45 KDE:** the clipboard carries text both ways twice, and a PNG both ways byte for byte. The Mac received the status report: KDE, 6.8.1, clipboard active. Removal leaves nothing of ours. `/usr/share/gnome-shell` stays because Firefox's search provider lives in it.
+- **Ubuntu 26.04 with Plasma:**
+  - the clipboard carries text both ways;
+  - the touchpad defaults apply;
+  - the power button shut the VM down in 6 seconds;
+  - the Mac received the status report: KDE, 6.6.6, clipboard active.
+- **Ubuntu 26.04 with GNOME, on the final 0.3.0:**
+  - the extension is active, and the clipboard carries text both ways;
+  - the touchpad defaults apply;
+  - the Mac received the status report: GNOME 50.1, with `shell` and `extension` still there for older apps;
+  - `apt purge` leaves nothing behind.
+
+  Ubuntu's harness install also passed with 0.3.0.
+- **The app** shows each VM's desktop ("KDE Plasma 6.8.1") and its clipboard state, from the new keys, or from the extension's state for 0.2 guests. Checked with window snapshots of made-up reports and in `linuxvmctl status`.
+- **Removal leftovers fixed on the way:** an empty `~/.local/state/linuxvm`, and the clipboard state under `/run/user/<uid>/linuxvm`.
 
 ## How the work is split
 
