@@ -4,6 +4,7 @@ Architecture: all
 Maintainer: LinuxVM contributors <linuxvm@linuxvm.dev>
 Section: admin
 Priority: optional
-Depends: python3, python3-gi, pulseaudio-utils, gnome-shell, systemd
+Depends: python3, python3-gi, pulseaudio-utils, systemd
+Recommends: wl-clipboard
 Description: Ubuntu desktop integration for LinuxVM on macOS
  Clipboard, audio endpoints, host time zone, shared folder and touchpad defaults.

@@ -18,7 +18,7 @@ The ordinary path does not clone a repository or download an archive.
 Every bundle file needs an exact manifest path.
 The checker also rejects unlisted directories and symlinks.
 Only the outer app's exact XML code-signature metadata path is exempt.
-Files inside the Guest Tools ISO and Debian package are checked separately against the inventory.
+Files inside the Guest Tools ISO, Debian package and RPM are checked separately against the inventory.
 Adding a file inside an already covered directory does not bypass the check.
 
 Pin checks clone the pinned Try Omarchy commit into a temporary directory and apply our current diff.
@@ -53,7 +53,11 @@ The notices read the app version from `macos/Resources/Info.plist` and the Guest
 Changing our code or versions does not require a manifest edit.
 Every file in the bundle, disc and package still needs an inventory entry.
 Add new Guest Tools member paths to `guest_files` and rebuild the disc after guest changes.
-The package's internal md5sums and generated version are checked for consistency.
+The Debian package's internal md5sums and generated version are checked for consistency.
+The disc must contain both packages, install.sh and README.txt. The standard-library
+RPM reader checks the version and requires its payload files to equal the Debian
+data files byte for byte. RPM scriptlets are inventoried under `rpm:script/`; add
+new `guest/rpm` sources to `guest_files`, as for `guest/debian`.
 Review changes for new third-party code and update its pins and notices when needed.
 Third-party source, patch, archive, package and license checks remain enforced by `--inputs` and tests.
 Run the test commands in the root README and build the app.

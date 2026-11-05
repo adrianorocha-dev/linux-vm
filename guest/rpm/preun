@@ -1,0 +1,30 @@
+#!/bin/sh
+set -eu
+# RPM transaction count: old uninstall scriptlets must not undo the new install.
+[ "$1" -eq 0 ] || exit 0
+set -- remove
+case "$1" in
+    remove|deconfigure|upgrade)
+        if [ -d /run/systemd/system ]; then
+            # A global enable/disable alone does not stop services in existing sessions.
+            loginctl list-users --no-legend 2>/dev/null | while read -r uid user rest; do
+                [ -S "/run/user/$uid/bus" ] || continue
+                runuser -u "$user" -- env XDG_RUNTIME_DIR="/run/user/$uid" \
+                    DBUS_SESSION_BUS_ADDRESS="unix:path=/run/user/$uid/bus" \
+                    systemctl --user stop linuxvm-clipboard.service linuxvm-audio.service linuxvm-share-link.service linuxvm-status.service || true
+                runuser -u "$user" -- /usr/bin/python3 /usr/lib/linuxvm/share.py unlink || true
+                runuser -u "$user" -- env XDG_RUNTIME_DIR="/run/user/$uid" \
+                    DBUS_SESSION_BUS_ADDRESS="unix:path=/run/user/$uid/bus" \
+                    gnome-extensions disable clipboard@linuxvm.dev || true
+            done
+            systemctl stop linuxvm-timezone.service linuxvm-share-mount.service linuxvm-clock-recovery.service linuxvm-clock-recovery.timer || true
+        fi
+        if [ "$1" != upgrade ]; then
+            systemctl disable linuxvm-timezone.service linuxvm-share-mount.service linuxvm-clock-recovery.service linuxvm-clock-recovery.timer || true
+            systemctl --global disable linuxvm-clipboard.service linuxvm-audio.service linuxvm-share-link.service linuxvm-status.service || true
+        fi
+        # Python writes this cache at run time, so dpkg doesn't own it. Remove it after
+        # the last Python run above so dpkg can remove the folder.
+        rm -rf /usr/lib/linuxvm/__pycache__
+        ;;
+esac

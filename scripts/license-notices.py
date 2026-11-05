@@ -2,6 +2,7 @@
 """Assemble notices and reject unreviewed bundle or Guest Tools contents."""
 import argparse
 from contextlib import contextmanager
+import gzip
 import hashlib
 import io
 import json
@@ -10,6 +11,7 @@ from pathlib import Path, PurePosixPath
 import plistlib
 import re
 import shutil
+import struct
 import subprocess
 import sys
 import tarfile
@@ -450,17 +452,107 @@ def deb_files(data):
     return files
 
 
+def rpm_files(data):
+    """Read the v4 headers and gzip/newc payload without external RPM tools."""
+    require(data[:4] == b'\xed\xab\xee\xdb' and len(data) >= 96, 'invalid RPM lead')
+
+    def header(offset, region):
+        start = offset
+        require(offset + 16 <= len(data), 'truncated RPM header intro')
+        require(data[offset:offset + 8] == b'\x8e\xad\xe8\x01\0\0\0\0', 'invalid RPM header')
+        count, size = struct.unpack_from('>II', data, offset + 8)
+        base = offset + 16 + 16 * count
+        end = base + size
+        require(count > 0 and end <= len(data), 'truncated or empty RPM header')
+        result = {}
+        for i in range(count):
+            tag, kind, pos, length = struct.unpack_from('>IIII', data, offset + 16 + i * 16)
+            require(tag not in result and pos < size, 'invalid RPM tag')
+            cursor = base + pos
+            if kind in (3, 4, 5):
+                width, code = {3: (2, 'H'), 4: (4, 'I'), 5: (8, 'Q')}[kind]
+                require(cursor + width * length <= end, 'truncated RPM integers')
+                value = list(struct.unpack_from('>' + code * length, data, cursor))
+            elif kind == 7:
+                require(cursor + length <= end, 'truncated RPM binary')
+                value = data[cursor:cursor + length]
+            else:
+                require(kind in (6, 8, 9), 'unsupported RPM tag type')
+                value = []
+                for _ in range(length):
+                    stop = data.find(b'\0', cursor, end)
+                    require(stop >= 0, 'unterminated RPM string')
+                    value.append(data[cursor:stop].decode())
+                    cursor = stop + 1
+                if kind == 6:
+                    require(length == 1, 'invalid RPM string count')
+                    value = value[0]
+            result[tag] = value
+        require(next(iter(result)) == region, 'missing RPM region')
+        require(result[region] == struct.pack('>IIiI', region, 7, -16 * count, 16), 'invalid RPM region')
+        return result, end, data[start:end]
+
+    sig, end, _ = header(96, 62)
+    tags, end, main = header((end + 7) & ~7, 63)
+    payload = data[end:]
+    require(sig[273] == digest(main), 'RPM header digest differs')
+    require(sig[1000] == [len(main) + len(payload)], 'RPM size differs')
+    require(tags[5093] == [8] and tags[5092] == [digest(payload)], 'RPM payload digest differs')
+    raw = gzip.decompress(payload)
+    require(sig[1007] == [len(raw)] and tags[5097] == [digest(raw)], 'RPM archive digest or size differs')
+    files = {}
+    cursor = 0
+    seen = set()
+    while cursor < len(raw):
+        require(cursor + 110 <= len(raw) and raw[cursor:cursor + 6] == b'070701', 'invalid RPM cpio')
+        fields = [int(raw[cursor + 6 + i * 8:cursor + 14 + i * 8], 16) for i in range(13)]
+        size, namesize = fields[6], fields[11]
+        start = cursor + 110
+        require(namesize > 0 and start + namesize <= len(raw) and raw[start + namesize - 1] == 0,
+                'invalid RPM cpio name')
+        name = raw[start:start + namesize - 1].decode()
+        cursor = (start + namesize + 3) & ~3
+        require(cursor + size <= len(raw), 'truncated RPM cpio file')
+        content = raw[cursor:cursor + size]
+        cursor = (cursor + size + 3) & ~3
+        if name == 'TRAILER!!!':
+            require(size == 0 and not any(raw[cursor:]), 'invalid RPM trailer')
+            break
+        require(name.startswith('./'), 'RPM payload missing path prefix')
+        name = name[2:]
+        safe_path(name)
+        require(name not in seen, 'duplicate RPM file')
+        seen.add(name)
+        mode = fields[1] & 0o170000
+        require(mode in (0o100000, 0o040000), 'unsupported RPM file type')
+        if mode == 0o100000:
+            files[name] = content
+    else:
+        raise LicenseError('RPM payload missing trailer')
+    listed = [tags[1118][i] + base for i, base in zip(tags[1116], tags[1117], strict=True)]
+    require(set(listed) == {'/' + name for name in seen} and len(listed) == len(seen), 'RPM file list differs')
+    return tags, files
+
+
 def validate_guest(manifest, iso, root=ROOT):
     expected = manifest['guest_files']
     source_paths = {record['source'] for record in expected.values() if 'source' in record}
-    actual_paths = {p.relative_to(root).as_posix() for folder in ('guest/files', 'guest/debian', 'guest/iso')
+    actual_paths = {p.relative_to(root).as_posix() for folder in ('guest/files', 'guest/debian', 'guest/rpm', 'guest/iso')
                     for p in (root / folder).rglob('*') if p.is_file() and '__pycache__' not in p.parts and p.suffix != '.pyc'}
     require(source_paths == actual_paths, 'uncovered or removed Guest Tools source file')
     disc = iso_files(iso.read_bytes())
     version = component_version(next(c for c in manifest['components'] if c['id'] == 'guest'), root)
     package = f'linuxvm-guest_{version}_all.deb'
-    require(set(disc) == {package, 'install.sh', 'README.txt'}, 'uncovered Guest Tools disc file')
+    rpm = f'linuxvm-guest-{version}-1.noarch.rpm'
+    require(set(disc) == {package, rpm, 'install.sh', 'README.txt'}, 'uncovered Guest Tools disc file')
     files = deb_files(disc[package])
+    tags, rpm_data = rpm_files(disc[rpm])
+    require(tags[1000] == 'linuxvm-guest' and tags[1001] == version and tags[1002] == '1',
+            'RPM version differs')
+    require(rpm_data == {name.removeprefix('deb:data/'): value for name, value in files.items()
+                         if name.startswith('deb:data/')}, 'RPM and Debian files differ')
+    for tag, name in enumerate(('pre', 'post', 'preun', 'postun'), 1023):
+        files['rpm:script/' + name] = tags[tag].encode()
     md5sums = files.pop('deb:control/md5sums')
     expected_md5 = ''.join(f"{hashlib.md5(data, usedforsecurity=False).hexdigest()}  {name.removeprefix('deb:data/')}\n"
                          for name, data in sorted(files.items()) if name.startswith('deb:data/')).encode()

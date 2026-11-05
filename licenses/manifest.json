@@ -1790,6 +1790,18 @@
     },
     "deb:data/usr/lib/linuxvm/version.py": {
       "generated": "version from guest/build.py"
+    },
+    "rpm:script/pre": {
+      "source": "guest/rpm/pre"
+    },
+    "rpm:script/post": {
+      "source": "guest/rpm/post"
+    },
+    "rpm:script/preun": {
+      "source": "guest/rpm/preun"
+    },
+    "rpm:script/postun": {
+      "source": "guest/rpm/postun"
     }
   },
   "release_blockers": []
