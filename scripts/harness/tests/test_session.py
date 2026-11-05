@@ -9,6 +9,7 @@ import unittest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 import common
+import fresh_install
 from session import kde_clipboard_active, parse_session_environment
 
 
@@ -37,7 +38,6 @@ class SessionTests(unittest.TestCase):
     def test_desktop_checks_reject_each_missing_unit(self):
         # Run the actual check body against local shell fakes, including the
         # real JSON parser. No loginctl/systemctl invocation reaches the host.
-        body = common.SESSION_CHECK[len(common.SESSION):]
         with tempfile.TemporaryDirectory() as temp:
             root = Path(temp)
             (root / 'linuxvm').mkdir()
@@ -45,7 +45,10 @@ class SessionTests(unittest.TestCase):
             extension = root / 'gnome-extensions'
             extension.write_text("#!/bin/sh\necho 'State: ACTIVE'\n")
             extension.chmod(0o755)
-            for desktop in ('KDE', 'ubuntu:GNOME'):
+            for desktop, requested in [('KDE', None), ('ubuntu:GNOME', None), ('KDE', 'plasma'), ('ubuntu:GNOME', 'plasma')]:
+                command = fresh_install.session_check(requested)
+                self.assertTrue(command.startswith(common.SESSION_CHECK))
+                body = command[len(common.SESSION):]
                 units = ['linuxvm-clipboard', 'linuxvm-audio'] + (['linuxvm-status'] if desktop == 'KDE' else [])
                 for failed in ['', *units]:
                     preamble = r'''
@@ -58,4 +61,6 @@ systemctl() { [ "$3" != "$FAILED_UNIT" ]; }
                     result = subprocess.run(['/bin/sh', '-c', preamble + body], env=dict(
                         os.environ, XDG_RUNTIME_DIR=temp, XDG_CURRENT_DESKTOP=desktop,
                         WAYLAND_DISPLAY='wayland-1', FAILED_UNIT=failed, PATH=temp + os.pathsep + os.environ['PATH']), capture_output=True, text=True)
-                    self.assertEqual(result.returncode == 0, failed == '', (desktop, failed, result.stderr))
+                    self.assertEqual(result.returncode == 0, failed == '' and (requested != 'plasma' or desktop == 'KDE'), (desktop, requested, failed, result.stderr))
+                    if requested == 'plasma' and desktop != 'KDE' and not failed:
+                        self.assertIn('Expected KDE Wayland session', result.stderr)

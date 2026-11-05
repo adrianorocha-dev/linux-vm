@@ -14,6 +14,7 @@ import secrets
 import signal
 import shlex
 import shutil
+import subprocess
 import threading
 import tempfile
 import time
@@ -21,6 +22,43 @@ import uuid
 
 from terminal import screen, editor_linux_line
 from common import CTL, ROOT, VM_ROOT, PROTECTED, Guest, SESSION_CHECK, ENVIRONMENT_REPORT, free_port, run, wait_for, write_json
+
+
+PLASMA_INSTALL = r'''set -eu
+sudo apt-get update -q
+echo "debconf shared/default-x-display-manager select gdm3" | sudo debconf-set-selections
+sudo env DEBIAN_FRONTEND=noninteractive apt-get install -y -q kubuntu-desktop
+sudo mkdir -p /var/lib/AccountsService/users
+printf "[User]\nSession=plasma\nSessionType=wayland\nSystemAccount=false\n" | sudo tee /var/lib/AccountsService/users/tester
+'''
+
+PLASMA_ENVIRONMENT_REPORT = '''cat /etc/X11/default-display-manager
+dpkg-query -W kubuntu-desktop plasma-workspace kwin-wayland
+'''
+
+
+def install_plasma(guest, directory, timeout):
+    """Preserve apt output even on failure or timeout, before propagating it."""
+    log = directory / 'plasma-install.log'
+    try:
+        result = guest.ssh(PLASMA_INSTALL, timeout=timeout)
+    except (subprocess.CalledProcessError, subprocess.TimeoutExpired) as error:
+        parts = (error.stdout, error.stderr)
+        log.write_text(''.join(p.decode(errors='replace') if isinstance(p, bytes) else p or '' for p in parts))
+        raise
+    log.write_text(result.stdout + result.stderr)
+
+
+def session_check(desktop):
+    if desktop != 'plasma':
+        return SESSION_CHECK
+    # SESSION_CHECK imports the running user manager's environment. Installing
+    # Plasma beside GNOME alone must not make a Plasma run pass.
+    return SESSION_CHECK + r'''case ":${XDG_CURRENT_DESKTOP:-}:" in
+ *:KDE:*) ;;
+ *) echo "Expected KDE Wayland session for --desktop plasma; got ${XDG_CURRENT_DESKTOP:-unset}" >&2; exit 1 ;;
+esac
+'''
 
 
 def seed(public_key, password_hash, port):
@@ -84,22 +122,22 @@ def cleanup(directory):
         write_json(summary_path, saved)
 
 
-def main():
-    def interrupted(signum, frame):
-        raise KeyboardInterrupt(f'signal {signum}')
-    signal.signal(signal.SIGTERM, interrupted)
+def parse_args(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     relative = ROOT / 'test-media/ubuntu-26.04.1-desktop-arm64.iso'
     parser.add_argument('--iso', type=Path)
     parser.add_argument('--profile', choices=('ubuntu', 'fedora'))
+    parser.add_argument('--desktop', choices=('gnome', 'plasma'),
+                        help='Ubuntu desktop (default: gnome); Fedora uses its image desktop')
     parser.add_argument('--rpm', type=Path)
     parser.add_argument('--deb', type=Path)
     parser.add_argument('--keep', action='store_true')
     parser.add_argument('--install-timeout', type=int, default=3600)
     parser.add_argument('--boot-timeout', type=int, default=600)
+    parser.add_argument('--plasma-timeout', type=int, default=3600)
     parser.add_argument('--run-dir', type=Path)
-    args = parser.parse_args()
-    if args.install_timeout <= 0 or args.boot_timeout <= 0:
+    args = parser.parse_args(argv)
+    if args.install_timeout <= 0 or args.boot_timeout <= 0 or args.plasma_timeout <= 0:
         parser.error('phase timeouts must be positive')
     if args.profile == 'fedora' and args.iso is None:
         parser.error('--iso is required for Fedora')
@@ -108,10 +146,24 @@ def main():
         profile = fedora.detect_profile(args.iso, args.profile)
     except ValueError as error:
         parser.error(str(error))
+    if profile == 'fedora' and args.desktop is not None:
+        parser.error('--desktop applies only to Ubuntu; Fedora uses the desktop from its image')
+    if profile == 'ubuntu' and args.desktop is None:
+        args.desktop = 'gnome'
+    args.profile = profile
     if (args.deb and profile != 'ubuntu') or (args.rpm and profile != 'fedora'):
         parser.error('--deb requires Ubuntu; --rpm requires Fedora')
     if any(path and not path.is_file() for path in (args.iso, args.deb, args.rpm)):
         parser.error('ISO/package does not exist')
+    return args
+
+
+def main():
+    def interrupted(signum, frame):
+        raise KeyboardInterrupt(f'signal {signum}')
+    signal.signal(signal.SIGTERM, interrupted)
+    args = parse_args()
+    profile = args.profile
     # Serialize harness launches across worktrees on this Mac. Keep the lock
     # file descriptor alive until main returns; do not unlink a locked inode.
     host_lock = open(Path(tempfile.gettempdir()) / f'linuxvm-harness-{os.getuid()}.lock', 'a')
@@ -127,6 +179,8 @@ def main():
     directory.mkdir(parents=True, exist_ok=False)
     directory.chmod(0o700)
     summary = {'profile': profile, 'run_dir': str(directory), 'phases': {}, 'success': False}
+    if profile == 'ubuntu':
+        summary['desktop'] = args.desktop
     started = time.monotonic()
     server = thread = execute = http_log = None
     owned = False
@@ -312,6 +366,9 @@ def main():
                     out.write(result.stderr)
                 return result.returncode == 0
             wait_for('installed system SSH', installed, args.boot_timeout, directory / 'ssh-wait.log')
+        if profile == 'ubuntu' and args.desktop == 'plasma':
+            with phase('plasma'):
+                install_plasma(guest, directory, args.plasma_timeout)
         with phase('guest_tools'):
             if args.rpm:
                 guest.put(args.rpm, '/tmp/linuxvm-harness.rpm')
@@ -327,13 +384,16 @@ def main():
             guest.ssh('sudo reboot', check=False)
             wait_for('guest tools reboot', lambda: (r := guest.ssh('cat /proc/sys/kernel/random/boot_id', check=False, timeout=15)).returncode == 0 and r.stdout.strip() != boot_id, args.boot_timeout, directory / 'ssh-wait.log')
         with phase('session'):
-            command = SESSION_CHECK
+            command = session_check(args.desktop)
             def ready():
                 result = guest.ssh(command, check=False, timeout=20)
                 (directory / 'session.log').write_text(result.stdout + result.stderr)
                 return result.returncode == 0
             wait_for('desktop Wayland and integration services', ready, 180, directory / 'session.log')
-            environment = guest.ssh(ENVIRONMENT_REPORT)
+            report = ENVIRONMENT_REPORT
+            if profile == 'ubuntu' and args.desktop == 'plasma':
+                report += PLASMA_ENVIRONMENT_REPORT
+            environment = guest.ssh(report)
             (directory / 'guest-environment.txt').write_text(environment.stdout + environment.stderr)
             summary['success'] = True
             say('Fresh install passed; desktop Wayland and guest integration are active.')
