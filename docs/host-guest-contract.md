@@ -57,7 +57,7 @@ The guest sends a status message when its agent starts, when the extension's sta
 
 ## Guest tools delivery
 
-The app attaches `guest-tools.iso` (volume label `LINUXVM-TOOLS`) to every VM as a removable read-only USB CD. It contains `linuxvm-guest_<version>_all.deb`, `install.sh` and `README.txt`. From 0.2.0 the disc has Rock Ridge extensions, so `install.sh` is executable.
+The app attaches `guest-tools.iso` (volume label `LINUXVM-TOOLS`) to every VM as a removable read-only USB CD. It contains `linuxvm-guest_<version>_all.deb`, `linuxvm-guest-<version>-1.noarch.rpm`, `install.sh` and `README.txt`. Both packages contain the same files and version. The installer chooses apt-get for Ubuntu, otherwise dnf for Fedora. From 0.2.0 the disc has Rock Ridge extensions, so `install.sh` is executable.
 
 ## Versions and compatibility
 
