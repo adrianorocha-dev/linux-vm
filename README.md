@@ -86,6 +86,8 @@ Each VM's page in the app shows its settings:
 
 Shut down the VM to change its resources, sharing or network. The Logs tab shows what the VM and its helpers have reported.
 
+**Quick actions.** Right-click a VM in the list to start or shut it down, rename it, show it in Finder, or delete it.
+
 **Shutting down.** Shut Down asks Linux to shut down, like pressing a power button. In KDE Plasma this needs the guest tools: without them, Plasma shows a logout prompt in the VM instead. Force Stop stops the VM at once, and anything unsaved in Linux is lost. You can also shut down from inside Linux.
 
 **Updates.** Choose Linux VM → Check for Updates… to check now. If an update arrives while a VM is running, an Update button appears in the window. Click it to shut down your VMs and install.
