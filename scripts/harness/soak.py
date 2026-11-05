@@ -11,23 +11,13 @@ import sys
 import time
 import uuid
 
-from common import CTL, PROTECTED, SESSION, VM_ROOT, Guest, run, wait_for, write_json
+from common import CTL, PROTECTED, SESSION, SESSION_CHECK, VM_ROOT, Guest, run, wait_for, write_json
 
 FORCED_STOP = re.compile(r'did not shut down within|Second signal: stopping QEMU|: stopping QEMU$', re.M)
 BRIDGE_TROUBLE = re.compile(r'bridge exited|bridge is unavailable|Cannot start the .* bridge', re.M)
 FS_RECOVERY = re.compile(r'EXT4-fs .*(recover|orphan|error)', re.I)
 
-READY = SESSION + r'''set -eu
-found=0
-for s in $(loginctl list-sessions --no-legend | awk '{print $1}'); do
- [ "$(loginctl show-session "$s" -p Name --value)" = tester ] || continue
- [ "$(loginctl show-session "$s" -p Type --value)" = wayland ] || continue
- [ "$(loginctl show-session "$s" -p Active --value)" = yes ] || continue
- found=1
-done
-[ "$found" = 1 ]
-gnome-extensions info clipboard@linuxvm.dev | grep -q 'State: ACTIVE'
-systemctl --user is-active linuxvm-clipboard linuxvm-audio linuxvm-status >/dev/null
+READY = SESSION_CHECK + r'''systemctl --user is-active linuxvm-status >/dev/null
 systemctl is-active linuxvm-timezone.service linuxvm-clock-recovery.timer >/dev/null
 '''
 

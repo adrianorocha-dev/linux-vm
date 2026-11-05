@@ -1,4 +1,4 @@
-# Milestone 2 harness
+# VM harness
 
 Host requirements: macOS/Apple Silicon, `/opt/homebrew/bin/python3.14`, OpenSSH,
 `/opt/homebrew/bin/openssl`, and the installed Linux VM app. Host Python uses only
@@ -17,8 +17,21 @@ scripts/harness/cleanup harness-runs/20261102-123456
 `LINUXVMCTL` overrides `/Applications/Linux VM.app/Contents/Helpers/linuxvmctl`.
 `--iso PATH` overrides the ISO, which defaults to the repository's
 `test-media/ubuntu-26.04.1-desktop-arm64.iso`.
-`--deb PATH` installs a candidate guest package instead of the installed app's
-Guest Tools disc. `--run-dir PATH` chooses a new, nonexistent output directory.
+Fedora images are selected automatically when the filename contains `Fedora`.
+For a renamed image, use `--profile fedora --iso PATH`; Fedora always requires an
+explicit ISO. `--profile ubuntu` explicitly selects the existing Ubuntu path.
+Unknown image names require an explicit profile.
+
+```sh
+scripts/harness/fresh-install --iso test-media/Fedora-Workstation-Live-44-1.7.aarch64.iso
+scripts/harness/fresh-install --iso test-media/Fedora-KDE-Desktop-Live-45-1.4.aarch64.iso
+# Install a candidate RPM and retain the VM for investigation:
+scripts/harness/fresh-install --profile fedora --iso test-media/Fedora-KDE-Desktop-Live-45-1.4.aarch64.iso --rpm /path/to/linuxvm-guest.noarch.rpm --keep
+```
+
+`--deb PATH` (Ubuntu) or `--rpm PATH` (Fedora) installs a candidate guest package
+instead of the installed app's Guest Tools disc. `--run-dir PATH` chooses a new,
+nonexistent output directory.
 
 Each VM has 4096 MiB, four CPUs, a sparse 32 GiB disk, a unique harness name,
 a forwarded loopback SSH port, and a throwaway ed25519 key. The harness refuses
@@ -27,7 +40,7 @@ launches across worktrees with a host lock. Stop existing VMs yourself; it never
 stops the user's Ubuntu or UTM VMs. The window appearing on the Mac is expected.
 Do not start another VM while this harness runs.
 
-The seed server binds loopback; QEMU user networking reaches it through
+For Ubuntu, the seed server binds loopback; QEMU user networking reaches it through
 10.0.2.2. It serves all four NoCloud files. GRUB is controlled through one QMP
 connection using the existing `qmp-type.py` module. The serial terminal state
 locates the kernel line and verifies the complete arguments before Ctrl-X.
@@ -40,10 +53,29 @@ after target installation, sudoers, automatic login and the installed-system
 marker have been written. SSH must see that marker, so a live ISO session cannot
 be mistaken for a successful installation.
 
+Fedora boots its live image with serial console, sshd and a systemd credential
+containing the throwaway public key for root. GRUB's default media-test entry is
+moved up once before editing; the complete argument echo is allowed 60 seconds
+to catch up. The harness uploads `ks.cfg` and starts non-live
+`anaconda --cmdline --kickstart /root/ks.cfg` detached from SSH, with a fixed UTF-8
+locale. `liveimg` copies the image's squashfs rather than fetching packages.
+Anaconda's live mode ignores kickstarts, so `--liveinst` is deliberately absent.
+The kickstart sets up tester, passwordless sudo, GDM/Plasma automatic login and
+both desktops' first-run markers. It powers off; only a stopped VM advances to
+ISO removal and first boot as tester. The installed-system marker is required.
+Anaconda errors or exit without power-off fail the run; failures collect
+`/tmp/*.log` and `/root/anaconda.out` in `anaconda-logs.tar` when SSH is available,
+plus `anaconda.out` and `anaconda-monitor.log`. The live SSH phase uses
+`--boot-timeout`, and Anaconda uses `--install-timeout`.
+
 The guest package is installed, the guest reboots, and the harness waits for an
-active tester Wayland session on seat0, the clipboard extension and both audio
-and clipboard user services. No person needs to log in. Desktop login is
-automatic and sudo is passwordless: use this seed only for disposable test VMs.
+active tester Wayland session on seat0. GNOME requires the active clipboard
+extension and audio/clipboard user services. KDE requires audio, clipboard and
+status user services plus `linuxvm/clipboard.json` reporting `state: active`
+(Guest Tools 0.3.0 or newer). The tools disc is mounted read-only by label with
+sudo, including on KDE where it does not mount automatically. No person needs to
+log in. Desktop login is automatic and sudo is passwordless: use these installers
+only for disposable test VMs.
 
 Timeouts: GRUB menu 180 s; installation 3600 s (`--install-timeout`); each boot
 600 s (`--boot-timeout`); integration session 180 s; guest package installation
@@ -54,8 +86,9 @@ names its log; command failures also save `<phase>-error.log`.
 
 `harness-runs/<local timestamp>/` contains the seed, private SSH key,
 `connection.json`, `owned-vm.json`, `host.log`, `http.log`, GRUB edit evidence,
-SSH/package/session logs, OS/kernel/guest package versions in `guest-environment.txt`,
-VM log copies (`vm-logs/`, plus `vm-logs-final/` when cleaning up a kept VM)
+SSH/package/session logs, OS/kernel/desktop/package versions (rpm or dpkg) in
+`guest-environment.txt`, Fedora kickstart/Anaconda evidence, VM log copies
+(`vm-logs/`, plus `vm-logs-final/` when cleaning up a kept VM)
 and `summary.json` with phase durations.
 The directory is mode 0700 and git-ignored. Keep it private. HTTP stops on success,
 failure or Ctrl-C. By default the harness stops its own VM, waits for it to stop,
@@ -110,9 +143,11 @@ gdbus call --session --dest org.freedesktop.impl.portal.PermissionStore \
 Over SSH, session commands need
 `XDG_RUNTIME_DIR=/run/user/$(id -u)` and
 `DBUS_SESSION_BUS_ADDRESS=unix:path=$XDG_RUNTIME_DIR/bus`; tools set these, plus
-`WAYLAND_DISPLAY=wayland-0` for GTK. This assumes tester's first/default Wayland
-session, not a multi-seat desktop. Installation and `--install-deps` need internet
-access to Ubuntu repositories. Apt packages are not snapshotted, so versions and
+`WAYLAND_DISPLAY` and `XDG_CURRENT_DESKTOP` from `systemctl --user show-environment`
+(including Plasma's `wayland-1`). Only those two variables are imported, with
+shell quoting. This assumes tester's active Wayland session, not a multi-seat
+desktop. Package installation needs access to the distribution's repositories;
+capture tools' `--install-deps` still uses Ubuntu's apt packages. Apt packages are not snapshotted, so versions and
 installation durations can change even with the same ISO.
 
 `record-input` discovers the exact QEMU Virtio Pinch Touchpad and tablet devices,

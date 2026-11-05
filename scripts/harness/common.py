@@ -11,7 +11,57 @@ ROOT = Path(__file__).resolve().parents[2]
 VM_ROOT = Path.home() / 'Library/Application Support/Linux VM/VMs'
 PROTECTED = '8F611ECF-72A8-4B1B-A54E-811509AC6902'
 CTL = os.environ.get('LINUXVMCTL', '/Applications/Linux VM.app/Contents/Helpers/linuxvmctl')
-SESSION = 'export LC_ALL=C; export XDG_RUNTIME_DIR=/run/user/$(id -u); export DBUS_SESSION_BUS_ADDRESS=unix:path=$XDG_RUNTIME_DIR/bus; export WAYLAND_DISPLAY=wayland-0; '
+
+
+# Run the same parsers on the host and guest, without installing a guest module.
+_SESSION_SOURCE = Path(__file__).with_name('session.py').read_text()
+SESSION = ('export LC_ALL=C; export XDG_RUNTIME_DIR=/run/user/$(id -u); '
+           'export DBUS_SESSION_BUS_ADDRESS=unix:path=$XDG_RUNTIME_DIR/bus; '
+           'unset WAYLAND_DISPLAY XDG_CURRENT_DESKTOP; '
+           'eval "$(systemctl --user show-environment | python3 -c ' +
+           shlex.quote(_SESSION_SOURCE) + ' environment' + ')"; ')
+
+
+SESSION_CHECK = SESSION + r'''set -eu
+found=0
+for s in $(loginctl list-sessions --no-legend | awk '{print $1}'); do
+ [ "$(loginctl show-session "$s" -p Name --value)" = tester ] || continue
+ [ "$(loginctl show-session "$s" -p Type --value)" = wayland ] || continue
+ [ "$(loginctl show-session "$s" -p Seat --value)" = seat0 ] || continue
+ [ "$(loginctl show-session "$s" -p Active --value)" = yes ] || continue
+ found=1
+done
+[ "$found" = 1 ]
+[ -n "${WAYLAND_DISPLAY:-}" ]
+case ":${XDG_CURRENT_DESKTOP:-}:" in
+ *:KDE:*)
+  for unit in linuxvm-clipboard linuxvm-audio linuxvm-status; do
+   systemctl --user is-active "$unit" || exit 1
+  done
+  python3 -c ''' + shlex.quote(_SESSION_SOURCE) + ' clipboard' + r'''
+  ;;
+ *:GNOME:*|*:ubuntu:*)
+  gnome-extensions info clipboard@linuxvm.dev | grep -q 'State: ACTIVE'
+  for unit in linuxvm-clipboard linuxvm-audio; do
+   systemctl --user is-active "$unit" || exit 1
+  done
+  ;;
+ *) echo "Unsupported desktop: ${XDG_CURRENT_DESKTOP:-unset}" >&2; exit 1 ;;
+esac
+'''
+
+ENVIRONMENT_REPORT = SESSION + r'''cat /etc/os-release
+uname -a
+case ":${XDG_CURRENT_DESKTOP:-}:" in
+ *:KDE:*) QT_QPA_PLATFORM=offscreen plasmashell --version ;;
+ *) gnome-shell --version ;;
+esac
+if command -v rpm >/dev/null; then
+ rpm -q linuxvm-guest libinput gtk4
+else
+ dpkg-query -W linuxvm-guest libinput10 libgtk-4-1
+fi
+'''
 
 
 def run(args, *, timeout=60, check=True, **kwargs):
