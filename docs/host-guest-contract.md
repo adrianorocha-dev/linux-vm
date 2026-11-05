@@ -1,6 +1,6 @@
 # Host–guest contract
 
-The Mac app (`macos/`) and the Ubuntu guest tools (`guest/`) meet only at the interfaces below.
+The Mac app (`macos/`) and the guest tools (`guest/`) meet only at the interfaces below. The guest tools run on Ubuntu and Fedora, with GNOME or KDE Plasma.
 
 ## Virtual devices
 
@@ -10,7 +10,7 @@ The Mac app (`macos/`) and the Ubuntu guest tools (`guest/`) meet only at the in
     - `dev.linuxvm.audio`: helper `--bridge-native-audio` (QEMU runs with `OMARCHY_SDL_AUDIO_CONTROL_DIRECTORY`).
     - `dev.linuxvm.timezone`: helper `--bridge-native-timezone`. Besides zone names it carries `{"type":"wake"}` after the Mac wakes (see [Mac sleep](#mac-sleep-and-the-guest-clock)).
   - `dev.linuxvm.status` is served by our supervisor (`linuxvmctl run`), not by the helper. See [Guest status](#guest-status). Added in app and guest tools 0.2.0.
-- The shared Mac folder, when enabled: `virtio-9p-pci` with mount tag `mac`, exported with `security_model=none,multidevs=remap,guest_owner_uid=1000,guest_owner_gid=1000`. Files appear owned by uid/gid 1000, the first Ubuntu user.
+- The shared Mac folder, when enabled: `virtio-9p-pci` with mount tag `mac`, exported with `security_model=none,multidevs=remap,guest_owner_uid=1000,guest_owner_gid=1000`. Files appear owned by uid/gid 1000, the first user on both Ubuntu and Fedora.
 - The virtual touchpad `QEMU Virtio Pinch Touchpad` (`virtio-pinch-pci`). The Mac has already applied the scroll scale. Its finger-scroll contacts follow the fingers, without the Mac's natural scrolling, so the guest's own touchpad setting picks the direction. Guest tools 0.2.1 default natural scrolling on. Earlier app builds sent the Mac's direction, and guest tools 0.2.0 and earlier turned natural scrolling off to match; with a current app, such a VM scrolls the traditional way until its guest tools are updated or the setting is changed.
 - The PL031 real-time clock of QEMU's `virt` machine. It follows the Mac's UTC clock, including while the VM is paused. Linux usually reaches it through the UEFI firmware as `rtc-efi`.
 
@@ -31,29 +31,33 @@ The message carries no time. On wake, guest tools 0.2.0 and later compare the sy
 
 ## Guest status
 
-`dev.linuxvm.status` tells the Mac which guest tools a VM runs and whether its integration is working. The app compares the version with its Guest Tools disc and reports a disabled extension.
+`dev.linuxvm.status` tells the Mac which guest tools a VM runs and whether its integration is working. The app compares the version with its Guest Tools disc and reports a clipboard that isn't working.
 
 Both directions carry UTF-8 JSON objects, one per line, at most 4096 bytes per line. Each side ignores message types and keys it does not know, and drops lines that are too long or malformed.
 
 - Guest → Mac:
 
   ```json
-  {"type":"status","package":"0.2.0","os":"Ubuntu 26.04.1 LTS","shell":"50.1","extension":"active"}
+  {"type":"status","package":"0.3.0","os":"Fedora Linux 45 (KDE Plasma Desktop Edition)","desktop":"KDE","desktopVersion":"6.8.1","clipboard":"active","extension":"unknown"}
   ```
 
   - `package`: the installed `linuxvm-guest` version, `MAJOR.MINOR.PATCH`.
   - `os`: `PRETTY_NAME` from `/etc/os-release`, at most 128 characters.
-  - `shell`: GNOME Shell's version, at most 32 characters, or absent if unknown.
-  - `extension`: the state of `clipboard@linuxvm.dev` in GNOME Shell:
-    - `active`: enabled and running;
-    - `inactive`: installed but disabled;
-    - `outdated`: GNOME Shell rejects it as made for another Shell version;
-    - `error`: it failed to load or run;
-    - `missing`: GNOME Shell does not know it;
+  - `desktop` (0.3.0): the desktop, at most 32 characters: `GNOME`, `KDE`, or the first entry of `XDG_CURRENT_DESKTOP` for another one. Absent if unknown.
+  - `desktopVersion` (0.3.0): its version, at most 32 characters: GNOME Shell's or Plasma's. Absent if unknown.
+  - `clipboard` (0.3.0): whether the shared clipboard works, on any desktop:
+    - `active`: it works;
+    - `inactive`: the user turned it off (on GNOME, the extension is disabled);
+    - `outdated`: these guest tools don't support this desktop version yet (on GNOME, Shell rejects the extension as made for another version);
+    - `pending`: it starts at the next login (on GNOME, Shell doesn't know the extension yet);
+    - `unsupported`: this desktop offers no clipboard access the guest tools can use;
+    - `error`: it failed to start or run;
     - `unknown`: anything else, including a transition.
+  - `shell`: GNOME Shell's version, at most 32 characters. Sent only on GNOME, for apps before 0.3.
+  - `extension`: the state of `clipboard@linuxvm.dev` in GNOME Shell: `active`, `inactive`, `outdated`, `error`, `missing` (Shell doesn't know it) or `unknown`. Always sent, because apps before 0.3 drop a report without it. On other desktops it is `unknown`.
 - Mac → guest: `{"type":"query"}`. The guest answers with a status message.
 
-The guest sends a status message when its agent starts, when the extension's state changes and when asked. The sender is a user service in the graphical session, so a VM reports only while someone is logged in. The Mac keeps the last report for each VM across runs and treats every value as untrusted.
+The guest sends a status message when its agent starts, when the clipboard's state changes and when asked. The sender is a user service in the graphical session, so a VM reports only while someone is logged in. The Mac keeps the last report for each VM across runs and treats every value as untrusted.
 
 ## Guest tools delivery
 
@@ -63,4 +67,5 @@ The app attaches `guest-tools.iso` (volume label `LINUXVM-TOOLS`) to every VM as
 
 - Every change to the guest package raises its version.
 - Interfaces are only added, never changed incompatibly: new ports, message types and keys. A guest service whose port is absent does not start. So an older app works with newer guest tools, and a newer app works with older guest tools, which simply send no status.
+- On GNOME, the clipboard goes through the `clipboard@linuxvm.dev` extension. On other Wayland desktops, such as KDE Plasma, the user agent uses the compositor's data-control protocol (`ext-data-control-v1`, or `wlr-data-control-unstable-v1`) directly.
 - The clipboard extension declares only the GNOME Shell major versions it was tested on. After a GNOME upgrade to an untested version, GNOME Shell marks it out of date, the status reports `"extension":"outdated"`, and the app says so. Updated guest tools ship on the Guest Tools disc; there is no apt repository.
