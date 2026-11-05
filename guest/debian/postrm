@@ -20,6 +20,9 @@ case "$1" in
         fi
         rm -f /run/linuxvm/shared-folder-name
         rmdir /run/linuxvm 2>/dev/null || true
+        # In case a Python run after prerm wrote the cache again.
+        rm -rf /usr/lib/linuxvm/__pycache__
+        rmdir /usr/lib/linuxvm 2>/dev/null || true
         ;;
 esac
 if [ "$1" = purge ]; then

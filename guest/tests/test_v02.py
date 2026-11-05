@@ -122,6 +122,14 @@ class IntegrationStaticTests(unittest.TestCase):
             text = (ROOT / 'debian' / name).read_text()
             for unit in ['linuxvm-status.service', 'linuxvm-clock-recovery.service', 'linuxvm-clock-recovery.timer']:
                 self.assertIn(unit, text)
+        # Python's run-time cache isn't a package file, so the removal scripts delete it.
+        prerm = (ROOT / 'debian/prerm').read_text()
+        cache = 'rm -rf /usr/lib/linuxvm/__pycache__'
+        self.assertGreater(prerm.index(cache), prerm.rindex('python3'))
+        self.assertLess(prerm.index(cache), prerm.index(';;'))
+        postrm = (ROOT / 'debian/postrm').read_text()
+        self.assertLess(postrm.index(cache), postrm.index(';;'))
+        self.assertIn('rmdir /usr/lib/linuxvm 2>/dev/null', postrm)
         source = (ROOT / 'files/usr/lib/linuxvm/status.py').read_text()
         self.assertIn('from version import VERSION', source)
         self.assertNotIn('dpkg', source)

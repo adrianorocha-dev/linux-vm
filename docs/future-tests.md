@@ -17,7 +17,3 @@ Checks left open when Milestone 2 closed on 3 November 2026. None of them blocks
 ## Without anyone at the Mac
 
 - **Frame pacing in full screen and on a second display.** Measure with the VM window in front and the display on, because other conditions always pace badly. ([Milestone 2](milestone-2-plan.md#idle-pacing-investigation-2-november-2026))
-
-## Small fixes noticed
-
-- **Leftover file when the guest tools are removed.** `apt purge linuxvm-guest` leaves `/usr/lib/linuxvm/__pycache__/`, which Python creates at run time. The package's removal script should delete it. This needs a new package version. ([What needs the guest tools](what-needs-guest-tools.md#installing-them))

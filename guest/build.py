@@ -10,7 +10,7 @@ import shutil
 import tarfile
 
 ROOT = Path(__file__).resolve().parent
-VERSION = '0.2.1'
+VERSION = '0.2.2'
 DEB = f'linuxvm-guest_{VERSION}_all.deb'
 EPOCH = 946684800  # 2000-01-01 UTC, also representable by ISO9660.
 
