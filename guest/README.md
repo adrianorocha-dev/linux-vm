@@ -1,9 +1,10 @@
 # LinuxVM guest tools
 
-`linuxvm-guest` 0.3.0 supports GNOME Shell/Mutter 50 and KDE Plasma on Wayland,
-with Debian and RPM packages for Ubuntu 26.04 and Fedora. The Debian and RPM package builder uses Python's standard library;
-the tools disc requires xorriso (PATH, then `/opt/homebrew/bin/xorriso`). No VM or Debian
-build tools are needed on the Mac.
+`linuxvm-guest` 0.3.0 supports GNOME Shell/Mutter 50 and KDE Plasma 6.6–6.8 on
+Wayland, as a Debian package for Ubuntu 26.04 and an RPM for Fedora 44 and 45.
+The builder for both packages uses Python's standard library; the tools disc
+requires xorriso (PATH, then `/opt/homebrew/bin/xorriso`). No VM or packaging
+tools are needed on the Mac.
 
 What works in a VM without this package, and what needs it:
 [docs/what-needs-guest-tools.md](../docs/what-needs-guest-tools.md).
