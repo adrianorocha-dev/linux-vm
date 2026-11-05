@@ -14,5 +14,5 @@ if [ "$1" = configure ]; then
         # One failed clock check must not fail the install; the timer retries.
         systemctl start linuxvm-clock-recovery.service || true
     fi
-    echo 'LinuxVM guest tools installed. Log out and back in to load the clipboard extension and user services.'
+    echo 'LinuxVM guest tools installed. Log out and back in to start the shared clipboard and the other user services.'
 fi

@@ -15,4 +15,4 @@ else
     echo 'LinuxVM guest tools support Ubuntu and Fedora.' >&2
     exit 1
 fi
-printf '\nLog out and back in to load the clipboard extension and guest services.\n'
+printf '\nLog out and back in to start the shared clipboard and the other guest services.\n'
