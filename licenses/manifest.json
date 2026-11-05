@@ -1707,6 +1707,12 @@
     }
   ],
   "guest_files": {
+    "deb:data/etc/xdg/kcminputrc": {
+      "source": "guest/files/etc/xdg/kcminputrc"
+    },
+    "deb:data/etc/xdg/powerdevilrc": {
+      "source": "guest/files/etc/xdg/powerdevilrc"
+    },
     "deb:data/usr/lib/linuxvm/audio.py": {
       "source": "guest/files/usr/lib/linuxvm/audio.py"
     },

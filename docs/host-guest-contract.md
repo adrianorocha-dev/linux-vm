@@ -14,6 +14,10 @@ The Mac app (`macos/`) and the guest tools (`guest/`) meet only at the interface
 - The virtual touchpad `QEMU Virtio Pinch Touchpad` (`virtio-pinch-pci`). The Mac has already applied the scroll scale. Its finger-scroll contacts follow the fingers, without the Mac's natural scrolling, so the guest's own touchpad setting picks the direction. Guest tools 0.2.1 default natural scrolling on. Earlier app builds sent the Mac's direction, and guest tools 0.2.0 and earlier turned natural scrolling off to match; with a current app, such a VM scrolls the traditional way until its guest tools are updated or the setting is changed.
 - The PL031 real-time clock of QEMU's `virt` machine. It follows the Mac's UTC clock, including while the VM is paused. Linux usually reaches it through the UEFI firmware as `rtc-efi`.
 
+## Shutting down
+
+The app's Shut Down presses the VM's ACPI power button (QMP `system_powerdown`). Shut Down and Install, before an update, does the same. The guest is expected to shut down then, without anyone at the VM. GNOME does so by itself. KDE Plasma's default, a logout prompt, waits for a click, so the guest tools set Plasma's power-button action to shut down (`/etc/xdg/powerdevilrc`). Force Stop ends QEMU at once.
+
 ## Host settings
 
 The Mac passes one systemd credential, `linuxvm.host`, through SMBIOS type 11 (`io.systemd.credential.binary:linuxvm.host=<base64>`). It holds `key=value` lines:

@@ -1,0 +1,6 @@
+# LinuxVM guest tools: in KDE Plasma, the VM's power button shuts Linux down.
+# The app's Shut Down presses that button. Plasma's default, a logout prompt,
+# waits for a click that never comes. Settings in ~/.config/powerdevilrc take
+# precedence.
+[AC][SuspendAndShutdown]
+PowerButtonAction=8

@@ -1,0 +1,8 @@
+# LinuxVM guest tools: KDE Plasma defaults for the VM's virtual touchpad only.
+# The Mac's touchpad contacts follow the fingers, so natural scrolling matches the
+# Mac's default. Tap to click and disable-while-typing stay off, as on GNOME.
+# Settings in ~/.config/kcminputrc take precedence.
+[Libinput][1575][4][QEMU Virtio Pinch Touchpad]
+DisableWhileTyping=false
+NaturalScroll=true
+TapToClick=false

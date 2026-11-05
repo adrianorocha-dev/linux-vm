@@ -325,7 +325,8 @@ class PackageTests(unittest.TestCase):
         expected += ['usr/lib/systemd/user/linuxvm-' + name + '.service' for name in ['clipboard', 'audio', 'share-link', 'status']]
         expected += ['usr/lib/systemd/system/linuxvm-' + name + '.service' for name in ['timezone', 'share-mount', 'clock-recovery']]
         expected += ['usr/lib/systemd/system/linuxvm-clock-recovery.timer']
-        expected += ['usr/lib/udev/rules.d/70-linuxvm-ports.rules', 'usr/share/libinput/90-linuxvm.quirks',
+        expected += ['etc/xdg/kcminputrc', 'etc/xdg/powerdevilrc',
+                     'usr/lib/udev/rules.d/70-linuxvm-ports.rules', 'usr/share/libinput/90-linuxvm.quirks',
                      'usr/share/glib-2.0/schemas/90_linuxvm.gschema.override',
                      'usr/share/doc/linuxvm-guest/copyright',
                      'usr/share/gnome-shell/extensions/clipboard@linuxvm.dev/extension.js',
@@ -338,7 +339,8 @@ class PackageTests(unittest.TestCase):
         self.assertEqual(archives['data']['usr/lib/linuxvm/version.py'], f"VERSION = {builder.VERSION!r}\n".encode())
         # The Mac's touchpad contacts follow the fingers, so GNOME applies natural scrolling itself.
         self.assertIn(b'natural-scroll=true\n', archives['data']['usr/share/glib-2.0/schemas/90_linuxvm.gschema.override'])
-        self.assertNotIn('conffiles', archives['control'])  # All configuration lives under /usr.
+        # No conffiles: upgrades replace the KDE defaults in /etc/xdg, and removal deletes them.
+        self.assertNotIn('conffiles', archives['control'])
         self.assertIn(b'Copyright (c) 2026 Try Omarchy contributors', archives['data']['usr/share/doc/linuxvm-guest/copyright'])
 
     def test_units_and_extension_contract(self):
