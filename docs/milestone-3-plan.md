@@ -1,5 +1,7 @@
 # Milestone 3 plan: release the app
 
+**Closed on 4 November 2026.** [Milestone 4](milestone-4-plan.md) adds Fedora and KDE Plasma.
+
 Milestone 2 made the app dependable on this Mac ([plan](milestone-2-plan.md)). Milestone 3 makes it something friends can install and keep up to date, with its licenses in order and its runtime rebuildable from a clean checkout. Its scope comes from the proposal's [Milestone 3](proposal.md#milestone-3--release-and-upstream-work), narrowed by the user on 3 November 2026.
 
 ## Starting state
