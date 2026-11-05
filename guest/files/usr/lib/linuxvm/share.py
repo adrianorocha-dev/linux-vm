@@ -87,6 +87,10 @@ class ShareLink:
             except FileNotFoundError:
                 pass
         self.state.unlink(missing_ok=True)
+        try:
+            self.state.parent.rmdir()  # only when empty; written again on the next link
+        except OSError:
+            pass
 
     def update(self, encoded: str | None) -> None:
         name = folder_name(encoded) if encoded is not None else None

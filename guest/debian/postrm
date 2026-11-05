@@ -22,6 +22,8 @@ case "$1" in
         rmdir /run/linuxvm 2>/dev/null || true
         # share.py creates the mount point; remove it once it is empty and unmounted.
         rmdir /mnt/mac 2>/dev/null || true
+        # The clipboard agent's state in each user's runtime folder.
+        rm -rf /run/user/*/linuxvm
         # In case a Python run after prerm wrote the cache again.
         rm -rf /usr/lib/linuxvm/__pycache__
         rmdir /usr/lib/linuxvm 2>/dev/null || true

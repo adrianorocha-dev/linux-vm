@@ -203,6 +203,7 @@ class ShareTests(unittest.TestCase):
             self.assertTrue((home / 'Other').is_symlink())
             manager.cleanup()
             self.assertFalse((home / 'Other').is_symlink())
+            self.assertFalse((root / 'state').exists())
             (home / 'Work').mkdir()
             manager.update(encode_name('Work'))
             self.assertTrue((home / 'Work').is_dir())
