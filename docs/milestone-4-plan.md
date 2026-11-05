@@ -1,5 +1,7 @@
 # Milestone 4 plan: Fedora and KDE Plasma
 
+**Closed on 5 November 2026**, with the release of 0.3.0.
+
 Milestone 3 released the app with automatic updates ([plan](milestone-3-plan.md)). Milestone 4 makes the guest tools work on Fedora, and on KDE Plasma under both Ubuntu and Fedora. The user set its scope on 4 November 2026. It follows the proposal's [guest integration profiles](proposal.md#5-guest-integration-profiles): one common protocol, a package for each distribution and an adapter for each desktop.
 
 ## Profiles
@@ -218,9 +220,13 @@ Results:
   - the Mac received GNOME 50.1 with the clipboard active.
 - **Files:** compared with 0.2.2, the upgrade only added the two KDE defaults and `wayland_clipboard.py`. Nothing failed.
 
-### What's left (5 November 2026)
+### Release (5 November 2026)
 
-- **The release:** app 0.3.0 with the updated README and the notes in `docs/releases/0.3.0.md`.
+- **Published:** app 0.3.0, build 4, from commit `791b71f`, at 12:52 UTC.
+  - The DMG inside is signed and notarized, with its ticket stapled.
+  - The app's disc carries both 0.3.0 packages.
+  - The appcast lists 0.3.0 first, then 0.2.1 and 0.2.0.
+- **A false failure in the release script.** Its last check found that GitHub's `latest/download/appcast.xml` still served 0.2.1's feed. The release itself was complete. A minute later the feed matched, and so did the DMG at the tag's URL and GitHub's size and SHA-256 record of the source archive. The script had retried for only about ten seconds; it now retries for about three minutes, and a test covers a slow switch.
 
 ## How the work is split
 

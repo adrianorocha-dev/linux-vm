@@ -1,6 +1,6 @@
 # Working on Linux VM
 
-Read `README.md` for what the app does and `docs/development.md` for the layout, building and releasing, then `docs/milestone-4-plan.md` for the current milestone. `docs/milestone-3-plan.md` and `docs/milestone-2-plan.md` record Milestones 3 and 2 (closed), `docs/future-tests.md` the checks Milestone 2 left for later, and `docs/proposal.md` the investigation and the Milestone 0 and 1 results.
+Read `README.md` for what the app does and `docs/development.md` for the layout, building and releasing, then `docs/milestone-4-plan.md` for the latest milestone, closed with 0.3.0 on 5 November 2026; no next milestone is planned yet. `docs/milestone-3-plan.md` and `docs/milestone-2-plan.md` record Milestones 3 and 2 (closed), `docs/future-tests.md` the checks Milestone 2 left for later, and `docs/proposal.md` the investigation and the Milestone 0 and 1 results.
 
 ## Build and test
 

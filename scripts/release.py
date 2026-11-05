@@ -284,13 +284,19 @@ def verify_dmg(dmg, root):
     run('xcrun', 'stapler', 'validate', dmg, cwd=root)
 
 
+# GitHub's latest/download link can keep serving the previous release's feed for a
+# while after publication (more than ten seconds for 0.3.0), so retry for about
+# three minutes, waiting 2, 4 and 8 seconds, then 15 seconds between attempts.
+PUBLIC_CHECK_ATTEMPTS = 15
+
+
 def verify_public(config, version, dmg, feed, directory):
     urls = [(config['feed_url'], feed),
             (f'https://github.com/{config["repository"]}/releases/download/v{version}/{dmg.name}', dmg)]
     for index, (url, expected) in enumerate(urls):
         target = directory / f'.public-check-{index}'
         try:
-            for attempt in range(5):
+            for attempt in range(PUBLIC_CHECK_ATTEMPTS):
                 try:
                     download(url, target)
                     require(sha(target) == sha(expected), f'public bytes differ: {url}')
@@ -299,9 +305,9 @@ def verify_public(config, version, dmg, feed, directory):
                                 'public feed does not list the new version first')
                     break
                 except (OSError, ValueError):
-                    if attempt == 4:
+                    if attempt == PUBLIC_CHECK_ATTEMPTS - 1:
                         raise
-                    time.sleep(2)
+                    time.sleep(min(2 ** (attempt + 1), 15))
         finally:
             target.unlink(missing_ok=True)
 

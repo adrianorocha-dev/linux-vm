@@ -215,9 +215,32 @@ class ReleaseLogicTests(unittest.TestCase):
             feed.write_bytes(release.appcast('0.1.0', INFO, CONFIG, SIGNATURE, 8, 'Notes', []))
             def fetch(url, target):
                 target.write_bytes(b'wrong')
-            with patch.object(release, 'download', side_effect=fetch), patch.object(release.time, 'sleep'):
+            with patch.object(release, 'download', side_effect=fetch), patch.object(release.time, 'sleep') as sleep:
                 with self.assertRaisesRegex(ValueError, 'public bytes differ'):
                     release.verify_public(CONFIG, '0.1.0', dmg, feed, root)
+            # About three minutes in all, so a slow switch of GitHub's latest link fits.
+            self.assertGreaterEqual(sum(call.args[0] for call in sleep.call_args_list), 170)
+
+    def test_public_verification_waits_for_latest_to_switch(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            dmg, feed = root / 'LinuxVM-0.1.1.dmg', root / 'appcast.xml'
+            dmg.write_bytes(b'expected')
+            feed.write_bytes(release.appcast('0.1.1', INFO, CONFIG, SIGNATURE, 8, 'Notes', []))
+            previous = release.appcast('0.1.0', INFO, CONFIG, SIGNATURE, 8, 'Notes', [])
+            served = []
+            def fetch(url, target):
+                served.append(url)
+                if url == CONFIG['feed_url']:
+                    # The previous release's feed for the first four requests, as GitHub did for 0.3.0.
+                    target.write_bytes(previous if len(served) <= 4 else feed.read_bytes())
+                else:
+                    target.write_bytes(dmg.read_bytes())
+            with patch.object(release, 'download', side_effect=fetch), patch.object(release.time, 'sleep') as sleep:
+                release.verify_public(CONFIG, '0.1.1', dmg, feed, root)
+            self.assertEqual(served.count(CONFIG['feed_url']), 5)
+            self.assertEqual([call.args[0] for call in sleep.call_args_list], [2, 4, 8, 15])
+            self.assertEqual(list(root.glob('.public-check-*')), [])
 
 
 STUB = '''#!/usr/bin/env python3

@@ -18,7 +18,7 @@ This covers how the repository is laid out, how to build and test the app, and h
   - [`host-guest-contract.md`](host-guest-contract.md): the only interfaces between the Mac and the guest.
   - [`what-needs-guest-tools.md`](what-needs-guest-tools.md): what works without the guest tools, and what needs them.
   - [`proposal.md`](proposal.md): the investigation and proposal, with Milestone 0 and 1 results. [`milestone-0-notes.md`](milestone-0-notes.md) and [`utm-ubuntu-report.md`](utm-ubuntu-report.md) hold the measurements behind it.
-  - [`milestone-4-plan.md`](milestone-4-plan.md): the current milestone, Fedora and KDE Plasma. [`milestone-3-plan.md`](milestone-3-plan.md): Milestone 3, releasing the app, closed on 4 November 2026. [`milestone-2-plan.md`](milestone-2-plan.md): Milestone 2, closed on 3 November 2026. [`future-tests.md`](future-tests.md) lists the checks it left for later.
+  - [`milestone-4-plan.md`](milestone-4-plan.md): Milestone 4, Fedora and KDE Plasma, closed on 5 November 2026 with 0.3.0. [`milestone-3-plan.md`](milestone-3-plan.md): Milestone 3, releasing the app, closed on 4 November 2026. [`milestone-2-plan.md`](milestone-2-plan.md): Milestone 2, closed on 3 November 2026. [`future-tests.md`](future-tests.md) lists the checks it left for later.
   - [`releases/`](releases/README.md): release notes, one file per version.
 
 ## How a VM runs
