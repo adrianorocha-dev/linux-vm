@@ -6,7 +6,8 @@ import UniformTypeIdentifiers
 struct NewMachineSheet: View {
     let model: LibraryModel
     @Environment(\.dismiss) private var dismiss
-    @State private var name = "Ubuntu"
+    @State private var name = InstallerName.fallback
+    @State private var suggestedName = InstallerName.fallback
     @State private var installer: URL?
     @State private var cpuCount = 4
     @State private var memoryMiB = 4096
@@ -31,8 +32,11 @@ struct NewMachineSheet: View {
                     }
                 } footer: {
                     HStack(spacing: 4) {
-                        Text("Use an ARM64 installer, such as Ubuntu Desktop for ARM.")
-                        Link("Download Ubuntu", destination: URL(string: "https://ubuntu.com/download/desktop")!)
+                        Text("Use an ARM64 installer image, such as")
+                        Link("Ubuntu", destination: URL(string: "https://ubuntu.com/download/desktop")!)
+                            .foregroundStyle(.tint)
+                        Text("or")
+                        Link("Fedora", destination: URL(string: "https://fedoraproject.org/workstation/download")!)
                             .foregroundStyle(.tint)
                     }
                     .font(.caption)
@@ -61,6 +65,9 @@ struct NewMachineSheet: View {
             .fileImporter(isPresented: $choosingInstaller, allowedContentTypes: [UTType(filenameExtension: "iso") ?? .diskImage, .diskImage]) { result in
                 if case .success(let url) = result {
                     installer = url
+                    let suggestion = InstallerName.suggest(for: url.lastPathComponent)
+                    if name == suggestedName { name = suggestion }
+                    suggestedName = suggestion
                 }
             }
             Divider()
@@ -91,7 +98,8 @@ struct NewMachineSheet: View {
 struct ImportDiskSheet: View {
     let model: LibraryModel
     @Environment(\.dismiss) private var dismiss
-    @State private var name = "Ubuntu"
+    @State private var name = InstallerName.fallback
+    @State private var suggestedName = InstallerName.fallback
     @State private var disk: URL?
     @State private var variables: URL?
     @State private var cpuCount = 4
@@ -139,7 +147,14 @@ struct ImportDiskSheet: View {
             .fileImporter(isPresented: Binding(get: { choosing != nil }, set: { if !$0 { choosing = nil } }),
                           allowedContentTypes: [.data]) { result in
                 guard case .success(let url) = result else { return }
-                if choosing == .variables { variables = url } else { disk = url }
+                if choosing == .variables {
+                    variables = url
+                } else {
+                    disk = url
+                    let suggestion = InstallerName.suggest(for: url.lastPathComponent)
+                    if name == suggestedName { name = suggestion }
+                    suggestedName = suggestion
+                }
                 choosing = nil
             }
             Divider()

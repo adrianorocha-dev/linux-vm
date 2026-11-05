@@ -77,7 +77,7 @@ struct LibraryView: View {
                     ContentUnavailableView {
                         Label("No Virtual Machines", systemImage: "desktopcomputer")
                     } description: {
-                        Text("Create one from an Ubuntu installer image.")
+                        Text("Create one from a Linux installer image, such as Ubuntu or Fedora.")
                     } actions: {
                         Button("New Virtual Machine…") { sheet = .create }
                     }
