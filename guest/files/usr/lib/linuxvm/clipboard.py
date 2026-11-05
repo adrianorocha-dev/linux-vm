@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-"""GNOME clipboard transport, adapted from Try Omarchy (MIT)."""
+"""Session clipboard transport, adapted from Try Omarchy (MIT)."""
 from __future__ import annotations
 import base64
 import hashlib
@@ -116,7 +116,7 @@ class ClipboardSync:
         return True
 
 
-def main() -> int:
+def gnome_main() -> int:
     from gi.repository import Gio, GLib
     from common import Lines, write_all
 
@@ -153,6 +153,7 @@ def main() -> int:
                 if owner:
                     sync = ClipboardSync(lambda data: write_all(fd, data), copy)
                     write_all(fd, b'{"type":"sync"}\n')
+                    write_state('gnome-extension', 'active')
             if not owner and time.monotonic() - last_enable >= 15:
                 last_enable = time.monotonic()
                 # Installation requires a fresh Shell session before the UUID is known.
@@ -183,6 +184,70 @@ def main() -> int:
                     print(f'clipboard read: {error}', file=sys.stderr)
                 except UnicodeDecodeError:
                     pass
+
+
+def desktop_entries():
+    return [part for part in os.environ.get('XDG_CURRENT_DESKTOP', '').split(':') if part]
+
+
+def state_path():
+    return Path(os.environ['XDG_RUNTIME_DIR']) / 'linuxvm/clipboard.json'
+
+
+def write_state(backend, state, protocol=''):
+    from common import save_json
+    path = state_path()
+    path.parent.mkdir(mode=0o700, parents=True, exist_ok=True)
+    path.parent.chmod(0o700)
+    save_json(path, {'backend': backend, 'state': state, 'protocol': protocol}, 0o600)
+
+
+def run_data_control(fd, backend):
+    from common import Lines, write_all
+    sync = ClipboardSync(lambda data: write_all(fd, data), backend.set_selection)
+    initial = []
+    backend.changed = lambda *value: initial.append(value)
+    backend.initialize()
+    write_state('data-control', 'active', backend.protocol)
+    write_all(fd, b'{"type":"sync"}\n')
+    backend.changed = sync.guest_changed
+    for value in initial:
+        sync.guest_changed(*value)
+    lines = Lines(MAX_LINE_BYTES)
+    while True:
+        if backend.dispatch(.1, [fd]):
+            chunk = os.read(fd, 65536)
+            if not chunk:
+                raise RuntimeError('host clipboard bridge disconnected')
+            for line in lines.feed(chunk):
+                decoded = decode_message(line)
+                if decoded is not None:
+                    sync.host_changed(*decoded)
+
+
+def main():
+    backend_name = 'gnome-extension' if 'GNOME' in desktop_entries() else 'data-control'
+    backend = None
+    try:
+        if backend_name == 'gnome-extension':
+            return gnome_main()
+        from wayland_clipboard import Clipboard, Unsupported
+        backend = Clipboard(lambda *_: None)
+        try:
+            with PORT.open('r+b', buffering=0) as port:
+                run_data_control(port.fileno(), backend)
+        except Unsupported:
+            write_state(backend_name, 'unsupported')
+            return 0
+    except Exception:
+        try:
+            write_state(backend_name, 'error', backend.protocol if backend else '')
+        except Exception:
+            pass
+        raise
+    finally:
+        if backend:
+            backend.close()
 
 
 if __name__ == '__main__':

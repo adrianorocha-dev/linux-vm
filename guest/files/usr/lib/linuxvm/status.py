@@ -5,6 +5,9 @@ import os
 from pathlib import Path
 import select
 import sys
+import subprocess
+from functools import lru_cache
+from clipboard import desktop_entries, state_path
 
 from common import write_all
 
@@ -27,15 +30,26 @@ def extension_state(info):
             99: 'missing'}.get(value, 'unknown')
 
 
-def encode_status(version, os_name, shell, state):
+def encode_status(version, os_name, shell, state, desktop="GNOME", desktop_version=None, clipboard=None):
     import re
     if not re.fullmatch(r'[0-9]+\.[0-9]+\.[0-9]+', version):
         raise ValueError('invalid package version')
     if state not in ('active', 'inactive', 'outdated', 'error', 'missing', 'unknown'):
         raise ValueError('invalid extension state')
     message = {'type': 'status', 'package': version, 'os': str(os_name)[:128], 'extension': state}
-    if isinstance(shell, str) and shell:
-        message['shell'] = shell[:32]
+    if desktop == 'GNOME':
+        clipboard = {'missing': 'pending'}.get(state, state)
+        desktop_version = shell
+        if isinstance(shell, str) and shell:
+            message['shell'] = shell[:32]
+    else:
+        message['extension'] = 'unknown'
+    if desktop:
+        message['desktop'] = clean_desktop(desktop)
+    if isinstance(desktop_version, str) and desktop_version:
+        message['desktopVersion'] = clean_desktop(desktop_version)
+    allowed = ('active', 'inactive', 'outdated', 'pending', 'unsupported', 'error', 'unknown')
+    message['clipboard'] = clipboard if clipboard in allowed else 'unknown'
     data = json.dumps(message, ensure_ascii=False, separators=(',', ':')).encode() + b'\n'
     if len(data) > LIMIT:
         raise ValueError('oversized status')
@@ -87,7 +101,81 @@ def os_pretty_name(path=Path('/etc/os-release')):
     return ''
 
 
+def clean_desktop(value):
+    return ''.join(c for c in value if c.isprintable())[:32]
+
+
+def session_desktop():
+    entries = desktop_entries()
+    return next((name for name in ('GNOME', 'KDE') if name in entries),
+                clean_desktop(entries[0]) if entries else '')
+
+
+@lru_cache(maxsize=1)
+def plasma_version():
+    import re
+    try:
+        result = subprocess.run(['plasmashell', '--version'], capture_output=True,
+                                timeout=2, check=True, text=True)
+        match = re.fullmatch(r'plasmashell\s+([0-9]+(?:\.[0-9]+)+)\s*', result.stdout)
+        return match[1][:32] if match else None
+    except (OSError, subprocess.SubprocessError, UnicodeError):
+        return None
+
+
+def clipboard_state():
+    try:
+        with state_path().open('rb') as stream:
+            data = stream.read(LIMIT + 1)
+        if len(data) > LIMIT:
+            return 'unknown'
+        value = json.loads(data)
+        if (isinstance(value, dict) and value.get('backend') in ('data-control', 'gnome-extension')
+                and value.get('state') in ('active', 'unsupported', 'error')
+                and isinstance(value.get('protocol'), str)):
+            return value['state']
+    except (OSError, KeyError, ValueError, RecursionError):
+        pass
+    return 'unknown'
+
+
+def clipboard_stamp():
+    try:
+        stat = state_path().stat()
+        return stat.st_mtime_ns, stat.st_ino
+    except (OSError, KeyError):
+        return None
+
+
+def other_main():
+    from version import VERSION
+    desktop = session_desktop()
+    version = plasma_version() if desktop == 'KDE' else None
+    os_name = os_pretty_name()
+    with PORT.open('r+b', buffering=0) as port:
+        fd, lines = port.fileno(), QueryLines()
+        def report():
+            write_all(fd, encode_status(VERSION, os_name, None, 'unknown', desktop,
+                                        version, clipboard_state()))
+        stamp = clipboard_stamp()
+        report()
+        while True:
+            ready, _, _ = select.select([fd], [], [], 1)
+            current = clipboard_stamp()
+            if current != stamp:
+                stamp = current
+                report()
+            if ready:
+                chunk = os.read(fd, LIMIT)
+                if not chunk:
+                    raise RuntimeError('host status port disconnected')
+                for _ in range(lines.feed(chunk)):
+                    report()
+
+
 def main():
+    if session_desktop() != 'GNOME':
+        return other_main()
     from gi.repository import Gio, GLib
     from version import VERSION
     bus = Gio.bus_get_sync(Gio.BusType.SESSION, None)

@@ -143,7 +143,7 @@ class RPMTests(unittest.TestCase):
         for feature, version in [('CompressedFileNames', '3.0.4-1'), ('PayloadFilesHavePrefix', '4.0-1'),
                                  ('FileDigests', '4.6.0-1')]:
             self.assertIn(('rpmlib(' + feature + ')', version, (1 << 24) | 10), deps)
-        self.assertEqual((tags[5046], tags[5047], tags[5048]), (['wl-clipboard'], [''], [0]))
+        self.assertTrue(all(tag not in tags for tag in (5046, 5047, 5048)))
         for tag, name in enumerate(('pre', 'post', 'preun', 'postun'), 1023):
             self.assertEqual(tags[tag], (ROOT / 'rpm' / name).read_text())
             self.assertEqual(tags[tag + 62], ['/bin/sh'])

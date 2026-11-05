@@ -320,8 +320,8 @@ class PackageTests(unittest.TestCase):
         self.assertEqual(fields['Version'], builder.VERSION)
         self.assertEqual(fields['Architecture'], 'all')
         self.assertEqual(fields['Depends'], 'python3, python3-gi, pulseaudio-utils, systemd')
-        self.assertEqual(fields['Recommends'], 'wl-clipboard')
-        expected = ['usr/lib/linuxvm/' + name + '.py' for name in ['clipboard', 'audio', 'timezone', 'share', 'common', 'clock', 'status', 'version']]
+        self.assertNotIn('Recommends', fields)
+        expected = ['usr/lib/linuxvm/' + name + '.py' for name in ['clipboard', 'wayland_clipboard', 'audio', 'timezone', 'share', 'common', 'clock', 'status', 'version']]
         expected += ['usr/lib/systemd/user/linuxvm-' + name + '.service' for name in ['clipboard', 'audio', 'share-link', 'status']]
         expected += ['usr/lib/systemd/system/linuxvm-' + name + '.service' for name in ['timezone', 'share-mount', 'clock-recovery']]
         expected += ['usr/lib/systemd/system/linuxvm-clock-recovery.timer']
