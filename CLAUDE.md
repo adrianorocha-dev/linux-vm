@@ -16,6 +16,12 @@ Read `README.md` for what the app does and `docs/development.md` for the layout,
 
 - **Screenshots:** QMP `screendump` is black under VirGL. Check the guest from inside instead: `scripts/ssh-vm.sh 2222 …` for the imported "Ubuntu" VM, plus `scripts/guest-diagnostics.sh`.
 - **App UI:** check it with the app's own window snapshots: `LINUXVM_SNAPSHOT=/tmp/prefix` with `LINUXVM_SNAPSHOT_TAB`, `LINUXVM_SNAPSHOT_SHEET`, `LINUXVM_SNAPSHOT_HEIGHT` and `LINUXVM_SNAPSHOT_SCROLL=end`. Point `LINUXVM_LIBRARY` and `LINUXVM_CONTENTS` at a throwaway folder to show made-up VMs and reports. The agent has no Screen Recording or Accessibility permission.
+- **Menus and interaction in snapshots:**
+  - `LINUXVM_SNAPSHOT_MENU=N` right-clicks sidebar row N, saves `PREFIX-menu.png` with the context menu open, then quits.
+  - With a sheet open, `PREFIX-composite.png` shows it over its window. `LINUXVM_SNAPSHOT_SHEET` also takes `rename` and `delete`, for the selected VM.
+  - `LINUXVM_SNAPSHOT_TYPE=text` replaces the focused field's selection and presses Return. `LINUXVM_SNAPSHOT_PRESS=title` presses a button in the open sheet.
+  - A made-up VM looks running while another process holds its `lock` file with `flock` and its `run.json` has `"phase": "running"`.
+  - For quick tries, run `macos/.build/debug/LinuxVM` with `LINUXVM_CONTENTS` set to the built app's `Contents`.
 - **Mac sleep without sleeping:** start the supervisor with `LINUXVM_DEBUG_SLEEP_SIGNALS=1`; then SIGUSR1 simulates the Mac going to sleep and SIGUSR2 its wake.
 - **Other QEMU accelerator options:** `LINUXVM_DEBUG_QEMU_ACCEL=hvf,kernel-irqchip=off` on `linuxvmctl start` replaces `-accel hvf`, for example to compare QEMU's own interrupt controller with the macOS one.
 - **Presentation timing:** measure with the VM window in front and the Mac awake. Another app in front can change the result, and with the display off it is always bad. Turn off the guest's screen blanking first (`gsettings set org.gnome.desktop.session idle-delay 0`), or runs after five idle minutes record nothing.

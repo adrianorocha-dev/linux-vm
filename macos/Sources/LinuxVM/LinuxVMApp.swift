@@ -62,6 +62,8 @@ struct LibraryView: View {
     @Bindable var model: LibraryModel
     @Bindable var updates: UpdateController
     @Binding var sheet: LibrarySheet?
+    @State private var renaming: VMConfiguration?
+    @State private var deleting: VMConfiguration?
 
     var body: some View {
         NavigationSplitView {
@@ -71,6 +73,18 @@ struct LibraryView: View {
                         .tag(machine.id)
                 }
             }
+            // Right-clicking a row acts on that VM, even when another one is selected.
+            .contextMenu(forSelectionType: String.self) { ids in
+                if let id = ids.first, let machine = model.machine(id) {
+                    MachineContextMenu(model: model, machine: machine,
+                                       rename: { renaming = machine }, delete: { deleting = machine })
+                }
+            }
+            .sheet(item: $renaming) { machine in
+                RenameMachineSheet(model: model, machine: machine)
+            }
+            .deleteConfirmation($deleting, model: model)
+            .onAppear(perform: showRequestedSnapshotSheet)
             .navigationSplitViewColumnWidth(min: 220, ideal: 240)
             .overlay {
                 if model.machines.isEmpty {
@@ -142,6 +156,63 @@ struct LibraryView: View {
             Button("OK", role: .cancel) {}
         } message: {
             Text(model.errorMessage ?? "")
+        }
+    }
+
+    /// Window snapshots: LINUXVM_SNAPSHOT_SHEET=rename or delete opens that sheet for the selected VM.
+    private func showRequestedSnapshotSheet() {
+        guard let machine = model.selection.flatMap(model.machine) else { return }
+        switch ProcessInfo.processInfo.environment["LINUXVM_SNAPSHOT_SHEET"] {
+        case "rename": renaming = machine
+        case "delete": deleting = machine
+        default: break
+        }
+    }
+}
+
+/// Quick actions for a VM in the sidebar, matching the buttons on its page.
+struct MachineContextMenu: View {
+    let model: LibraryModel
+    let machine: VMConfiguration
+    let rename: () -> Void
+    let delete: () -> Void
+
+    var body: some View {
+        let state = model.state(of: machine.id)
+        let busy = model.busy.contains(machine.id)
+        if state == .stopped {
+            Button("Start") { model.start(machine.id) }
+                .disabled(busy)
+        } else {
+            Button("Shut Down") { model.shutDown(machine.id) }
+                .disabled(busy || state != .running)
+            Button("Force Stop", role: .destructive) { model.forceStop(machine.id) }
+        }
+        Divider()
+        Button("Rename…", action: rename)
+        Button("Show in Finder") { showInFinder(model: model, id: machine.id) }
+        Divider()
+        Button("Delete…", role: .destructive, action: delete)
+            .disabled(state != .stopped || busy)
+    }
+}
+
+@MainActor
+func showInFinder(model: LibraryModel, id: String) {
+    NSWorkspace.shared.activateFileViewerSelecting([model.library.directory(for: id)])
+}
+
+extension View {
+    /// Asks before moving a VM to the Trash, the same way wherever Delete is offered.
+    func deleteConfirmation(_ machine: Binding<VMConfiguration?>, model: LibraryModel) -> some View {
+        confirmationDialog(
+            "Delete “\(machine.wrappedValue?.name ?? "")”?",
+            isPresented: Binding(get: { machine.wrappedValue != nil }, set: { if !$0 { machine.wrappedValue = nil } }),
+            presenting: machine.wrappedValue
+        ) { target in
+            Button("Move to Trash", role: .destructive) { model.delete(target.id) }
+        } message: { _ in
+            Text("The VM's disk and settings move to the Trash.")
         }
     }
 }

@@ -313,3 +313,44 @@ struct SheetTitle: View {
             .padding(.top, 18)
     }
 }
+
+struct RenameMachineSheet: View {
+    let model: LibraryModel
+    let machine: VMConfiguration
+    @Environment(\.dismiss) private var dismiss
+    @State private var name: String
+
+    init(model: LibraryModel, machine: VMConfiguration) {
+        self.model = model
+        self.machine = machine
+        _name = State(initialValue: machine.name)
+    }
+
+    private var trimmed: String { name.trimmingCharacters(in: .whitespacesAndNewlines) }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            Text("Rename “\(machine.name)”")
+                .font(.headline)
+            TextField("Name", text: $name)
+                .labelsHidden()
+                .onSubmit(rename)
+            HStack {
+                Spacer()
+                Button("Cancel", role: .cancel) { dismiss() }
+                    .keyboardShortcut(.cancelAction)
+                Button("Rename", action: rename)
+                    .keyboardShortcut(.defaultAction)
+                    .disabled(trimmed.isEmpty || trimmed == machine.name)
+            }
+        }
+        .padding(20)
+        .frame(width: 360)
+    }
+
+    private func rename() {
+        guard !trimmed.isEmpty else { return }
+        if trimmed != machine.name { model.update(machine.id) { $0.name = trimmed } }
+        dismiss()
+    }
+}

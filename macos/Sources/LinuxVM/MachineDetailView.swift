@@ -112,7 +112,7 @@ struct MachineSettingsForm: View {
     @State private var name = ""
     @State private var choosingMedia = false
     @State private var choosingFolder = false
-    @State private var confirmingDelete = false
+    @State private var deleting: VMConfiguration?
     @State private var growing = false
     @State private var newHostPort = ""
     @State private var newGuestPort = ""
@@ -265,21 +265,15 @@ struct MachineSettingsForm: View {
 
             Section {
                 HStack {
-                    Button("Show in Finder") {
-                        NSWorkspace.shared.activateFileViewerSelecting([model.library.directory(for: machine.id)])
-                    }
+                    Button("Show in Finder") { showInFinder(model: model, id: machine.id) }
                     Spacer()
-                    Button("Delete Virtual Machine…", role: .destructive) { confirmingDelete = true }
+                    Button("Delete Virtual Machine…", role: .destructive) { deleting = machine }
                         .disabled(!editable)
                 }
             }
         }
         .formStyle(.grouped)
-        .confirmationDialog("Delete “\(machine.name)”?", isPresented: $confirmingDelete) {
-            Button("Move to Trash", role: .destructive) { model.delete(machine.id) }
-        } message: {
-            Text("The VM's disk and settings move to the Trash.")
-        }
+        .deleteConfirmation($deleting, model: model)
         .sheet(isPresented: $growing) {
             GrowDiskSheet(model: model, machine: machine)
         }
