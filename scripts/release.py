@@ -34,7 +34,8 @@ def require(condition, message):
 
 
 def run(*args, cwd=ROOT, env=None, check=True):
-    result = subprocess.run([str(a) for a in args], cwd=cwd, env=env, text=True,
+    # No command reads the script's stdin, so the publish confirmation reaches only input().
+    result = subprocess.run([str(a) for a in args], cwd=cwd, env=env, text=True, stdin=subprocess.DEVNULL,
                             stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     if check and result.returncode:
         raise ValueError(f'command failed: {" ".join(str(a) for a in args)}\n{result.stdout}{result.stderr}')

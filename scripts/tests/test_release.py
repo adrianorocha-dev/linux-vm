@@ -97,6 +97,21 @@ class ReleaseLogicTests(unittest.TestCase):
         self.assertNotIn('href="javascript:', rendered)
         self.assertIn('<code>**literal**</code>', release.markdown_html('`**literal**`'))
 
+    def test_commands_cannot_read_the_publish_confirmation(self):
+        read, write = os.pipe()
+        os.write(write, b'publish\n')
+        os.close(write)
+        saved = os.dup(0)
+        try:
+            os.dup2(read, 0)
+            result = release.run(sys.executable, '-c', 'import sys; print(repr(sys.stdin.read()))')
+            self.assertEqual(result.stdout.strip(), "''")
+            self.assertEqual(os.read(0, 64), b'publish\n')
+        finally:
+            os.dup2(saved, 0)
+            os.close(saved)
+            os.close(read)
+
     def test_asset_name_has_no_spaces(self):
         self.assertEqual(release.dmg_name('12.34.56'), 'LinuxVM-12.34.56.dmg')
 

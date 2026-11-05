@@ -59,7 +59,7 @@ Milestone 2 made the app dependable on this Mac ([plan](milestone-2-plan.md)). M
   - with a VM running, the check fetched the feed, downloaded nothing, and the window showed "Update to 0.2.1";
   - with no VM running, Sparkle downloaded and verified the DMG and installed 0.2.1 two seconds after the app quit. This used silent installs, which only the test copies allow;
   - the updated copy kept its Developer ID signature, passed its runtime check and started its VM.
-- **Not verified yet:** the path with clicks. That is Sparkle's update window, Install and Relaunch, and the shut-down prompt. It needs someone at the Mac.
+- **Verified with clicks** when 0.2.0 updated itself to 0.2.1: the shut-down prompt, Sparkle's update window, and Install and Relaunch. See [Second release](#second-release-021-4-november-2026).
 
 ### One-command runtime build (3 November 2026)
 
@@ -97,7 +97,21 @@ GPT-6.1-Sol built it, and Claude reviewed and merged it with one fix.
 - **Published** at [v0.2.0](https://github.com/adrianorocha-dev/linux-vm/releases/tag/v0.2.0), from commit `a675d5b`, with the DMG, the update feed and the 398 MB source archive (97 sources, complete).
 - **Checked as a download.** The public DMG matched the built one byte for byte. With a quarantine flag, Gatekeeper accepted the DMG and the app copied out of it as notarized Developer ID. `syspolicy_check distribution` passed, and so did the app's runtime check.
 - **Found on the way.** The first publish attempt stopped at notarization, before anything was public: the Mac's screen had locked, and macOS doesn't release the notary credentials while it's locked. The release script now checks the notary profile before building, and the [release steps](development.md#releasing) say to keep the Mac unlocked.
-- **Still to verify:** a copy of 0.2.0 updating itself to the next release while keeping its VMs. That's this milestone's last "done" criterion, and the clicked Sparkle path gets checked at the same time.
+- **Updated itself** to 0.2.1 on 4 November, below.
+
+### Second release: 0.2.1 (4 November 2026)
+
+- **Contents.** Guest tools 0.2.2: removing them now deletes the `__pycache__` folder that Python writes at run time, so nothing is left behind. The app's code is unchanged. Checked in the Ubuntu VM:
+  - upgrading from 0.2.1 with the disc's installer worked;
+  - a purge removed `/usr/lib/linuxvm` with no dpkg warning, and left none of the package's paths;
+  - a reinstall reported 0.2.2 with the clipboard extension active.
+- **Published** at [v0.2.1](https://github.com/adrianorocha-dev/linux-vm/releases/tag/v0.2.1), from commit `42b3234`, after a dry run. The feed that 0.2.0 checks served the built `appcast.xml` byte for byte, with 0.2.1 first and then 0.2.0.
+- **Updated itself, with clicks.** This was the user's copy of the public 0.2.0 DMG in `/Applications`, with three VMs:
+  - with Ubuntu 2 running, Check for Updates… asked "Install Linux VM 0.2.1?". Shut Down and Install shut the VM down cleanly, and QEMU exited with status 0;
+  - Sparkle's window then showed 0.2.1 with its notes. Install Update and then Install and Relaunch installed and relaunched it;
+  - the updated copy is 0.2.1, build 3, notarized Developer ID. It passes its runtime check, and all three VMs are still there;
+  - Ubuntu 2 started again under 0.2.1, and its clipboard and audio bridges attached. Its guest tools were then updated to 0.2.2 from the new disc.
+- **Fixed after.** The release script's commands inherited its stdin. A confirmation fed to the script, rather than typed, could be read by one of them before the prompt. They now read nothing.
 
 ## Steps that belong to the user
 
@@ -116,6 +130,8 @@ GPT-6.1-Sol built it, and Claude reviewed and merged it with one fix.
 - Every component in the app and on the disc has its license and source recorded, and the build fails if one is missing.
 - A copy of one release, with VMs, updates itself to the next release and keeps its VMs.
 - Releases are tagged and have release notes.
+
+All four were met on 4 November 2026.
 
 ## Decisions
 
