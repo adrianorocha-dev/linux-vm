@@ -178,7 +178,8 @@ do {
             print("since \(run.startedAt), supervisor \(run.supervisorPID), QEMU \(run.qemuPID.map(String.init) ?? "-")")
         }
         if let report = library.guestReport(id: machine.id) {
-            print("guest tools \(report.package), extension \(report.extensionState.rawValue), received \(report.receivedAt)")
+            let desktop = report.desktopLabel.map { ", \($0)" } ?? ""
+            print("guest tools \(report.package)\(desktop), clipboard \(report.clipboardState.rawValue), received \(report.receivedAt)")
             if let bundled = runtime.guestToolsVersion,
                GuestToolsVersion.compare(report.package, bundled) == .orderedAscending {
                 print("Guest tools are older than the bundled disc (\(bundled)).")

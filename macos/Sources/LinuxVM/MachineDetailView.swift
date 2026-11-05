@@ -221,7 +221,7 @@ struct MachineSettingsForm: View {
             } header: {
                 Text("Display and Trackpad")
             } footer: {
-                FormNote("Scroll speed applies to the next scroll, even while the VM runs. GNOME's top bar does not avoid the camera, so its clock is hidden when Linux uses that area.")
+                FormNote("Scroll speed applies to the next scroll, even while the VM runs. Linux doesn't know where the camera is, so anything it shows there, such as the clock in GNOME's top bar, is hidden when Linux uses that area.")
             }
 
             Section {
@@ -321,7 +321,7 @@ struct GuestToolsSection: View {
     let report: GuestReport?
     let disc: String?
 
-    private static let howToInstall = "open the LINUXVM-TOOLS disc in Linux, run sh install.sh in a terminal there, then log out and back in."
+    private static let howToInstall = "open the LINUXVM-TOOLS disc in Linux's file manager, run sh install.sh in a terminal there, then log out and back in."
 
     private var discIsNewer: Bool {
         guard let report, let disc else { return false }
@@ -341,7 +341,7 @@ struct GuestToolsSection: View {
                     }
                 }
                 LabeledContent("Linux") {
-                    Text([report.os, report.shell.map { "GNOME \($0)" }].compactMap { $0 }.joined(separator: ", "))
+                    Text([report.os, report.desktopLabel].compactMap { $0 }.joined(separator: ", "))
                         .lineLimit(1)
                         .truncationMode(.middle)
                 }
@@ -363,13 +363,16 @@ struct GuestToolsSection: View {
     }
 
     private var clipboard: (text: String, symbol: String, color: Color) {
-        switch report?.extensionState ?? .unknown {
-        case .active: ("On", "checkmark.circle.fill", .green)
-        case .inactive: ("Turned off", "xmark.circle", .orange)
-        case .outdated: ("Off for this GNOME version", "exclamationmark.triangle.fill", .orange)
-        case .error: ("Failed to load", "exclamationmark.triangle.fill", .red)
-        case .missing: ("Not loaded yet", "clock", .secondary)
-        case .unknown: ("Unknown", "questionmark.circle", .secondary)
+        let gnome = report?.isGNOME ?? false
+        let product = report?.desktopName == "KDE" ? "Plasma" : (report?.desktopName ?? "desktop")
+        switch report?.clipboardState ?? .unknown {
+        case .active: return ("On", "checkmark.circle.fill", .green)
+        case .inactive: return ("Turned off", "xmark.circle", .orange)
+        case .outdated: return ("Off for this \(product) version", "exclamationmark.triangle.fill", .orange)
+        case .pending: return (gnome ? "Not loaded yet" : "Starts at next login", "clock", .secondary)
+        case .unsupported: return ("Not available on this desktop", "xmark.circle", .orange)
+        case .error: return (gnome ? "Failed to load" : "Failed to start", "exclamationmark.triangle.fill", .red)
+        case .unknown: return ("Unknown", "questionmark.circle", .secondary)
         }
     }
 
@@ -381,18 +384,28 @@ struct GuestToolsSection: View {
             return "Version \(disc) is on the Guest Tools disc. To update, \(Self.howToInstall)"
         }
         let reported = "Reported \(report.receivedAt.formatted(.relative(presentation: .named)))."
-        switch report.extensionState {
+        let stillWork = "Audio, time zone and folder sharing still work."
+        switch report.clipboardState {
         case .active, .unknown:
             return reported
         case .inactive:
-            return "Turn on LinuxVM Clipboard in Linux's Extensions app to share the clipboard. \(reported)"
+            return report.isGNOME
+                ? "Turn on LinuxVM Clipboard in Linux's Extensions app to share the clipboard. \(reported)"
+                : "The shared clipboard is turned off in Linux. \(reported)"
         case .outdated:
-            let shell = report.shell.map { "GNOME \($0)" } ?? "this GNOME version"
-            return "These guest tools do not support \(shell) yet, so the shared clipboard is off. Audio, time zone and folder sharing still work. \(reported)"
+            let version = report.desktopLabel ?? "this desktop version"
+            return "These guest tools do not support \(version) yet, so the shared clipboard is off. \(stillWork) \(reported)"
+        case .pending:
+            return report.isGNOME
+                ? "Log out of Linux and back in to load the clipboard extension. \(reported)"
+                : "Log out of Linux and back in to start the shared clipboard. \(reported)"
+        case .unsupported:
+            let desktop = report.desktopLabel ?? "This desktop"
+            return "\(desktop) offers no clipboard access the guest tools can use, so the shared clipboard is off. \(stillWork) \(reported)"
         case .error:
-            return "The clipboard extension failed to load; Linux's Extensions app shows its error. \(reported)"
-        case .missing:
-            return "Log out of Linux and back in to load the clipboard extension. \(reported)"
+            return report.isGNOME
+                ? "The clipboard extension failed to load; Linux's Extensions app shows its error. \(reported)"
+                : "The shared clipboard failed to start. In a Linux terminal, journalctl --user -u linuxvm-clipboard shows why. \(reported)"
         }
     }
 }

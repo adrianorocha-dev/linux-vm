@@ -5,23 +5,59 @@ public struct GuestReport: Codable, Equatable, Sendable {
     public enum ExtensionState: String, Codable, Sendable {
         case active, inactive, outdated, error, missing, unknown
     }
+    /// The shared clipboard on any desktop (guest tools 0.3.0 and later).
+    public enum ClipboardState: String, Codable, Sendable {
+        case active, inactive, outdated, pending, unsupported, error, unknown
+    }
     public var package: String
     public var os: String
     public var shell: String?
     public var extensionState: ExtensionState
+    public var desktop: String?
+    public var desktopVersion: String?
+    public var clipboard: ClipboardState?
     public var receivedAt: Date
 
     enum CodingKeys: String, CodingKey {
-        case package, os, shell, receivedAt
+        case package, os, shell, desktop, desktopVersion, clipboard, receivedAt
         case extensionState = "extension"
     }
 
-    public init(package: String, os: String, shell: String?, extensionState: ExtensionState, receivedAt: Date) {
+    public init(package: String, os: String, shell: String?, extensionState: ExtensionState,
+                desktop: String? = nil, desktopVersion: String? = nil, clipboard: ClipboardState? = nil,
+                receivedAt: Date) {
         self.package = package
         self.os = os
         self.shell = shell
         self.extensionState = extensionState
+        self.desktop = desktop
+        self.desktopVersion = desktopVersion
+        self.clipboard = clipboard
         self.receivedAt = receivedAt
+    }
+
+    /// Guest tools before 0.3.0 ran only on GNOME and reported only the extension.
+    public var clipboardState: ClipboardState {
+        if let clipboard { return clipboard }
+        switch extensionState {
+        case .active: return .active
+        case .inactive: return .inactive
+        case .outdated: return .outdated
+        case .error: return .error
+        case .missing: return .pending
+        case .unknown: return .unknown
+        }
+    }
+
+    public var desktopName: String? { desktop ?? (shell == nil ? nil : "GNOME") }
+    public var desktopRelease: String? { desktopVersion ?? (desktopName == "GNOME" ? shell : nil) }
+    public var isGNOME: Bool { desktopName == "GNOME" }
+
+    /// For people: "GNOME 50.1", "KDE Plasma 6.8.1".
+    public var desktopLabel: String? {
+        guard let name = desktopName else { return nil }
+        let product = name == "KDE" ? "KDE Plasma" : name
+        return [product, desktopRelease].compactMap { $0 }.joined(separator: " ")
     }
 
     static func parse(_ data: Data, receivedAt: Date = Date()) -> GuestReport? {
@@ -34,11 +70,18 @@ public struct GuestReport: Codable, Equatable, Sendable {
               let package = object["package"] as? String, GuestToolsVersion.components(package) != nil,
               let os = object["os"] as? String, safe(os, limit: 128),
               let state = object["extension"] as? String else { return nil }
-        let shell = object["shell"] as? String
-        guard object["shell"] == nil || shell != nil,
-              shell.map({ safe($0, limit: 32) }) ?? true else { return nil }
-        return GuestReport(package: package, os: os, shell: shell,
-                           extensionState: ExtensionState(rawValue: state) ?? .unknown, receivedAt: receivedAt)
+        // Optional strings of at most 32 characters; a present key of the wrong type rejects the line.
+        var short: [String: String] = [:]
+        for key in ["shell", "desktop", "desktopVersion", "clipboard"] where object[key] != nil {
+            guard let value = object[key] as? String, safe(value, limit: 32) else { return nil }
+            short[key] = value
+        }
+        return GuestReport(package: package, os: os, shell: short["shell"],
+                           extensionState: ExtensionState(rawValue: state) ?? .unknown,
+                           desktop: short["desktop"].flatMap { $0.isEmpty ? nil : $0 },
+                           desktopVersion: short["desktopVersion"].flatMap { $0.isEmpty ? nil : $0 },
+                           clipboard: short["clipboard"].map { ClipboardState(rawValue: $0) ?? .unknown },
+                           receivedAt: receivedAt)
     }
 }
 

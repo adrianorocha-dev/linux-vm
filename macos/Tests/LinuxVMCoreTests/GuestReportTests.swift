@@ -2,6 +2,14 @@ import Foundation
 import Testing
 @testable import LinuxVMCore
 
+private extension Data {
+    func removingKey(_ key: String) -> Data {
+        guard var object = (try? JSONSerialization.jsonObject(with: self)) as? [String: Any] else { return self }
+        object.removeValue(forKey: key)
+        return (try? JSONSerialization.data(withJSONObject: object)) ?? self
+    }
+}
+
 struct GuestReportTests {
     func line(_ changes: [String: Any] = [:]) throws -> Data {
         var object: [String: Any] = ["type": "status", "package": "0.2.0", "os": "Ubuntu", "shell": "50.1", "extension": "active"]
@@ -30,6 +38,29 @@ struct GuestReportTests {
         ] { #expect(try GuestReport.parse(line(changes)) == nil) }
         for bytes in [Data("{bad}".utf8), Data("[]".utf8), Data([0xff]), Data(repeating: 32, count: 4097)] {
             #expect(GuestReport.parse(bytes) == nil)
+        }
+    }
+    @Test func desktopAndClipboardKeys() throws {
+        let kde = try #require(GuestReport.parse(line([
+            "package": "0.3.0", "os": "Fedora Linux 45 (KDE Plasma Desktop Edition)",
+            "desktop": "KDE", "desktopVersion": "6.8.1", "clipboard": "active", "extension": "unknown",
+        ]).removingKey("shell")))
+        #expect(kde.desktopLabel == "KDE Plasma 6.8.1")
+        #expect(kde.clipboardState == .active)
+        #expect(!kde.isGNOME)
+        // 0.2 guests: GNOME only, the clipboard follows the extension.
+        let old = try #require(GuestReport.parse(line(["extension": "missing"])))
+        #expect(old.desktopLabel == "GNOME 50.1")
+        #expect(old.clipboardState == .pending)
+        #expect(old.isGNOME)
+        #expect(try GuestReport.parse(line(["clipboard": "future"]))?.clipboardState == .unknown)
+        #expect(try GuestReport.parse(line(["clipboard": "unsupported", "extension": "unknown"]))?.clipboardState == .unsupported)
+        #expect(try GuestReport.parse(line(["desktop": ""]))?.desktop == nil)
+        let unknownDesktop = try #require(GuestReport.parse(line().removingKey("shell")))
+        #expect(unknownDesktop.desktopLabel == nil)
+        for changes: [String: Any] in [["desktop": 5], ["desktopVersion": true], ["clipboard": 1],
+                                       ["desktop": String(repeating: "a", count: 33)], ["desktop": "a\nb"]] {
+            #expect(try GuestReport.parse(line(changes)) == nil)
         }
     }
     @Test func boundedFramingRecoversAfterOversizedLine() throws {
@@ -61,6 +92,14 @@ struct GuestReportTests {
         let report = try #require(GuestReport.parse(line(), receivedAt: Date(timeIntervalSince1970: 1000)))
         try library.writeGuestReport(report, id: id)
         #expect(library.guestReport(id: id) == report)
+        let kde = try #require(GuestReport.parse(line(["desktop": "KDE", "desktopVersion": "6.6.6", "clipboard": "active"]),
+                                                 receivedAt: Date(timeIntervalSince1970: 2000)))
+        try library.writeGuestReport(kde, id: id)
+        #expect(library.guestReport(id: id) == kde)
+        // A report saved by an app before 0.3 has no desktop keys.
+        try Data(#"{"package":"0.2.2","os":"Ubuntu","shell":"50.1","extension":"active","receivedAt":"2026-11-03T11:40:03Z"}"#.utf8)
+            .write(to: library.directory(for: id).appending(path: "guest.json"))
+        #expect(library.guestReport(id: id)?.desktopLabel == "GNOME 50.1")
         let runtime = Runtime(contents: root)
         #expect(runtime.guestToolsVersion == nil)
         try FileManager.default.createDirectory(at: root.appending(path: "Resources"), withIntermediateDirectories: true)
