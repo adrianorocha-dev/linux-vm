@@ -97,7 +97,12 @@ extension backend. Otherwise `wayland_clipboard.py` connects to `WAYLAND_DISPLAY
 (absolute, or relative to `XDG_RUNTIME_DIR`), binds the first seat and uses
 data-control. Without either manager it reports unsupported and exits successfully;
 transport errors and a finished device fail the service for systemd to restart.
-The agent sends sync once its backend is ready. Text aliases are preferred over
+The agent sends sync once its backend is ready. It never forwards the selection
+Linux already held when it started, as on GNOME: Plasma restores one at login, and
+forwarding it would replace the Mac's clipboard. A missing `WAYLAND_DISPLAY` or
+socket early in a login exits for systemd to retry, without writing an error
+state. Each data source is destroyed once, even when KWin sends `cancelled` twice.
+Text aliases are preferred over
 PNG and accepted only with valid UTF-8. Transfers use a five-second timeout and
 the same 16 MiB limit. Pipe reads and source writes share one select loop, including
 when the compositor asks the agent to serve its own selection.
