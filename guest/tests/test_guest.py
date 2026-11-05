@@ -319,7 +319,8 @@ class PackageTests(unittest.TestCase):
         self.assertEqual(fields['Package'], 'linuxvm-guest')
         self.assertEqual(fields['Version'], '0.2.2')
         self.assertEqual(fields['Architecture'], 'all')
-        self.assertEqual(fields['Depends'], 'python3, python3-gi, pulseaudio-utils, gnome-shell, systemd')
+        self.assertEqual(fields['Depends'], 'python3, python3-gi, pulseaudio-utils, systemd')
+        self.assertEqual(fields['Recommends'], 'wl-clipboard')
         expected = ['usr/lib/linuxvm/' + name + '.py' for name in ['clipboard', 'audio', 'timezone', 'share', 'common', 'clock', 'status', 'version']]
         expected += ['usr/lib/systemd/user/linuxvm-' + name + '.service' for name in ['clipboard', 'audio', 'share-link', 'status']]
         expected += ['usr/lib/systemd/system/linuxvm-' + name + '.service' for name in ['timezone', 'share-mount', 'clock-recovery']]

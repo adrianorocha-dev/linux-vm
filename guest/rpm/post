@@ -1,0 +1,20 @@
+#!/bin/sh
+set -eu
+# RPM transaction count: old uninstall scriptlets must not undo the new install.
+set -- configure
+if [ "$1" = configure ]; then
+    if command -v udevadm >/dev/null 2>&1; then
+        udevadm control --reload || true
+        udevadm trigger --subsystem-match=virtio-ports --action=change || true
+    fi
+    glib-compile-schemas /usr/share/glib-2.0/schemas
+    systemctl --global enable linuxvm-clipboard.service linuxvm-audio.service linuxvm-share-link.service linuxvm-status.service
+    systemctl enable linuxvm-timezone.service linuxvm-share-mount.service linuxvm-clock-recovery.service linuxvm-clock-recovery.timer
+    if [ -d /run/systemd/system ]; then
+        systemctl daemon-reload
+        systemctl start linuxvm-share-mount.service linuxvm-timezone.service linuxvm-clock-recovery.timer
+        # One failed clock check must not fail the install; the timer retries.
+        systemctl start linuxvm-clock-recovery.service || true
+    fi
+    echo 'LinuxVM guest tools installed. Log out and back in to load the clipboard extension and user services.'
+fi

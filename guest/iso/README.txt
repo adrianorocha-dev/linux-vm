@@ -3,7 +3,9 @@ LinuxVM guest tools 0.2.2 for Ubuntu 26.04 Desktop (GNOME Shell 50)
 Open a terminal in this disc's folder and run:
   sh install.sh
 
-An internet connection may be needed for Ubuntu package dependencies.
+Packages: linuxvm-guest_<version>_all.deb (Ubuntu) and
+linuxvm-guest-<version>-1.noarch.rpm (Fedora).
+An internet connection may be needed for package dependencies.
 Log out and back in after installation to load the clipboard extension.
 
 Includes clipboard text/PNG, Mac audio endpoints, host time zone following,

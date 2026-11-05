@@ -61,8 +61,9 @@ class ISOTests(unittest.TestCase):
                     size = int.from_bytes(record[10:14], 'little')
                     files[name] = image[start:start + size]
                 cursor += length
-            self.assertEqual(set(files), {builder.DEB, 'install.sh', 'README.txt'})
+            self.assertEqual(set(files), {builder.DEB, builder.RPM, 'install.sh', 'README.txt'})
             self.assertEqual(files[builder.DEB], (ROOT / 'dist' / builder.DEB).read_bytes())
+            self.assertEqual(files[builder.RPM], (ROOT / 'dist' / builder.RPM).read_bytes())
             for name in ['install.sh', 'README.txt']:
                 self.assertEqual(files[name], (ROOT / 'iso' / name).read_bytes())
         self.assertEqual(trees, 2)

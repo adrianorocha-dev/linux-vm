@@ -1,8 +1,8 @@
 # LinuxVM guest tools
 
 `linuxvm-guest` 0.2.2 targets Ubuntu 26.04 Desktop, GNOME Shell/Mutter 50 on
-Wayland. The Debian package builder uses Python's standard library; the tools
-disc requires xorriso (PATH, then `/opt/homebrew/bin/xorriso`). No VM or Debian
+Wayland. The Debian and RPM package builder uses Python's standard library;
+the tools disc requires xorriso (PATH, then `/opt/homebrew/bin/xorriso`). No VM or Debian
 build tools are needed on the Mac.
 
 What works in a VM without this package, and what needs it:
@@ -119,7 +119,8 @@ PYTHON=/opt/homebrew/bin/python3.14 guest/build-tools-iso.sh
 /opt/homebrew/bin/python3.14 -m unittest discover guest/tests -v
 ```
 
-Outputs: `guest/dist/linuxvm-guest_<version>_all.deb` and
+Outputs: `guest/dist/linuxvm-guest_<version>_all.deb`,
+`guest/dist/linuxvm-guest-<version>-1.noarch.rpm` and
 `guest/dist/guest-tools.iso`. xorriso creates Rock Ridge plus Joliet with label
 `LINUXVM-TOOLS`; root ownership, directories/install.sh 0755, other files 0644,
 and fixed 2000-01-01 UTC timestamps. Two builds produce identical bytes; the
@@ -127,10 +128,14 @@ old makehybrid normalizer is removed. xorriso warns about the label's hyphen
 under strict ISO9660 rules; both descriptors preserve the required label.
 
 Run `./install.sh` on the disc. It requires exactly one
-`linuxvm-guest_*_all.deb` and installs it with sudo apt-get. Upgrades enable and
-start the clock service/timer and globally enable status for the next login.
+`linuxvm-guest_*_all.deb` and exactly one `linuxvm-guest-*.noarch.rpm`.
+It uses sudo apt-get on Ubuntu, otherwise sudo dnf on Fedora; other systems
+are unsupported. Both packages use the same file tree and generated version.
+The RPM owns only its three private directories and uses root ownership, fixed
+timestamps, SHA-256 file/payload/header digests and a gzip newc payload.
+Upgrades enable and start the clock service/timer and globally enable status for the next login.
 Removal stops current user agents, disables system/global units and reloads
-managers and udev; purge also removes timezone state.
+managers and udev; Debian purge and RPM removal also remove timezone state.
 
 macOS tests cover logic, syntax, package metadata and Rock Ridge/Joliet contents.
 GNOME, D-Bus, systemd, udev, virtio, PipeWire and 9p require the in-guest checks

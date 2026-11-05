@@ -1,0 +1,34 @@
+#!/bin/sh
+set -eu
+# RPM transaction count: old uninstall scriptlets must not undo the new install.
+[ "$1" -eq 0 ] || exit 0
+set -- purge
+case "$1" in
+    remove|purge|disappear)
+        if command -v glib-compile-schemas >/dev/null 2>&1; then
+            glib-compile-schemas /usr/share/glib-2.0/schemas
+        fi
+        if command -v udevadm >/dev/null 2>&1; then
+            udevadm control --reload || true
+            udevadm trigger --subsystem-match=virtio-ports --action=change || true
+        fi
+        if [ -d /run/systemd/system ]; then
+            systemctl daemon-reload
+            loginctl list-users --no-legend 2>/dev/null | while read -r uid user rest; do
+                [ -S "/run/user/$uid/bus" ] || continue
+                runuser -u "$user" -- env XDG_RUNTIME_DIR="/run/user/$uid" \
+                    DBUS_SESSION_BUS_ADDRESS="unix:path=/run/user/$uid/bus" \
+                    systemctl --user daemon-reload || true
+            done
+        fi
+        rm -f /run/linuxvm/shared-folder-name
+        rmdir /run/linuxvm 2>/dev/null || true
+        # In case a Python run after prerm wrote the cache again.
+        rm -rf /usr/lib/linuxvm/__pycache__
+        rmdir /usr/lib/linuxvm 2>/dev/null || true
+        ;;
+esac
+if [ "$1" = purge ]; then
+    rm -f /var/lib/linuxvm/timezone.json
+    rmdir /var/lib/linuxvm 2>/dev/null || true
+fi

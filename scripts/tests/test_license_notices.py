@@ -216,6 +216,51 @@ class LicenseTests(unittest.TestCase):
         self.assertEqual(actual, covered)
         self.assertEqual(len(list((runtime / 'lib').glob('*.dylib'))), 15)
 
+    def test_rpm_disc_inventory_and_payload_parity(self):
+        spec = importlib.util.spec_from_file_location('guest_builder', ROOT / 'guest/build.py')
+        builder = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(builder)
+        with tempfile.TemporaryDirectory() as tmp:
+            temp = Path(tmp)
+            disc = {
+                builder.DEB: builder.build(temp / builder.DEB).read_bytes(),
+                builder.RPM: builder.build_rpm(temp / builder.RPM).read_bytes(),
+                'install.sh': (ROOT / 'guest/iso/install.sh').read_bytes(),
+                'README.txt': (ROOT / 'guest/iso/README.txt').read_bytes(),
+            }
+            iso = temp / 'disc.iso'
+            iso.write_bytes(b'fixture')
+            with patch.object(notices, 'iso_files', return_value=disc):
+                notices.validate_guest(self.manifest, iso)
+                for package in (builder.DEB, builder.RPM):
+                    content = disc.pop(package)
+                    with self.assertRaisesRegex(notices.LicenseError, 'disc file'):
+                        notices.validate_guest(self.manifest, iso)
+                    disc[package] = content
+                entries = builder.collect_entries()
+                entries['usr/lib/linuxvm/version.py'] = (b'wrong version', 0o644)
+                disc[builder.RPM] = builder.build_rpm(temp / 'changed.rpm', entries=entries).read_bytes()
+                with self.assertRaisesRegex(notices.LicenseError, 'files differ'):
+                    notices.validate_guest(self.manifest, iso)
+                entries.pop('usr/lib/linuxvm/clock.py')
+                disc[builder.RPM] = builder.build_rpm(temp / 'missing.rpm', entries=entries).read_bytes()
+                with self.assertRaisesRegex(notices.LicenseError, 'files differ'):
+                    notices.validate_guest(self.manifest, iso)
+                with patch.object(builder, 'VERSION', '9.9.9'):
+                    disc[builder.RPM] = builder.build_rpm(temp / 'version.rpm').read_bytes()
+                with self.assertRaisesRegex(notices.LicenseError, 'RPM version differs'):
+                    notices.validate_guest(self.manifest, iso)
+                disc[builder.RPM] = builder.build_rpm(temp / 'good.rpm').read_bytes()
+                broken = copy.deepcopy(self.manifest)
+                del broken['guest_files']['rpm:script/pre']
+                with self.assertRaisesRegex(notices.LicenseError, 'source file'):
+                    notices.validate_guest(broken, iso)
+                damaged = bytearray(disc[builder.RPM])
+                damaged[-10] ^= 1
+                disc[builder.RPM] = bytes(damaged)
+                with self.assertRaisesRegex(notices.LicenseError, 'payload digest'):
+                    notices.validate_guest(self.manifest, iso)
+
     @unittest.skipUnless((ROOT / 'guest/dist/guest-tools.iso').exists(), 'Guest Tools disc not built')
     def test_actual_disc_and_package_members(self):
         iso = ROOT / 'guest/dist/guest-tools.iso'
