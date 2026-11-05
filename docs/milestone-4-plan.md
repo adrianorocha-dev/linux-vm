@@ -6,12 +6,14 @@ Milestone 3 released the app with automatic updates ([plan](milestone-3-plan.md)
 
 | | GNOME | KDE Plasma |
 | --- | --- | --- |
-| Ubuntu | Ubuntu 26.04, GNOME 50, supported since Milestone 1 | Kubuntu 26.04, Plasma 6.6 |
+| Ubuntu | Ubuntu 26.04, GNOME 50, supported since Milestone 1 | Ubuntu 26.04 with Kubuntu's `kubuntu-desktop`, Plasma 6.6 |
 | Fedora | Fedora 44 Workstation, GNOME 50 | Fedora 45 KDE Plasma Desktop, Plasma 6.7 or 6.8 (to confirm) |
 
 Fedora 44 with KDE, and Fedora 45 Workstation with GNOME 51, wait for later. Until GNOME 51 is tested, the clipboard extension declares only GNOME 50. On Fedora 45 Workstation, the app therefore reports it as off for that GNOME version.
 
-Test installs come from the user's `Fedora-Workstation-Live-44-1.7.aarch64.iso` and `Fedora-KDE-Desktop-Live-45-1.4.aarch64.iso`, and from a Kubuntu 26.04.1 ARM64 image. Each is checked against its project's published checksums. All testing uses throwaway VMs, and the user's Fedora VM stays untouched.
+Kubuntu publishes no ARM64 image: cdimage.ubuntu.com lists only amd64 for 26.04 and 26.04.1 (checked on 4 November 2026). On a Mac, Kubuntu's desktop therefore comes from adding `kubuntu-desktop` to Ubuntu 26.04's ARM64 desktop install. GNOME stays installed beside Plasma, so the guest tools must use the integration of the session that is running.
+
+Test installs come from the user's `Fedora-Workstation-Live-44-1.7.aarch64.iso` and `Fedora-KDE-Desktop-Live-45-1.4.aarch64.iso`, and from `test-media/ubuntu-26.04.1-desktop-arm64.iso`. Each is checked against its project's published checksums. All testing uses throwaway VMs, and the user's Fedora VM stays untouched.
 
 ## Starting state
 
@@ -33,7 +35,7 @@ Test installs come from the user's `Fedora-Workstation-Live-44-1.7.aarch64.iso` 
 The survey and every later check need fresh VMs. So the harness first learns to install each new profile unattended, with a test user, automatic login, passwordless sudo and SSH, like its Ubuntu install.
 
 - **Fedora:** a kickstart, if the live images accept one. Otherwise, Fedora's network installer with the Workstation or KDE environment group.
-- **Kubuntu:** autoinstall, if Kubuntu's installer supports it. Otherwise, Ubuntu's installer with `kubuntu-desktop`.
+- **Ubuntu with Plasma:** the existing Ubuntu install, then `kubuntu-desktop`, with Plasma's Wayland session logging in automatically.
 - **Session checks:** each desktop gets its own, as GNOME has today.
 
 ### 2. Survey, before guest-tools code
@@ -58,7 +60,7 @@ Also check:
   - whether Fedora's own GSettings overrides outrank ours;
   - whether Fedora 45's RPM accepts an unsigned local package from `dnf install`;
   - which time service runs, for clock recovery.
-- **Kubuntu:** whether an ARM64 Kubuntu image exists. If not, Ubuntu 26.04 with `kubuntu-desktop` stands in, since its packages are the same.
+- **Ubuntu with Plasma:** which login manager runs after `kubuntu-desktop` is installed, and whether the GNOME and Plasma sessions each keep their own settings.
 
 The results go into `what-needs-guest-tools.md`, one section per profile. Checks with the real trackpad and by eye need the user.
 
@@ -99,7 +101,7 @@ Guest tools 0.3.0 ship on the disc of app 0.3.0, which is released the way 0.2.1
 ## How the work is split
 
 - **GPT-6.1-Sol**, each part with a written contract and tests:
-  - the harness's Fedora and Kubuntu installs;
+  - the harness's Fedora installs, and Plasma on its Ubuntu install;
   - the RPM builder;
   - the KDE clipboard backend;
   - the status changes in the guest;
@@ -134,7 +136,7 @@ Made on 4 November 2026:
 
 - **Scope:** Fedora with GNOME, and KDE Plasma on Ubuntu and Fedora.
 - **Fedora:** Fedora 44 Workstation and Fedora 45 KDE, from the user's images. Fedora 44 with KDE and Fedora 45 Workstation wait.
-- **KDE on Ubuntu:** Kubuntu 26.04.
+- **KDE on Ubuntu:** Kubuntu 26.04's desktop. Kubuntu has no ARM64 image, so tests add `kubuntu-desktop` to Ubuntu 26.04's ARM64 install (user's note, confirmed on cdimage.ubuntu.com).
 - **Test VMs:** throwaway installs only. The user's Fedora VM isn't used.
 
 ## Open
