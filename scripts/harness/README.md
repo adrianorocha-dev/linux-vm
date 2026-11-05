@@ -22,6 +22,29 @@ For a renamed image, use `--profile fedora --iso PATH`; Fedora always requires a
 explicit ISO. `--profile ubuntu` explicitly selects the existing Ubuntu path.
 Unknown image names require an explicit profile.
 
+Ubuntu defaults to `--desktop gnome`, preserving the existing install. Use
+`--desktop plasma` for Ubuntu 26.04 with Kubuntu's KDE Plasma desktop (Kubuntu
+has no ARM64 image):
+
+```sh
+scripts/harness/fresh-install --profile ubuntu --desktop plasma --keep
+```
+
+After the installed system's first boot, the `plasma` phase updates apt and
+installs `kubuntu-desktop` noninteractively. Debconf keeps GDM as the display
+manager, and AccountsService selects tester's Plasma Wayland session for GDM's
+existing automatic login. GNOME remains installed. This downloads roughly 1,000
+packages and took 20–30 minutes in the manual trial; it needs repository access.
+`--plasma-timeout` bounds this phase separately (default 3600 s).
+`plasma-install.log` saves apt output, including on failure or timeout.
+Guest Tools installation and reboot follow. The session check requires KDE from
+the user manager's `XDG_CURRENT_DESKTOP`, so logging into GNOME fails the run.
+`guest-environment.txt` also records `/etc/X11/default-display-manager` and the
+installed versions of `kubuntu-desktop`, `plasma-workspace` and `kwin-wayland`.
+The selected Ubuntu desktop is recorded in `summary.json`.
+
+Fedora selects its desktop from its image and rejects any explicit `--desktop`.
+
 ```sh
 scripts/harness/fresh-install --iso test-media/Fedora-Workstation-Live-44-1.7.aarch64.iso
 scripts/harness/fresh-install --iso test-media/Fedora-KDE-Desktop-Live-45-1.4.aarch64.iso
@@ -78,7 +101,8 @@ log in. Desktop login is automatic and sudo is passwordless: use these installer
 only for disposable test VMs.
 
 Timeouts: GRUB menu 180 s; installation 3600 s (`--install-timeout`); each boot
-600 s (`--boot-timeout`); integration session 180 s; guest package installation
+600 s (`--boot-timeout`); Ubuntu Plasma installation 3600 s (`--plasma-timeout`);
+integration session 180 s; guest package installation
 600 s; normal shutdown 90 s (10 s if still in firmware/GRUB), then forced stop
 30 s. Individual host commands and QMP reads are bounded too. Installer errors/panics and unexpected early resets
 fail immediately; installer debug output is mirrored into the serial log. A failed phase
