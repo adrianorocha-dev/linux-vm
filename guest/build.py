@@ -180,7 +180,7 @@ def build_rpm(destination: Path | None = None, entries=None) -> Path:
         1116: (4, [dirs.index('/' + name.rsplit('/', 1)[0] + '/') for name in names]),
         1117: (8, [name.rsplit('/', 1)[1] for name in names]), 1118: (8, dirs),
         1124: (6, 'cpio'), 1125: (6, 'gzip'), 1126: (6, '9'), 1132: (6, 'noarch'),
-        5011: (4, 8), 5046: (8, ['wl-clipboard']), 5047: (8, ['']), 5048: (4, [0]),
+        5011: (4, 8),
         5092: (8, [hashlib.sha256(payload).hexdigest()]), 5093: (4, 8),
         5097: (8, [hashlib.sha256(raw).hexdigest()]),
     }

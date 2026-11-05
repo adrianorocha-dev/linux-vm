@@ -1716,6 +1716,9 @@
     "deb:data/usr/lib/linuxvm/audio.py": {
       "source": "guest/files/usr/lib/linuxvm/audio.py"
     },
+    "deb:data/usr/lib/linuxvm/wayland_clipboard.py": {
+      "source": "guest/files/usr/lib/linuxvm/wayland_clipboard.py"
+    },
     "deb:data/usr/lib/linuxvm/clipboard.py": {
       "source": "guest/files/usr/lib/linuxvm/clipboard.py"
     },
