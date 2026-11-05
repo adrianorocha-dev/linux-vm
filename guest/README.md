@@ -1,7 +1,7 @@
 # LinuxVM guest tools
 
-`linuxvm-guest` 0.3.0 targets Ubuntu 26.04 Desktop, GNOME Shell/Mutter 50 on
-Wayland. The Debian and RPM package builder uses Python's standard library;
+`linuxvm-guest` 0.3.0 supports GNOME Shell/Mutter 50 and KDE Plasma on Wayland,
+with Debian and RPM packages for Ubuntu 26.04 and Fedora. The Debian and RPM package builder uses Python's standard library;
 the tools disc requires xorriso (PATH, then `/opt/homebrew/bin/xorriso`). No VM or Debian
 build tools are needed on the Mac.
 
@@ -11,7 +11,9 @@ What works in a VM without this package, and what needs it:
 ## Integrations
 
 - Clipboard text/PNG uses Try Omarchy's wire protocol and echo suppression via
-  `clipboard@linuxvm.dev`. Payloads are limited to 16 MiB, with strict UTF-8 and
+  `clipboard@linuxvm.dev` on GNOME. On other desktops it uses the compositor
+  data-control protocol directly, preferring `ext_data_control_manager_v1` over
+  `zwlr_data_control_manager_v1`; no wl-clipboard executable is required. Payloads are limited to 16 MiB, with strict UTF-8 and
   base64 checks. Disconnects fail the agent so systemd restarts it.
 - Audio mirrors Mac endpoints through PipeWire/pipewire-pulse using pactl.
 - Root `timezone.py` validates host IANA zones against `/usr/share/zoneinfo`.
@@ -79,6 +81,32 @@ PRETTY_NAME (128 characters), ShellVersion from `org.gnome.Shell` (32 characters
 omitted if unknown). `GetExtensionInfo` maps states 1/2/3/4/99 to
 active/inactive/error/outdated/missing, empty info to missing and other states to
 unknown. Without a Shell owner, the state is unknown.
+
+The report also sends `desktop`, `desktopVersion` (when known), and `clipboard`.
+On GNOME these identify GNOME and Shell's version; clipboard follows the extension
+state, with missing mapped to pending. The `shell` and `extension` keys remain
+compatible with 0.2 hosts. On KDE, `desktopVersion` is the cached result of
+`plasmashell --version`, `extension` is unknown, and `shell` is absent. Other
+desktops use the first entry of `XDG_CURRENT_DESKTOP`, limited to 32 characters.
+
+## Clipboard on KDE and other Wayland desktops
+
+A colon-separated `XDG_CURRENT_DESKTOP` containing GNOME always selects the
+extension backend. Otherwise `wayland_clipboard.py` connects to `WAYLAND_DISPLAY`
+(absolute, or relative to `XDG_RUNTIME_DIR`), binds the first seat and uses
+data-control. Without either manager it reports unsupported and exits successfully;
+transport errors and a finished device fail the service for systemd to restart.
+The agent sends sync once its backend is ready. Text aliases are preferred over
+PNG and accepted only with valid UTF-8. Transfers use a five-second timeout and
+the same 16 MiB limit. Pipe reads and source writes share one select loop, including
+when the compositor asks the agent to serve its own selection.
+
+The agent atomically writes `$XDG_RUNTIME_DIR/linuxvm/clipboard.json` as mode 0600
+in a mode 0700 folder. It contains `backend` (`gnome-extension` or `data-control`),
+`state` (`active`, `unsupported`, or `error`) and `protocol` (the manager interface
+name, or empty). Outside GNOME, status reads this file, uses unknown when absent
+or invalid, and reports changes within about one second. On GNOME, status keeps
+using Shell's extension state.
 
 ## Clipboard D-Bus API and access boundary
 
