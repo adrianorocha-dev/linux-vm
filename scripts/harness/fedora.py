@@ -101,8 +101,8 @@ def install(guest, vm_id, directory, timeout):
                                    check=False, timeout=15)
             except subprocess.TimeoutExpired:
                 return stopped()
-            with (directory / 'anaconda-monitor.log').open('a') as out:
-                out.write(result.stdout + result.stderr)
+            # The latest snapshot only: the logs are whole files, read every poll.
+            (directory / 'anaconda-monitor.log').write_text(result.stdout + result.stderr)
             # SSH can disappear during the final power-off, before status catches up.
             if result.returncode == 255:
                 return stopped()
