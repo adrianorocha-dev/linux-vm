@@ -2,7 +2,7 @@
 
 Linux VM is a Mac app for running Linux on Apple Silicon. It aims to make Linux feel at home on a Mac. Trackpad scrolling follows your fingers smoothly, Linux runs at your display's refresh rate and Retina resolution, and you see Linux's own pointer.
 
-Ubuntu 26.04 is the first distribution where all of this has been tested and tuned. Other ARM64 distributions can run too; see [Distributions](#distributions).
+All of this has been tested and tuned with Ubuntu 26.04 and Fedora, on GNOME and on KDE Plasma. Other ARM64 distributions can run too; see [Distributions](#distributions).
 
 **[Download Linux VM](https://github.com/adrianorocha-dev/linux-vm/releases/latest)**. It needs an Apple Silicon Mac with macOS 15 or later.
 
@@ -25,7 +25,7 @@ This approach, and the patched QEMU runtime that makes it work, come from [Try O
 
 ### With the guest tools
 
-The guest tools are an optional package you install inside Linux, from a disc the app provides. So far they're made for Ubuntu 26.04. They add:
+The guest tools are an optional package you install inside Linux, from a disc the app provides. They're made for Ubuntu 26.04 and Fedora, with GNOME or KDE Plasma; see [Distributions](#distributions). They add:
 
 - a shared clipboard for text and images, both ways;
 - a Mac folder shared with Linux;
@@ -40,13 +40,24 @@ The guest tools are an optional package you install inside Linux, from a disc th
 
 Linux VM runs ARM64 Linux. Getting the details right takes testing and tuning for each distribution, one at a time.
 
-- **Ubuntu 26.04 Desktop** is the first fully supported distribution. Everything on this page has been tested with it, and the guest tools are made for it.
+These are fully supported. Everything on this page has been tested with them, and the guest tools are made for them:
+
+| | GNOME | KDE Plasma |
+| --- | --- | --- |
+| **Ubuntu** | Ubuntu 26.04 Desktop | Ubuntu 26.04 Desktop with Kubuntu's desktop |
+| **Fedora** | Fedora 44 Workstation | Fedora 45 KDE Plasma Desktop |
+
+- **KDE Plasma on Ubuntu.** Kubuntu has no ARM64 installer. Install Ubuntu Desktop, then run `sudo apt install kubuntu-desktop` and choose Plasma when you log in.
+- **Fedora 45 Workstation**, with GNOME 51, hasn't been tested yet. The guest tools' shared clipboard doesn't support GNOME 51 yet, so it stays off there.
 - **Other ARM64 distributions** should work with everything that comes from the VM's virtual hardware: the display, trackpad, pointer, sound, network and sleep ([details](docs/what-needs-guest-tools.md#works-without-the-guest-tools)). They haven't been tested yet, and the guest tools don't support them yet. You can still [mount a shared folder by hand](docs/what-needs-guest-tools.md#needs-the-guest-tools).
 
 ## What you need
 
 - An Apple Silicon Mac (M1 or later) with macOS 15 Sequoia or later. Intel Macs aren't supported.
-- An ARM64 Linux installer image. For the best result, use Ubuntu Desktop 26.04 for ARM64: on [ubuntu.com/download/desktop](https://ubuntu.com/download/desktop), choose "Download Ubuntu 26.04.1 arm64" to get `ubuntu-26.04.1-desktop-arm64.iso`. Ubuntu 26.10 hasn't been tested.
+- An ARM64 Linux installer image. For the best result, use one of the [fully supported distributions](#distributions):
+  - **Ubuntu:** on [ubuntu.com/download/desktop](https://ubuntu.com/download/desktop), choose "Download Ubuntu 26.04.1 arm64" to get `ubuntu-26.04.1-desktop-arm64.iso`. Ubuntu 26.10 hasn't been tested.
+  - **Fedora KDE Plasma Desktop 45:** on [fedoraproject.org/kde/download](https://fedoraproject.org/kde/download), download the aarch64 Live ISO, `Fedora-KDE-Desktop-Live-45-1.4.aarch64.iso`.
+  - **Fedora Workstation 44:** download `Fedora-Workstation-Live-44-1.7.aarch64.iso` from [Fedora 44's release folder](https://dl.fedoraproject.org/pub/fedora/linux/releases/44/Workstation/aarch64/iso/), with its `CHECKSUM` file. Fedora's Workstation download page now offers Fedora 45, which hasn't been tested yet.
 - Memory and disk space for the VM. The app suggests 8 GB of memory on a Mac with 16 GB or more, and 4 GB otherwise. The VM's disk takes space on your Mac only as Linux writes to it.
 
 ## Getting started
@@ -55,7 +66,7 @@ Linux VM runs ARM64 Linux. Getting the details right takes testing and tuning fo
 2. **Create a VM.** Choose File → New Virtual Machine…, then pick the installer image, the number of CPUs, the memory and the disk size. Leave "Start the installer now" on and click Create.
 3. **Install Linux.** Linux opens in its own window. Install it as you would on a PC.
 4. **Eject the installer.** When the installer restarts the VM, click Eject under Installer Disc on the VM's page in the app, so the VM starts from its own disk. Ubuntu asks for this: when it says to remove the installation medium, click Eject, then press Return in the VM.
-5. **Install the guest tools (Ubuntu).** In Ubuntu, open the `LINUXVM-TOOLS` disc in Files. Open a terminal in that folder and run `sh install.sh`. It asks for your password. Then log out and back in.
+5. **Install the guest tools.** Open the `LINUXVM-TOOLS` disc in Linux's file manager: Files in GNOME, or Dolphin in KDE Plasma, where you click the disc to open it. Open a terminal in that folder and run `sh install.sh`. It asks for your password. Then log out and back in.
 6. **Go full screen.** Click the window's green button. Linux matches the display's resolution and refresh rate.
 
 ### Already have a Linux VM?
@@ -75,7 +86,7 @@ Each VM's page in the app shows its settings:
 
 Shut down the VM to change its resources, sharing or network. The Logs tab shows what the VM and its helpers have reported.
 
-**Shutting down.** Shut Down asks Linux to shut down, like pressing a power button. Force Stop stops the VM at once, and anything unsaved in Linux is lost. You can also shut down from inside Linux.
+**Shutting down.** Shut Down asks Linux to shut down, like pressing a power button. In KDE Plasma this needs the guest tools: without them, Plasma shows a logout prompt in the VM instead. Force Stop stops the VM at once, and anything unsaved in Linux is lost. You can also shut down from inside Linux.
 
 **Updates.** Choose Linux VM → Check for Updates… to check now. If an update arrives while a VM is running, an Update button appears in the window. Click it to shut down your VMs and install.
 
@@ -109,10 +120,10 @@ linuxvmctl delete VM                  move a stopped VM to the Trash
 
 ## Limitations
 
-Linux VM is early software, at version 0.2. So far it has been developed and tested on one MacBook Pro running Ubuntu 26.04.
+Linux VM is early software, at version 0.3. So far it has been developed and tested on one MacBook Pro.
 
 - **ARM64 Linux only.** It can't run x86 Linux or Windows.
-- **Distributions.** Only Ubuntu 26.04 is fully supported so far; see [Distributions](#distributions).
+- **Distributions.** Only the four combinations of Ubuntu or Fedora with GNOME or KDE Plasma under [Distributions](#distributions) are fully supported so far.
 - **Display.** Testing has focused on full screen on the Mac's built-in display. Resizing the window and moving to an external display haven't been tested yet.
 - **WebGPU** isn't available in Linux browsers. WebGL works.
 

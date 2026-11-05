@@ -191,16 +191,36 @@ Guest tools 0.3.0 ship on the disc of app 0.3.0, which is released the way 0.2.1
 - **Removal leftovers fixed on the way:** an empty `~/.local/state/linuxvm`, and the clipboard state under `/run/user/<uid>/linuxvm`.
 - **The app** also suggests a new VM's name from its installer image, such as "Fedora KDE". The New Virtual Machine sheet links to Fedora's download as well as Ubuntu's.
 
+### At the Mac (5 November 2026)
+
+The user tried the three kept test VMs at the Mac and reported that everything worked:
+- the real trackpad on KDE Plasma and on Fedora;
+- Plasma's display scale and refresh rate in full screen;
+- the clock after the Mac slept;
+- opening the disc in Dolphin and running `install.sh` by hand.
+
+The exact scale and refresh rate weren't recorded. The user approved shipping 0.3.0.
+
+### Upgrade from guest tools 0.2.2 (5 November 2026)
+
+This is the path every existing user takes:
+1. A fresh harness install of Ubuntu 26.04 with GNOME, under the installed app 0.2.1, installed guest tools 0.2.2 from that app's own disc (14 minutes 32 seconds).
+2. The same VM was then started under the 0.3.0 build, with a shared folder, and 0.2.2 worked there.
+3. `sh install.sh` from the new disc, run as the user, upgraded it with apt to 0.3.0.
+
+Results:
+- **Until re-login:** the extension showed inactive and the user agents were stopped, as the installer's closing message says. The system services kept running.
+- **After logging back in:**
+  - the extension was active, and every service was enabled and running;
+  - `clipboard.json` reported the extension backend as active;
+  - the shared folder and its home-folder link were back;
+  - the clipboard carried text both ways;
+  - the Mac received GNOME 50.1 with the clipboard active.
+- **Files:** compared with 0.2.2, the upgrade only added the two KDE defaults and `wayland_clipboard.py`. Nothing failed.
+
 ### What's left (5 November 2026)
 
-- **At the Mac, on the kept test VMs:**
-  - the real trackpad on KDE Plasma and on Fedora: scrolling direction, no taps while scrolling, pinch, and swipes in a browser;
-  - Plasma's display scale and refresh rate in full screen;
-  - whether Plasma's clock follows the clock after the Mac sleeps;
-  - opening the disc in Dolphin and running `install.sh` by hand.
-
-  The VMs are `harness-…-fedora44-workstation`, `harness-…-fedora45-kde` and `harness-…-ubuntu-plasma-harness`. Each logs in automatically, and its run folder in `harness-runs/` holds its SSH key.
-- **The release:** app 0.3.0, the README's Distributions section, and the draft notes in `docs/releases/0.3.0.md`. It's published only with the user's approval.
+- **The release:** app 0.3.0 with the updated README and the notes in `docs/releases/0.3.0.md`.
 
 ## How the work is split
 

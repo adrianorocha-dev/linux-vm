@@ -9,16 +9,16 @@ They support these four combinations:
 | Ubuntu 26.04 | GNOME 50 | Kubuntu's desktop (`kubuntu-desktop`), Plasma 6.6 |
 | Fedora | Fedora 44 Workstation, GNOME 50 | Fedora 45 KDE Plasma Desktop, Plasma 6.8 |
 
-Kubuntu publishes no ARM64 installer, so on a Mac its desktop comes from installing `kubuntu-desktop` on Ubuntu 26.04. Fedora 45 Workstation, with GNOME 51, isn't supported yet: there the shared clipboard is off, and everything else works.
+Kubuntu publishes no ARM64 installer, so on a Mac its desktop comes from installing `kubuntu-desktop` on Ubuntu 26.04. Fedora 45 Workstation, with GNOME 51, hasn't been tested yet. The shared clipboard stays off there, because our GNOME Shell extension declares only GNOME 50.
 
 How this was checked:
 - **Ubuntu 26.04.1 with GNOME:** checked on 3 November 2026 in a fresh VM, first with guest tools 0.2.1 and then after removing them. The scrolls in that test were replayed on the virtual touchpad, not made on a real trackpad.
-- **Fedora and KDE Plasma:** checked on 4 and 5 November 2026 in fresh VMs of each, with guest tools 0.3.0. Nobody was at the Mac, so the trackpad, sound and display weren't judged by hand or eye.
+- **Fedora and KDE Plasma:** checked on 4 and 5 November 2026 in fresh VMs of each, with guest tools 0.3.0. Those checks ran with nobody at the Mac. On 5 November the same VMs were also tried at the Mac: the real trackpad, the display in full screen, the clock after the Mac slept, and the disc in Dolphin all worked. The exact scale and refresh rate Plasma chose weren't recorded.
 - **Display and real-trackpad gestures:** these come from Milestone 0 ([notes](milestone-0-notes.md)), on Ubuntu with GNOME. That run had no guest tools, but it already used the [touchpad defaults](#touchpad-defaults) below.
 
 ## Works without the guest tools
 
-- **Graphics and display.** Graphics are accelerated through VirGL. Linux gets the Mac display's refresh rate. In full screen, GNOME picks a matching resolution and scale by itself: 3024 × 1900 at 120 Hz and 200 % on a 14-inch MacBook Pro. In a window, Fedora 44's GNOME picked 2240 × 1260 at 120 Hz and a 167 % scale. Plasma's choices haven't been checked by eye yet. Resizing the window outside full screen hasn't been tested yet.
+- **Graphics and display.** Graphics are accelerated through VirGL. Linux gets the Mac display's refresh rate. In full screen, GNOME picks a matching resolution and scale by itself: 3024 × 1900 at 120 Hz and 200 % on a 14-inch MacBook Pro. In a window, Fedora 44's GNOME picked 2240 × 1260 at 120 Hz and a 167 % scale. Plasma's choices in full screen looked right at the Mac; their values weren't recorded. Resizing the window outside full screen hasn't been tested yet.
 - **Pointer.** Linux's own cursor shapes appear, such as the text cursor and resize arrows, with no second Mac arrow.
 - **Trackpad gestures.** Two-finger scrolling, pinch to zoom, and two-finger swipes back and forward in browsers all work. The app's scroll speed setting works too, because the Mac applies it. Some Linux touchpad settings start differently; see [Touchpad defaults](#touchpad-defaults).
 - **Mouse and keyboard.** Typing, clicks and mouse-wheel scrolling all work.
