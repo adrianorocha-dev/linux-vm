@@ -12,7 +12,7 @@ import struct
 import tarfile
 
 ROOT = Path(__file__).resolve().parent
-VERSION = '0.2.2'
+VERSION = '0.3.0'
 DEB = f'linuxvm-guest_{VERSION}_all.deb'
 RPM = f'linuxvm-guest-{VERSION}-1.noarch.rpm'
 EPOCH = 946684800  # 2000-01-01 UTC, also representable by ISO9660.
@@ -84,7 +84,10 @@ def build(destination: Path | None = None, entries=None) -> Path:
 # signature table has a typo for SHA256: the source defines it as 273.
 # https://rpm.org/docs/4.20.x/manual/format_v4.html
 # https://rpm.org/docs/4.20.x/manual/format_header.html
+# GNOME Shell's folders are shared: on a KDE system without gnome-shell, nothing
+# else owns them, and RPM would leave them behind on removal.
 RPM_DIRECTORIES = {'usr/lib/linuxvm',
+                   'usr/share/gnome-shell', 'usr/share/gnome-shell/extensions',
                    'usr/share/gnome-shell/extensions/clipboard@linuxvm.dev',
                    'usr/share/doc/linuxvm-guest'}
 
@@ -167,7 +170,7 @@ def build_rpm(destination: Path | None = None, entries=None) -> Path:
         1030: (3, modes), 1033: (3, [0] * n), 1034: (4, [EPOCH] * n),
         1035: (8, [hashlib.sha256(v).hexdigest() if v is not None else '' for v in values]),
         1036: (8, [''] * n),
-        1037: (4, [128 if name.endswith('/copyright') else 0 for name in names]),
+        1037: (4, [2 if name.endswith('/copyright') else 0 for name in names]),  # RPMFILE_DOC
         1039: (8, ['root'] * n), 1040: (8, ['root'] * n),
         1045: (4, [0xff] * n),
         1047: (8, ['linuxvm-guest']), 1112: (4, [8]), 1113: (8, [VERSION + '-1']),

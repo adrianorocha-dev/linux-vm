@@ -110,6 +110,7 @@ class RPMTests(unittest.TestCase):
         self.assertEqual({k: v[1] for k, v in cpio.items() if stat.S_ISREG(v[0])}, data)
         self.assertEqual({k for k, v in cpio.items() if stat.S_ISDIR(v[0])},
                          {'usr/lib/linuxvm', 'usr/share/doc/linuxvm-guest',
+                          'usr/share/gnome-shell', 'usr/share/gnome-shell/extensions',
                           'usr/share/gnome-shell/extensions/clipboard@linuxvm.dev'})
         names = [(tags[1118][i] + b).lstrip('/') for i, b in zip(tags[1116], tags[1117], strict=True)]
         self.assertEqual(names, sorted(cpio))
@@ -122,7 +123,7 @@ class RPMTests(unittest.TestCase):
             self.assertEqual((tags[1039][i], tags[1040][i]), ('root', 'root'))
             self.assertEqual(tags[1096][i], inode)
             self.assertEqual(tags[1035][i], hashlib.sha256(content).hexdigest() if stat.S_ISREG(mode) else '')
-            self.assertEqual(tags[1037][i], 128 if name.endswith('/copyright') else 0)
+            self.assertEqual(tags[1037][i], 2 if name.endswith('/copyright') else 0)
         for tag, value in {1000: 'linuxvm-guest', 1001: builder.VERSION, 1002: '1',
                            1014: 'MIT', 1020: 'https://github.com/adrianorocha-dev/linux-vm',
                            1021: 'linux', 1022: 'noarch', 1132: 'noarch',
@@ -208,7 +209,7 @@ class InstallerTests(unittest.TestCase):
                 original.unlink()
                 self.assertIn('Expected exactly one', run().stderr)
                 original.write_bytes(content)
-                duplicate = disc / filename.replace('0.2.2', '9.9.9')
+                duplicate = disc / filename.replace(builder.VERSION, '9.9.9')
                 duplicate.write_bytes(content)
                 self.assertIn('Expected exactly one', run().stderr)
                 duplicate.unlink()

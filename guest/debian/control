@@ -1,5 +1,5 @@
 Package: linuxvm-guest
-Version: 0.2.2
+Version: 0.3.0
 Architecture: all
 Maintainer: LinuxVM contributors <linuxvm@linuxvm.dev>
 Section: admin

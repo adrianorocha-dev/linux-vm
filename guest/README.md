@@ -1,6 +1,6 @@
 # LinuxVM guest tools
 
-`linuxvm-guest` 0.2.2 targets Ubuntu 26.04 Desktop, GNOME Shell/Mutter 50 on
+`linuxvm-guest` 0.3.0 targets Ubuntu 26.04 Desktop, GNOME Shell/Mutter 50 on
 Wayland. The Debian and RPM package builder uses Python's standard library;
 the tools disc requires xorriso (PATH, then `/opt/homebrew/bin/xorriso`). No VM or Debian
 build tools are needed on the Mac.

@@ -317,7 +317,7 @@ class PackageTests(unittest.TestCase):
         fields = dict(line.split(': ', 1) for line in archives['control']['control'].decode().splitlines()
                       if line and not line.startswith(' '))
         self.assertEqual(fields['Package'], 'linuxvm-guest')
-        self.assertEqual(fields['Version'], '0.2.2')
+        self.assertEqual(fields['Version'], builder.VERSION)
         self.assertEqual(fields['Architecture'], 'all')
         self.assertEqual(fields['Depends'], 'python3, python3-gi, pulseaudio-utils, systemd')
         self.assertEqual(fields['Recommends'], 'wl-clipboard')
@@ -335,7 +335,7 @@ class PackageTests(unittest.TestCase):
             digest, name = line.split('  ', 1)
             self.assertEqual(hashlib.md5(archives['data'][name], usedforsecurity=False).hexdigest(), digest)
         self.assertEqual(len(archives['control']['md5sums'].decode().splitlines()), len(expected))
-        self.assertEqual(archives['data']['usr/lib/linuxvm/version.py'], b"VERSION = '0.2.2'\n")
+        self.assertEqual(archives['data']['usr/lib/linuxvm/version.py'], f"VERSION = {builder.VERSION!r}\n".encode())
         # The Mac's touchpad contacts follow the fingers, so GNOME applies natural scrolling itself.
         self.assertIn(b'natural-scroll=true\n', archives['data']['usr/share/glib-2.0/schemas/90_linuxvm.gschema.override'])
         self.assertNotIn('conffiles', archives['control'])  # All configuration lives under /usr.
