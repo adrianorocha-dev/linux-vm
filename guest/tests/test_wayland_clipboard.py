@@ -16,7 +16,7 @@ from unittest.mock import patch, Mock
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'files/usr/lib/linuxvm'))
 import clipboard as agent
 import status
-from wayland_clipboard import Clipboard, Unsupported, MANAGERS, TEXT, PNG, uint, string, get_string
+from wayland_clipboard import Clipboard, NotReady, Unsupported, MANAGERS, TEXT, PNG, uint, string, get_string
 
 
 class Compositor:
@@ -198,9 +198,19 @@ class WaylandTests(unittest.TestCase):
         self.assertEqual(self.changes, [(TEXT[0], payload)])
         source = self.peer.source
         self.assertEqual(self.peer.sources[source], list(TEXT))
+        destroys = []
+        original = c.request
+        def request(obj, opcode, body=b'', fd=None):
+            if obj == source and opcode == 1:
+                destroys.append(obj)
+            return original(obj, opcode, body, fd)
+        c.request = request
+        # KWin sent cancelled twice; a second destroy would be a protocol error.
+        self.peer.event(source, 1)
         self.peer.event(source, 1)
         self.pump(lambda: source not in c.sources)
         self.pump(lambda: source not in c.objects)
+        self.assertEqual(destroys, [source])
 
     def test_timeout_cap_invalid_text_drop(self):
         c = self.setup_peer(timeout=.05, limit=1024); c.initialize()
@@ -412,3 +422,15 @@ class StatusAndStateTests(unittest.TestCase):
                 backend.return_value.initialize.side_effect = Unsupported('none')
                 self.assertEqual(agent.main(), 0)
                 self.assertEqual(status.clipboard_state(), 'unsupported')
+        # Early in a login the compositor isn't there yet: systemd retries, and the
+        # state must not say error meanwhile.
+        with tempfile.TemporaryDirectory() as temp, patch.dict(os.environ, {'XDG_RUNTIME_DIR': temp, 'XDG_CURRENT_DESKTOP': 'KDE'}):
+            os.environ.pop('WAYLAND_DISPLAY', None)
+            with self.assertRaises(NotReady):
+                Clipboard(lambda *_: None)
+            os.environ['WAYLAND_DISPLAY'] = 'wayland-9'
+            with self.assertRaises(NotReady):
+                Clipboard(lambda *_: None)
+            with self.assertRaises(NotReady):
+                agent.main()
+            self.assertEqual(status.clipboard_state(), 'unknown')

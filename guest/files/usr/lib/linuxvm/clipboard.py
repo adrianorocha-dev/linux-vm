@@ -243,7 +243,9 @@ def main():
         except Unsupported:
             write_state(backend_name, 'unsupported')
             return 0
-    except Exception:
+    except Exception as error:
+        if type(error).__name__ == 'NotReady':
+            raise  # Early in a login; systemd retries, and this is no failure to report.
         try:
             write_state(backend_name, 'error', backend.protocol if backend else '')
         except Exception:

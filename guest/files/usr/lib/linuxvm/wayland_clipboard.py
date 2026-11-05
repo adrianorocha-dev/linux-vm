@@ -43,6 +43,10 @@ class Unsupported(RuntimeError):
     pass
 
 
+class NotReady(RuntimeError):
+    """The session's compositor isn't there yet, as early in a login."""
+
+
 class Clipboard:
     """fileno() is the display; call dispatch() every <= .1 s for pipe progress.
 
@@ -57,12 +61,15 @@ class Clipboard:
             display = os.environ.get('WAYLAND_DISPLAY')
             if not display:
                 self.sock.close()
-                raise RuntimeError('WAYLAND_DISPLAY is unset')
+                raise NotReady('WAYLAND_DISPLAY is unset')
             path = Path(display)
             if not path.is_absolute():
                 path = Path(os.environ['XDG_RUNTIME_DIR']) / path
             try:
                 self.sock.connect(str(path))
+            except (FileNotFoundError, ConnectionRefusedError) as error:
+                self.sock.close()
+                raise NotReady(f'cannot connect to {path}: {error}') from error
             except Exception:
                 self.sock.close()
                 raise
@@ -194,8 +201,9 @@ class Clipboard:
             self.offers[obj].append(mime)
         elif kind == 'source':
             if opcode == 1:
-                self.request(obj, 1)
-                self.sources.pop(obj, None)
+                # KWin can send cancelled twice. Destroying twice is a protocol error.
+                if self.sources.pop(obj, None) is not None:
+                    self.request(obj, 1)
             elif opcode == 0:
                 mime, _ = get_string(body)
                 fd = self.fds.popleft()
