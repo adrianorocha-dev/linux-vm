@@ -205,14 +205,18 @@ def write_state(backend, state, protocol=''):
 def run_data_control(fd, backend):
     from common import Lines, write_all
     sync = ClipboardSync(lambda data: write_all(fd, data), backend.set_selection)
-    initial = []
-    backend.changed = lambda *value: initial.append(value)
     backend.initialize()
+    # What Linux's clipboard held before the agent started isn't a new copy. Plasma
+    # restores it at login, and forwarding it would replace the Mac's clipboard at
+    # every login. The GNOME path never forwards it either.
+    initial = backend.selection
+
+    def changed(mime, payload):
+        if initial is None or backend.selection != initial:
+            sync.guest_changed(mime, payload)
+    backend.changed = changed
     write_state('data-control', 'active', backend.protocol)
     write_all(fd, b'{"type":"sync"}\n')
-    backend.changed = sync.guest_changed
-    for value in initial:
-        sync.guest_changed(*value)
     lines = Lines(MAX_LINE_BYTES)
     while True:
         if backend.dispatch(.1, [fd]):

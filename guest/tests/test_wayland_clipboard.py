@@ -28,6 +28,7 @@ class Compositor:
         self.binds, self.sources, self.offers = [], {}, {}
         self.lock = threading.Lock()
         self.device = self.source = None
+        self.initial = None  # a selection to announce when the device is created
         self.offer_id = 0xff000000
         self.errors = []
         self.stop = False
@@ -71,6 +72,8 @@ class Compositor:
         elif obj == getattr(self, 'manager', None):
             if op == 1:
                 self.device, self.seat = struct.unpack('=II', body)
+                if self.initial:
+                    self.selection(self.initial)
             elif op == 0:
                 ident, = struct.unpack('=I', body)
                 self.sources[ident] = []
@@ -297,6 +300,32 @@ class WaylandTests(unittest.TestCase):
             thread.join(2)
             self.assertFalse(thread.is_alive())
             self.assertRegex(str(errors[0]), 'disconnected')
+
+    def test_agent_does_not_forward_the_clipboard_from_before_it_started(self):
+        c = self.setup_peer()
+        self.peer.initial = {TEXT[1]: b'restored at login'}
+        host, guest = socket.socketpair()
+        self.addCleanup(host.close); self.addCleanup(guest.close)
+        errors = []
+        def run():
+            try:
+                agent.run_data_control(guest.fileno(), c)
+            except Exception as error:
+                errors.append(error)
+        with tempfile.TemporaryDirectory() as temp, patch.dict(os.environ, {'XDG_RUNTIME_DIR': temp}):
+            thread = threading.Thread(target=run, daemon=True); thread.start()
+            host.settimeout(3)
+            stream = host.makefile('rb'); self.addCleanup(stream.close)
+            self.assertEqual(json.loads(stream.readline()), {'type': 'sync'})
+            end = time.monotonic() + 2
+            while (not c.selection or c.reading) and time.monotonic() < end:
+                time.sleep(.01)
+            self.assertFalse(select.select([host], [], [], .3)[0])
+            self.peer.selection({TEXT[1]: b'copied later'})
+            self.assertEqual(agent.decode_message(stream.readline()), (TEXT[0], b'copied later'))
+            host.shutdown(socket.SHUT_WR)
+            thread.join(2)
+            self.assertFalse(thread.is_alive())
 
 
 class StatusAndStateTests(unittest.TestCase):

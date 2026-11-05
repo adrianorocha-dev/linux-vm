@@ -115,8 +115,10 @@ def session_desktop():
 def plasma_version():
     import re
     try:
+        # Without a display Qt aborts, and KDE's crash handler would report it.
         result = subprocess.run(['plasmashell', '--version'], capture_output=True,
-                                timeout=2, check=True, text=True)
+                                env=dict(os.environ, QT_QPA_PLATFORM='offscreen'),
+                                timeout=5, check=True, text=True)
         match = re.fullmatch(r'plasmashell\s+([0-9]+(?:\.[0-9]+)+)\s*', result.stdout)
         return match[1][:32] if match else None
     except (OSError, subprocess.SubprocessError, UnicodeError):
