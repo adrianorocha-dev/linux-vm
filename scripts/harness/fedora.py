@@ -77,8 +77,10 @@ exec anaconda --cmdline --kickstart /root/ks.cfg
 
 
 def anaconda_failure(text):
+    # Anaconda also logs ERR for harmless things, such as a console font it can't
+    # set, so only these count. An exit without a power-off is caught separately.
     return next((line for line in text.splitlines()
-                 if any(marker in line for marker in ('CmdlineError', 'Traceback', ' ERR '))), None)
+                 if any(marker in line for marker in ('CmdlineError', 'Traceback'))), None)
 
 
 def install(guest, vm_id, directory, timeout):

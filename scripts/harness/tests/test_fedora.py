@@ -58,9 +58,11 @@ class FedoraConfigurationTests(unittest.TestCase):
             fedora.detect_profile('unknown.iso')
 
     def test_log_failure_detection(self):
-        for marker in ('CmdlineError', 'Traceback (most recent call last):', ' ERR storage failed'):
+        for marker in ('CmdlineError', 'Traceback (most recent call last):'):
             self.assertEqual(fedora.anaconda_failure('INFO starting\n' + marker + '\n'), marker)
         self.assertIsNone(fedora.anaconda_failure('INFO no errors\nDEBUG error handling enabled'))
+        # Seen in a successful Fedora 44 install.
+        self.assertIsNone(fedora.anaconda_failure('03:31:46,736 ERR localization: setting console font to eurlatgr failed'))
 
     def test_start_script(self):
         self.assertIn('export LANG=C.UTF-8 LC_ALL=C.UTF-8', fedora.START_SCRIPT)
