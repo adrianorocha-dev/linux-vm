@@ -86,15 +86,11 @@ final class LibraryModel {
     }
 
     func insertMedia(_ id: String, path: String) {
-        update(id) { $0.installMedia = path }
-        guard state(of: id) == .running else { return }
-        perform(id) { library, _ in try library.insertInstallMedia(id: id, path: path) }
+        perform(id) { library, _ in try library.setInstallMedia(id: id, path: path) }
     }
 
     func ejectMedia(_ id: String) {
-        update(id) { $0.installMedia = nil }
-        guard state(of: id) == .running else { return }
-        perform(id) { library, _ in try library.ejectInstallMedia(id: id) }
+        perform(id) { library, _ in try library.setInstallMedia(id: id, path: nil) }
     }
 
     func delete(_ id: String) {

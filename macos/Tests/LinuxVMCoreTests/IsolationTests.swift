@@ -127,6 +127,26 @@ struct IsolationTests {
         #expect(QEMUSandbox.resolved("/tmp/linuxvm-missing/run") == "/private/tmp/linuxvm-missing/run")
     }
 
+    @Test func failedInsertKeepsTheAttachedImageInTheConfiguration() throws {
+        let root = FileManager.default.temporaryDirectory.appending(path: "linuxvm-media-\(UUID().uuidString)")
+        defer { try? FileManager.default.removeItem(at: root) }
+        try FileManager.default.createDirectory(at: root, withIntermediateDirectories: true)
+        let attached = root.appending(path: "attached.iso")
+        FileManager.default.createFile(atPath: attached.path, contents: Data())
+        let library = VMLibrary(root: root)
+        let machine = try library.create(name: "Media", installMedia: attached.path, cpuCount: 1, memoryMiB: 2048, diskGiB: 8)
+        // Look running: hold the supervisor's lock and write its run state.
+        let lock = open(library.lockURL(for: machine.id).path, O_RDWR | O_CREAT, 0o600)
+        defer { close(lock) }
+        #expect(flock(lock, LOCK_EX | LOCK_NB) == 0)
+        library.writeRunState(RunState(supervisorPID: getpid(), qemuPID: nil, phase: .running,
+                                       controlSocket: "/nonexistent/control.sock", startedAt: Date()), id: machine.id)
+        #expect(throws: (any Error).self) {
+            try library.setInstallMedia(id: machine.id, path: root.appending(path: "missing.iso").path)
+        }
+        #expect(try library.load(id: machine.id).installMedia == attached.path)
+    }
+
     @Test func versionGateRequiresTheSecurityFixes() {
         #expect(!Runtime.hasSecurityFixes(version: "QEMU emulator version 11.1.1"))
         #expect(Runtime.hasSecurityFixes(version: "QEMU emulator version 11.1.2"))

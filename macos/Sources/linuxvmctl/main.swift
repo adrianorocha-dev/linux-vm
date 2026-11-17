@@ -220,20 +220,10 @@ do {
         }
     case "insert":
         guard rest.count == 2 else { throw UsageError() }
-        var machine = try library.find(rest.first!)
-        machine.installMedia = absolutePath(rest.last!)
-        try library.save(machine)
-        if library.status(id: machine.id).state != .stopped {
-            try library.insertInstallMedia(id: machine.id, path: machine.installMedia!)
-        }
+        try library.setInstallMedia(id: try library.find(rest.first!).id, path: absolutePath(rest.last!))
     case "eject":
         guard rest.count == 1 else { throw UsageError() }
-        var machine = try library.find(rest.first!)
-        machine.installMedia = nil
-        try library.save(machine)
-        if library.status(id: machine.id).state != .stopped {
-            try library.ejectInstallMedia(id: machine.id)
-        }
+        try library.setInstallMedia(id: try library.find(rest.first!).id, path: nil)
     case "screenshot":
         guard rest.count == 2 else { throw UsageError() }
         try library.screenshot(id: try library.find(rest.first!).id, to: absolutePath(rest.last!))

@@ -252,12 +252,25 @@ public struct VMLibrary: Sendable {
         }
     }
 
+    /// Changes the installer image. A running VM changes its disc first, so
+    /// the configuration only names an image QEMU accepted; the supervisor's
+    /// drive checks rely on that for discs inserted while running.
+    public func setInstallMedia(id: String, path: String?) throws {
+        var configuration = try load(id: id)
+        configuration.installMedia = path
+        try configuration.validate()
+        if status(id: id).state != .stopped {
+            if let path { try insertInstallMedia(id: id, path: path) } else { try ejectInstallMedia(id: id) }
+        }
+        try save(configuration)
+    }
+
     /// QEMU's sandbox lets it read only the files the VM started with, so
     /// a disc inserted later reaches QEMU as an open file. QEMU keeps an fd
     /// set's file open until `remove-fd`, so the set is removed once the disc
     /// holds its own copy; ejecting the disc then releases the drive. The
-    /// supervisor's drive checks find the path in the configuration, which
-    /// callers save first.
+    /// supervisor's drive checks find the path in the configuration
+    /// (`setInstallMedia`).
     public func insertInstallMedia(id: String, path: String) throws {
         let file = open(path, O_RDONLY | O_CLOEXEC)
         guard file >= 0 else {
