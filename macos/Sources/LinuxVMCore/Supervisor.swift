@@ -122,7 +122,9 @@ public final class Supervisor: @unchecked Sendable {
 
         let monitor = SupervisorMonitor(path: paths.supervisorSocket)
         let storage = SupervisorStorage(name: configuration.name, machine: machineStorage, sharedFolder: sharedStorage,
-                                        qemu: qemu, monitor: monitor, volumes: storageVolumes, log: { [self] in say($0) })
+                                        qemu: qemu, monitor: monitor, volumes: storageVolumes,
+                                        installerImage: { [library, id] in (try? library.load(id: id))?.installMedia },
+                                        log: { [self] in say($0) })
         storage.start()
         defer { storage.stop() }
         guard waitForMonitor(qemu: qemu, paths: paths, monitor: monitor, storage: storage) else {

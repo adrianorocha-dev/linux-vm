@@ -201,7 +201,7 @@ index 0000000..e9a5f56
 +if __name__ == "__main__":
 +    unittest.main()
 diff --git a/macos/build-qemu-gpu-runtime.sh b/macos/build-qemu-gpu-runtime.sh
-index e2a7110..0ac4104 100755
+index e2a7110..b14656b 100755
 --- a/macos/build-qemu-gpu-runtime.sh
 +++ b/macos/build-qemu-gpu-runtime.sh
 @@ -14,7 +14,7 @@ atomically stage it at:
@@ -251,7 +251,7 @@ index e2a7110..0ac4104 100755
 +touch_scroll_direction_patch_sha256=fa2a194e4eae363490ce1cf6f1e161c8cf3bc4b743fce8e8f98ac8e5e34b103f
 +host_loopback_patch_sha256=f73f759d80b5a029710d6536afee9c3537b9e3a1827d2753246b73e39e90c354
 +local_network_patch_sha256=2d53d943049339230de1676dd17ef4d10465e57ce053ba4f99c47a7a480123e9
-+slirp_local_network_patch_sha256=9a762ce1c954a13034a893b4eaaa473a7274b59130b3b69458abbc6d0deaeb54
++slirp_local_network_patch_sha256=0b989c9343b86b11b448e567b0246aa03cfc80c70867c006bd7a15ff56ad876e
  iso_swap_patch_sha256=57f33a5fb08fb90a7813b13bb7037a13198e4d7db230085b1faa28b284cf2387
  injected_text_patch_sha256=18d64d52f715d0cf1b2b6d1761059371e1859ee61faf3cc4800e2effc1ed4dd1
  command_chord_patch_sha256=d2a6cc3827ddac15f5baa063b36ab857b9571221ca1ce4ef25896cae914ff9f6
@@ -368,10 +368,10 @@ index e2a7110..0ac4104 100755
    env MACOSX_DEPLOYMENT_TARGET="$macos_deployment_target" \
 diff --git a/macos/patches/libslirp-local-network.patch b/macos/patches/libslirp-local-network.patch
 new file mode 100644
-index 0000000..2a2d316
+index 0000000..ec3319f
 --- /dev/null
 +++ b/macos/patches/libslirp-local-network.patch
-@@ -0,0 +1,477 @@
+@@ -0,0 +1,536 @@
 +diff --git a/meson.build b/meson.build
 +--- a/meson.build
 ++++ b/meson.build
@@ -460,7 +460,7 @@ index 0000000..2a2d316
 +new file mode 100644
 +--- /dev/null
 ++++ b/src/local-network.h
-+@@ -0,0 +1,149 @@
++@@ -0,0 +1,177 @@
 ++/* SPDX-License-Identifier: BSD-3-Clause */
 ++/*
 ++ * Linux VM: which destinations count as the host's local network.
@@ -562,6 +562,34 @@ index 0000000..2a2d316
 ++           (a[0] == 0xfe && (a[1] & 0xc0) == 0x80) || /* fe80::/10 link-local */
 ++           (a[0] == 0xfe && (a[1] & 0xc0) == 0xc0) || /* fec0::/10 site-local */
 ++           a[0] == 0xff;                    /* ff00::/8 multicast */
+++}
+++
+++/*
+++ * Destinations that reach the host itself however the guest names them:
+++ * loopback, and "this host" (0.0.0.0, ::), which connects to the host's
+++ * loopback. disable_host_loopback refuses these, not only the host address.
+++ */
+++static inline bool slirp_local_host_address(const struct sockaddr *address)
+++{
+++    static const uint8_t mapped[12] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0xff, 0xff };
+++    static const uint8_t zero[12] = { 0 };
+++    uint32_t v4;
+++
+++    if (address->sa_family == AF_INET) {
+++        v4 = ntohl(((const struct sockaddr_in *)address)->sin_addr.s_addr);
+++    } else if (address->sa_family == AF_INET6) {
+++        const uint8_t *a = ((const struct sockaddr_in6 *)address)->sin6_addr.s6_addr;
+++        if (!memcmp(a, zero, 12)) {
+++            return true;
+++        }
+++        if (memcmp(a, mapped, 12)) {
+++            return false;
+++        }
+++        v4 = ((uint32_t)a[12] << 24) | ((uint32_t)a[13] << 16) | ((uint32_t)a[14] << 8) | a[15];
+++    } else {
+++        return false;
+++    }
+++    return (v4 >> 24) == 127 || (v4 >> 24) == 0;
 ++}
 ++
 ++static inline bool slirp_local_address(const struct sockaddr *address,
@@ -726,7 +754,7 @@ index 0000000..2a2d316
 + static bool sotranslate_out4(Slirp *s, struct socket *so, struct sockaddr_in *sin)
 + {
 +     if (!s->disable_dns && so->so_faddr.s_addr == s->vnameserver_addr.s_addr) {
-+@@ -987,9 +1063,10 @@ static bool sotranslate_out4(Slirp *s, struct socket *so, struct sockaddr_in *si
++@@ -987,9 +1063,13 @@ static bool sotranslate_out4(Slirp *s, struct socket *so, struct sockaddr_in *si
 +         }
 + 
 +         sin->sin_addr = loopback_addr;
@@ -734,11 +762,14 @@ index 0000000..2a2d316
 +     }
 + 
 +-    return true;
+++    if (s->disable_host_loopback && slirp_local_host_address((struct sockaddr *)sin)) {
+++        return false;
+++    }
 ++    return !slirp_blocks_local_network(s, (struct sockaddr *)sin);
 + }
 + 
 + static bool sotranslate_out6(Slirp *s, struct socket *so, struct sockaddr_in6 *sin)
-+@@ -1011,9 +1088,10 @@ static bool sotranslate_out6(Slirp *s, struct socket *so, struct sockaddr_in6 *s
++@@ -1011,9 +1091,13 @@ static bool sotranslate_out6(Slirp *s, struct socket *so, struct sockaddr_in6 *s
 +         }
 + 
 +         sin->sin6_addr = in6addr_loopback;
@@ -746,6 +777,9 @@ index 0000000..2a2d316
 +     }
 + 
 +-    return true;
+++    if (s->disable_host_loopback && slirp_local_host_address((struct sockaddr *)sin)) {
+++        return false;
+++    }
 ++    return !slirp_blocks_local_network(s, (struct sockaddr *)sin);
 + }
 + 
@@ -766,7 +800,7 @@ index 0000000..2a2d316
 +new file mode 100644
 +--- /dev/null
 ++++ b/test/local-network-test.c
-+@@ -0,0 +1,82 @@
++@@ -0,0 +1,107 @@
 ++/* SPDX-License-Identifier: BSD-3-Clause */
 ++/* Linux VM: which destinations disable_local_network refuses. */
 ++
@@ -844,6 +878,31 @@ index 0000000..2a2d316
 ++    for (size_t i = 0; i < sizeof(allowed6) / sizeof(*allowed6); i++) {
 ++        if (local6(allowed6[i])) { fprintf(stderr, "refused %s\n", allowed6[i]); return 1; }
 ++    }
+++    const char *host4[] = { "127.0.0.1", "127.1.2.3", "0.0.0.0", "0.1.2.3" };
+++    const char *not_host4[] = { "10.0.2.2", "192.168.1.1", "8.8.8.8", "128.0.0.1" };
+++    const char *host6[] = { "::1", "::", "::ffff:127.0.0.1", "::ffff:0.0.0.0", "::127.0.0.1" };
+++    const char *not_host6[] = { "fe80::1", "2606:4700:4700::1111", "::ffff:8.8.8.8", "64:ff9b::127.0.0.1" };
+++    for (size_t i = 0; i < sizeof(host4) / sizeof(*host4); i++) {
+++        struct sockaddr_in sin = { .sin_family = AF_INET };
+++        assert(inet_pton(AF_INET, host4[i], &sin.sin_addr) == 1);
+++        if (!slirp_local_host_address((struct sockaddr *)&sin)) { fprintf(stderr, "not host %s\n", host4[i]); return 1; }
+++    }
+++    for (size_t i = 0; i < sizeof(not_host4) / sizeof(*not_host4); i++) {
+++        struct sockaddr_in sin = { .sin_family = AF_INET };
+++        assert(inet_pton(AF_INET, not_host4[i], &sin.sin_addr) == 1);
+++        if (slirp_local_host_address((struct sockaddr *)&sin)) { fprintf(stderr, "host %s\n", not_host4[i]); return 1; }
+++    }
+++    for (size_t i = 0; i < sizeof(host6) / sizeof(*host6); i++) {
+++        struct sockaddr_in6 sin6 = { .sin6_family = AF_INET6 };
+++        assert(inet_pton(AF_INET6, host6[i], &sin6.sin6_addr) == 1);
+++        if (!slirp_local_host_address((struct sockaddr *)&sin6)) { fprintf(stderr, "not host %s\n", host6[i]); return 1; }
+++    }
+++    for (size_t i = 0; i < sizeof(not_host6) / sizeof(*not_host6); i++) {
+++        struct sockaddr_in6 sin6 = { .sin6_family = AF_INET6 };
+++        assert(inet_pton(AF_INET6, not_host6[i], &sin6.sin6_addr) == 1);
+++        if (slirp_local_host_address((struct sockaddr *)&sin6)) { fprintf(stderr, "host %s\n", not_host6[i]); return 1; }
+++    }
+++
 ++    struct sockaddr unknown = { .sa_family = AF_UNIX };
 ++    assert(slirp_local_address(&unknown, subnets, subnet_count));
 ++    puts("local-network: ok");

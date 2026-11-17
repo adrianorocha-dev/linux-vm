@@ -17,11 +17,16 @@ final class SupervisorStorage: @unchecked Sendable {
     private var stopped = false
     private var discQueryFailing = false
     private var monitorReady = false
+    /// The VM's installer image, for a disc inserted while running, which
+    /// QEMU names /dev/fdset/N.
+    private let installerImage: @Sendable () -> String?
 
     init(name: String, machine: StorageWatch, sharedFolder: StorageWatch?, qemu: Process, monitor: SupervisorMonitor,
-         volumes: any StorageVolumeMonitoring, log: @escaping @Sendable (String) -> Void) {
+         volumes: any StorageVolumeMonitoring, installerImage: @escaping @Sendable () -> String? = { nil },
+         log: @escaping @Sendable (String) -> Void) {
         self.machine = machine
         self.qemu = qemu; self.monitor = monitor; self.volumes = volumes; self.log = log
+        self.installerImage = installerImage
         policy = StoragePolicy(name: name, machine: machine, sharedFolder: sharedFolder)
     }
 
@@ -76,14 +81,9 @@ final class SupervisorStorage: @unchecked Sendable {
     @discardableResult
     private func refreshDisc(removedVolume: StorageVolume? = nil) -> Bool {
         do {
-            let file = try monitor.withClient(timeout: 0.5) { client -> String? in
-                let blocks = try client.execute("query-block") as? [[String: Any]] ?? []
-                guard let file = StoragePolicy.installerFile(in: blocks) else { return nil }
-                guard file.hasPrefix("/dev/fdset/") else { return file }
-                let fdsets = try client.execute("query-fdsets") as? [[String: Any]] ?? []
-                return StoragePolicy.installerPath(file, fdsets: fdsets)
-            }
+            let blocks = try monitor.withClient(timeout: 0.5) { try $0.execute("query-block") as? [[String: Any]] ?? [] }
             discQueryFailing = false
+            let file = StoragePolicy.installerFile(in: blocks).flatMap { $0.hasPrefix("/dev/fdset/") ? installerImage() : $0 }
             if file == policy.discFile { return true }
             let path = file.map(canonicalStoragePath)
             let resolved = file.flatMap { file in

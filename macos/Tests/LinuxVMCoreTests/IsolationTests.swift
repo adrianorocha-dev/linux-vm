@@ -127,16 +127,6 @@ struct IsolationTests {
         #expect(QEMUSandbox.resolved("/tmp/linuxvm-missing/run") == "/private/tmp/linuxvm-missing/run")
     }
 
-    @Test func discInsertedWhileRunningResolvesThroughItsFdSet() {
-        let fdsets: [[String: Any]] = [
-            ["fdset-id": 0, "fds": [["fd": 30, "opaque": "/Volumes/USB/old.iso"]]],
-            ["fdset-id": 1, "fds": [["fd": 31, "opaque": "/Users/someone/Downloads/new.iso"]]],
-        ]
-        #expect(StoragePolicy.installerPath("/dev/fdset/1", fdsets: fdsets) == "/Users/someone/Downloads/new.iso")
-        #expect(StoragePolicy.installerPath("/dev/fdset/7", fdsets: fdsets) == nil)
-        #expect(StoragePolicy.installerPath("/Users/someone/a.iso", fdsets: []) == "/Users/someone/a.iso")
-    }
-
     @Test func versionGateRequiresTheSecurityFixes() {
         #expect(!Runtime.hasSecurityFixes(version: "QEMU emulator version 11.1.1"))
         #expect(Runtime.hasSecurityFixes(version: "QEMU emulator version 11.1.2"))

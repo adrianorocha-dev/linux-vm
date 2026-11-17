@@ -253,8 +253,11 @@ public struct VMLibrary: Sendable {
     }
 
     /// QEMU's sandbox lets it read only the files the VM started with, so
-    /// a disc inserted later reaches QEMU as an open file. The fd set's
-    /// `opaque` keeps the path for the supervisor's drive checks.
+    /// a disc inserted later reaches QEMU as an open file. QEMU keeps an fd
+    /// set's file open until `remove-fd`, so the set is removed once the disc
+    /// holds its own copy; ejecting the disc then releases the drive. The
+    /// supervisor's drive checks find the path in the configuration, which
+    /// callers save first.
     public func insertInstallMedia(id: String, path: String) throws {
         let file = open(path, O_RDONLY | O_CLOEXEC)
         guard file >= 0 else {
@@ -262,16 +265,12 @@ public struct VMLibrary: Sendable {
         }
         defer { close(file) }
         let client = try control(id: id)
-        let added = try client.execute("add-fd", arguments: ["opaque": path], passing: file) as? [String: Any]
+        let added = try client.execute("add-fd", passing: file) as? [String: Any]
         guard let set = added?["fdset-id"] as? Int else { throw LibraryError.failed("QEMU did not accept the installer image.") }
-        do {
-            try client.execute("blockdev-change-medium", arguments: [
-                "id": "install-cd", "filename": "/dev/fdset/\(set)", "format": "raw", "read-only-mode": "read-only",
-            ])
-        } catch {
-            _ = try? client.execute("remove-fd", arguments: ["fdset-id": set])
-            throw error
-        }
+        defer { _ = try? client.execute("remove-fd", arguments: ["fdset-id": set]) }
+        try client.execute("blockdev-change-medium", arguments: [
+            "id": "install-cd", "filename": "/dev/fdset/\(set)", "format": "raw", "read-only-mode": "read-only",
+        ])
     }
 
     public func ejectInstallMedia(id: String) throws {

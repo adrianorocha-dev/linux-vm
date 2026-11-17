@@ -70,15 +70,6 @@ struct StoragePolicy: Sendable {
         path == mountPath || path.hasPrefix(mountPath == "/" ? "/" : mountPath + "/")
     }
 
-    /// A disc inserted while the VM runs is an fd set (`/dev/fdset/N`); its
-    /// `opaque` holds the image's path.
-    static func installerPath(_ file: String, fdsets: [[String: Any]]) -> String? {
-        guard file.hasPrefix("/dev/fdset/"), let id = Int(file.dropFirst("/dev/fdset/".count)) else { return file }
-        let set = fdsets.first { $0["fdset-id"] as? Int == id }
-        let fds = set?["fds"] as? [[String: Any]] ?? []
-        return fds.lazy.compactMap { $0["opaque"] as? String }.first { $0.hasPrefix("/") }
-    }
-
     static func installerFile(in blocks: [[String: Any]]) -> String? {
         let drive = blocks.first { block in
             block["device"] as? String == "install" ||
