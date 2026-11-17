@@ -36,6 +36,9 @@ public struct IsolationSettings: Codable, Equatable, Sendable {
     /// Linux reaches services listening only on the Mac's loopback (127.0.0.1)
     /// through the host address, 10.0.2.2.
     public var macServices = true
+    /// Linux reaches the networks around the Mac: its LAN, VPNs, and
+    /// private, link-local and multicast addresses. The internet stays reachable.
+    public var localNetwork = true
     /// The clipboard is shared both ways.
     public var clipboard = true
     /// Linux records from the Mac's microphone.
@@ -48,6 +51,7 @@ public struct IsolationSettings: Codable, Equatable, Sendable {
     public static let hardened: IsolationSettings = {
         var settings = IsolationSettings()
         settings.macServices = false
+        settings.localNetwork = false
         settings.clipboard = false
         settings.microphone = false
         settings.sharedFolderWritable = false
@@ -57,12 +61,13 @@ public struct IsolationSettings: Codable, Equatable, Sendable {
     public var isHardened: Bool { self == .hardened }
 
     enum CodingKeys: String, CodingKey {
-        case macServices, clipboard, microphone, sharedFolderWritable
+        case macServices, localNetwork, clipboard, microphone, sharedFolderWritable
     }
 
     public init(from decoder: Decoder) throws {
         let c = try decoder.container(keyedBy: CodingKeys.self)
         macServices = try c.decodeIfPresent(Bool.self, forKey: .macServices) ?? true
+        localNetwork = try c.decodeIfPresent(Bool.self, forKey: .localNetwork) ?? true
         clipboard = try c.decodeIfPresent(Bool.self, forKey: .clipboard) ?? true
         microphone = try c.decodeIfPresent(Bool.self, forKey: .microphone) ?? true
         sharedFolderWritable = try c.decodeIfPresent(Bool.self, forKey: .sharedFolderWritable) ?? true

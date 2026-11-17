@@ -30,7 +30,8 @@ struct IsolationTests {
         object["isolation"] = ["clipboard": false]
         let partial = try JSONDecoder().decode(VMConfiguration.self, from: JSONSerialization.data(withJSONObject: object))
         #expect(!partial.isolation.clipboard)
-        #expect(partial.isolation.macServices && partial.isolation.microphone && partial.isolation.sharedFolderWritable)
+        #expect(partial.isolation.macServices && partial.isolation.localNetwork)
+        #expect(partial.isolation.microphone && partial.isolation.sharedFolderWritable)
     }
 
     @Test func hardenedRoundTrips() throws {
@@ -44,6 +45,7 @@ struct IsolationTests {
         let joined = arguments(machine())
         #expect(joined.contains("-netdev user,id=net0 "))
         #expect(!joined.contains("host-loopback"))
+        #expect(!joined.contains("local-network"))
         #expect(joined.contains("hda-micro,bus=hda.0"))
         #expect(joined.contains("name=dev.linuxvm.clipboard"))
         #expect(!joined.contains("guest_owner_gid=1000,readonly=on"))
@@ -51,7 +53,7 @@ struct IsolationTests {
 
     @Test func hardenedVMClosesEachChannel() {
         let joined = arguments(machine(.hardened))
-        #expect(joined.contains("-netdev user,id=net0,host-loopback=off"))
+        #expect(joined.contains("-netdev user,id=net0,host-loopback=off,local-network=off"))
         #expect(joined.contains("hda-output,bus=hda.0"))
         #expect(!joined.contains("hda-micro"))
         #expect(!joined.contains("dev.linuxvm.clipboard"))
@@ -67,7 +69,16 @@ struct IsolationTests {
     @Test func portForwardsStayWithHostLoopbackOff() {
         var configuration = machine(.hardened)
         configuration.portForwards = [PortForward(hostPort: 2222, guestPort: 22)]
-        #expect(arguments(configuration).contains("user,id=net0,host-loopback=off,hostfwd=tcp:127.0.0.1:2222-:22"))
+        #expect(arguments(configuration).contains("user,id=net0,host-loopback=off,local-network=off,hostfwd=tcp:127.0.0.1:2222-:22"))
+    }
+
+    @Test func localNetworkTurnsOffOnItsOwn() {
+        var isolation = IsolationSettings()
+        isolation.localNetwork = false
+        let joined = arguments(machine(isolation))
+        #expect(joined.contains("-netdev user,id=net0,local-network=off "))
+        #expect(!joined.contains("host-loopback"))
+        #expect(!isolation.isHardened)
     }
 
     func sandbox(writable: Bool, media: String? = "/Users/someone/Downloads/linux.iso") -> QEMUSandbox {

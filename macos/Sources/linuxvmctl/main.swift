@@ -13,7 +13,7 @@ Usage: linuxvmctl <command> [arguments]
          [--shared-folder PATH|none] [--scroll-scale X] [--mac-cursor on|off]
          [--immersive on|off] [--cover-notch on|off] [--forward HOST:GUEST|none]
          [--grow-disk GIB] [--pause-during-sleep on|off]
-         [--mac-services on|off] [--clipboard on|off] [--microphone on|off]
+         [--mac-services on|off] [--local-network on|off] [--clipboard on|off] [--microphone on|off]
          [--shared-folder-writable on|off] [--hardened]
   start VM                               start in the background
   run VM                                 supervise in the foreground
@@ -25,7 +25,7 @@ Usage: linuxvmctl <command> [arguments]
 
 VM is a name, an identifier, or a unique identifier prefix.
 --hardened closes what Linux may reach on the Mac: services on its loopback,
-the clipboard, the microphone, and writing to the shared folder.
+the local network, the clipboard, the microphone, and writing to the shared folder.
 """
 
 struct UsageError: Error {}
@@ -135,7 +135,7 @@ do {
         let values = try options(rest.dropFirst(), allowed: [
             "--name", "--cpus", "--memory", "--iso", "--shared-folder", "--scroll-scale",
             "--mac-cursor", "--immersive", "--cover-notch", "--forward", "--grow-disk", "--pause-during-sleep",
-            "--mac-services", "--clipboard", "--microphone", "--shared-folder-writable",
+            "--mac-services", "--local-network", "--clipboard", "--microphone", "--shared-folder-writable",
         ], flags: ["--hardened"])
         let running = library.status(id: machine.id).state != .stopped
         let liveKeys: Set<String> = ["--scroll-scale", "--name", "--pause-during-sleep"]
@@ -153,6 +153,7 @@ do {
         }
         if values["--hardened"] != nil { machine.isolation = .hardened }
         if let value = try boolean(values["--mac-services"]) { machine.isolation.macServices = value }
+        if let value = try boolean(values["--local-network"]) { machine.isolation.localNetwork = value }
         if let value = try boolean(values["--clipboard"]) { machine.isolation.clipboard = value }
         if let value = try boolean(values["--microphone"]) { machine.isolation.microphone = value }
         if let value = try boolean(values["--shared-folder-writable"]) { machine.isolation.sharedFolderWritable = value }
@@ -202,7 +203,7 @@ do {
         print(status.state.rawValue)
         let isolation = machine.isolation
         func allowed(_ on: Bool) -> String { on ? "allowed" : "blocked" }
-        print("Mac services \(allowed(isolation.macServices)), clipboard \(allowed(isolation.clipboard)), "
+        print("Mac services \(allowed(isolation.macServices)), local network \(allowed(isolation.localNetwork)), clipboard \(allowed(isolation.clipboard)), "
             + "microphone \(allowed(isolation.microphone)), shared folder \(isolation.sharedFolderWritable ? "read-write" : "read-only")"
             + (isolation.isHardened ? " (hardened)" : ""))
         if let run = status.run {

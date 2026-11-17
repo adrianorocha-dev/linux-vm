@@ -102,6 +102,9 @@ public struct QEMULaunch: Sendable {
         if !isolation.macServices {
             netdev += ",host-loopback=off"
         }
+        if !isolation.localNetwork {
+            netdev += ",local-network=off"
+        }
         for forward in configuration.portForwards {
             netdev += ",hostfwd=tcp:127.0.0.1:\(forward.hostPort)-:\(forward.guestPort)"
         }

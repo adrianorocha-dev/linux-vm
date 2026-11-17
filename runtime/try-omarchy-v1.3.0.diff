@@ -201,7 +201,7 @@ index 0000000..e9a5f56
 +if __name__ == "__main__":
 +    unittest.main()
 diff --git a/macos/build-qemu-gpu-runtime.sh b/macos/build-qemu-gpu-runtime.sh
-index e2a7110..76ed1f5 100755
+index e2a7110..0ac4104 100755
 --- a/macos/build-qemu-gpu-runtime.sh
 +++ b/macos/build-qemu-gpu-runtime.sh
 @@ -14,7 +14,7 @@ atomically stage it at:
@@ -213,17 +213,19 @@ index e2a7110..76ed1f5 100755
  
  Set OMARCHY_RUNTIME_BUILD_JOBS to a positive integer to bound compilation.
  With --archive-dir, reuse already-downloaded pinned archives from DIR. Every
-@@ -65,6 +65,9 @@ pause_ownership_patch="$native_dir/patches/qemu-cocoa-pause-ownership.patch"
+@@ -65,6 +65,11 @@ pause_ownership_patch="$native_dir/patches/qemu-cocoa-pause-ownership.patch"
  pinch_patch="$native_dir/patches/qemu-cocoa-pinch-zoom.patch"
  precise_scroll_patch="$native_dir/patches/qemu-cocoa-precise-scroll.patch"
  touch_scroll_patch="$native_dir/patches/qemu-cocoa-touch-scroll.patch"
 +touch_scroll_scale_patch="$native_dir/patches/qemu-cocoa-touch-scroll-scale.patch"
 +touch_scroll_direction_patch="$native_dir/patches/qemu-cocoa-touch-scroll-direction.patch"
 +host_loopback_patch="$native_dir/patches/qemu-slirp-host-loopback.patch"
++local_network_patch="$native_dir/patches/qemu-slirp-local-network.patch"
++slirp_local_network_patch="$native_dir/patches/libslirp-local-network.patch"
  iso_swap_patch="$native_dir/patches/qemu-cocoa-iso-section-grave-swap.patch"
  injected_text_patch="$native_dir/patches/qemu-cocoa-injected-text.patch"
  command_chord_patch="$native_dir/patches/qemu-cocoa-command-chord-hold.patch"
-@@ -89,14 +92,14 @@ udp_patch="$native_dir/patches/libslirp-ipv4-udp-translation.patch"
+@@ -89,14 +94,14 @@ udp_patch="$native_dir/patches/libslirp-ipv4-udp-translation.patch"
  fence_poll_patch="$native_dir/patches/qemu-darwin-gpu-fence-poll.patch"
  virgl_native_patch="$native_dir/patches/virgl-native-opengl.patch"
  virgl_upload_flush_patch="$native_dir/patches/virgl-ctx0-upload-flush.patch"
@@ -241,17 +243,19 @@ index e2a7110..76ed1f5 100755
  
  texture_patch_sha256=b8e107ecd82813854bac7f6bb110722f52937d64b6f98611c4dd02842977fc2f
  gpu_fix_patch_sha256=b554e1ef9910d0891d69ee0fe84e479559c057dc28291e36e1524031808fc69f
-@@ -109,6 +112,9 @@ pause_ownership_patch_sha256=1a5729b36eb3e437395d41883a10c3c652df71d289d5df84d95
+@@ -109,6 +114,11 @@ pause_ownership_patch_sha256=1a5729b36eb3e437395d41883a10c3c652df71d289d5df84d95
  pinch_patch_sha256=618c17eef1c2ab97d48ed82b58d9fa2b727ea3f26a0d30225199ac97985a9f06
  precise_scroll_patch_sha256=54252b3b19358aa7e2c75d5f50775a7f488ef2d8b4db8723ba4768b56316a78f
  touch_scroll_patch_sha256=e4aa6c3661ee9265724a6236153630ed3870ef5e6f21e5cfe7af3023b6c870e4
 +touch_scroll_scale_patch_sha256=a9a69577a4550b64556be3168ad6f536d861a04362ea65ae859259784be82138
 +touch_scroll_direction_patch_sha256=fa2a194e4eae363490ce1cf6f1e161c8cf3bc4b743fce8e8f98ac8e5e34b103f
 +host_loopback_patch_sha256=f73f759d80b5a029710d6536afee9c3537b9e3a1827d2753246b73e39e90c354
++local_network_patch_sha256=2d53d943049339230de1676dd17ef4d10465e57ce053ba4f99c47a7a480123e9
++slirp_local_network_patch_sha256=9a762ce1c954a13034a893b4eaaa473a7274b59130b3b69458abbc6d0deaeb54
  iso_swap_patch_sha256=57f33a5fb08fb90a7813b13bb7037a13198e4d7db230085b1faa28b284cf2387
  injected_text_patch_sha256=18d64d52f715d0cf1b2b6d1761059371e1859ee61faf3cc4800e2effc1ed4dd1
  command_chord_patch_sha256=d2a6cc3827ddac15f5baa063b36ab857b9571221ca1ce4ef25896cae914ff9f6
-@@ -122,6 +128,7 @@ mapped_sections_patch_sha256=2991378d565faeaf114bb5948bfa9ad05c39b078e4e1f4c2a67
+@@ -122,6 +132,7 @@ mapped_sections_patch_sha256=2991378d565faeaf114bb5948bfa9ad05c39b078e4e1f4c2a67
  fence_poll_patch_sha256=1ac407bdb617dfc52d004d0ebd0d07641d920f7d3a9756223c6426a207fb1499
  virgl_native_patch_sha256=692ed73cf88780b4c0e04c56e3cfb21cec761768dea909d755624e07d82fc60c
  virgl_upload_flush_patch_sha256=e5de1617bfeeb2e0ea0fa5cc5c4192f34c896c86efc51e0f68cfa14057afcac0
@@ -259,7 +263,7 @@ index e2a7110..76ed1f5 100755
  strchrnul_patch_sha256=ec1048dd0e8ebe53bf7e8a3bca9bf2f5f4336cd607d4cd077437470e9a32094a
  usb_exact_bus_patch_sha256=5e39159171295c566d014a1ef2744130f80fa02b742c349fa47373b00ae697ec
  minimum_guest_size_patch_sha256=f01e20999bf87821639c93f3489eb093b292c48b107a14ba4fbdad5cbf5840a5
-@@ -148,8 +155,7 @@ macos_deployment_target=15.0
+@@ -148,8 +159,7 @@ macos_deployment_target=15.0
  keycodemap_commit=f5772a62ec52591ff6870b7e8ef32482371f22c6
  keycodemap_root="keycodemapdb-$keycodemap_commit"
  keycodemap_archive_name="$keycodemap_root.tar.gz"
@@ -269,7 +273,7 @@ index e2a7110..76ed1f5 100755
  
  dtc_commit=b6910bec11614980a21e46fbccc35934b671bd81
  dtc_root="dtc-$dtc_commit"
-@@ -225,9 +231,10 @@ log() {
+@@ -225,9 +235,10 @@ log() {
  }
  # shellcheck source=macos/pinned-runtime-bottles.sh
  source "$pinned_bottles"
@@ -281,16 +285,20 @@ index e2a7110..76ed1f5 100755
    command -v "$tool" >/dev/null 2>&1 || die "required tool is unavailable: $tool"
  done
  
-@@ -266,6 +273,8 @@ macos_major=$(sw_vers -productVersion | awk -F. '{ print $1 }')
+@@ -266,6 +277,12 @@ macos_major=$(sw_vers -productVersion | awk -F. '{ print $1 }')
    die "missing texture-borrowing patch: $texture_patch"
  [[ -f $shared_folder_patch && ! -L $shared_folder_patch ]] || \
    die "missing 9p shared-folder patch: $shared_folder_patch"
 +[[ -f $host_loopback_patch && ! -L $host_loopback_patch ]] || \
 +  die "missing SLIRP host-loopback patch: $host_loopback_patch"
++[[ -f $local_network_patch && ! -L $local_network_patch ]] || \
++  die "missing SLIRP local-network patch: $local_network_patch"
++[[ -f $slirp_local_network_patch && ! -L $slirp_local_network_patch ]] || \
++  die "missing libslirp local-network patch: $slirp_local_network_patch"
  [[ -f $memory_reclaim_patch && ! -L $memory_reclaim_patch ]] || \
    die "missing HVF free-page reclaim patch: $memory_reclaim_patch"
  [[ -f $mapped_sections_patch && ! -L $mapped_sections_patch ]] || \
-@@ -420,8 +429,10 @@ pip_archive="$archive_dir/$pip_archive_name"
+@@ -420,8 +437,10 @@ pip_archive="$archive_dir/$pip_archive_name"
  
  obtain_and_verify "libslirp source" "$slirp_url" "$slirp_sha256" "$slirp_archive"
  obtain_and_verify "Meson" "$meson_url" "$meson_sha256" "$meson_archive"
@@ -303,7 +311,16 @@ index e2a7110..76ed1f5 100755
  obtain_and_verify "dtc $dtc_commit" "$dtc_url" "$dtc_sha256" "$dtc_archive"
  obtain_and_verify "Ninja $ninja_version" "$ninja_url" "$ninja_sha256" "$ninja_archive"
  obtain_and_verify "virglrenderer source" "$virgl_url" "$virgl_sha256" "$virgl_archive"
-@@ -502,6 +513,12 @@ verify_file_sha "Try Omarchy Cocoa precise-scroll patch" \
+@@ -459,6 +478,8 @@ verify_file_sha "Darwin ICMP reply matching patch" "$slirp_patch" "$slirp_patch_
+ patch -d "$source_parent/$slirp_source_root" -p1 -f -i "$slirp_patch"
+ verify_file_sha "IPv4 UDP reply translation patch" "$udp_patch" "$udp_patch_sha256"
+ patch -d "$source_parent/$slirp_source_root" -p1 -f -i "$udp_patch"
++verify_file_sha "Linux VM libslirp local-network patch" "$slirp_local_network_patch" "$slirp_local_network_patch_sha256"
++patch -d "$source_parent/$slirp_source_root" -p1 -f -i "$slirp_local_network_patch"
+ tar -xzf "$qemu_archive" -C "$source_parent"
+ tar -xzf "$virgl_archive" -C "$source_parent"
+ tar -xzf "$virgl_tap_archive" -C "$source_parent"
+@@ -502,6 +523,14 @@ verify_file_sha "Try Omarchy Cocoa precise-scroll patch" \
    "$precise_scroll_patch" "$precise_scroll_patch_sha256"
  verify_file_sha "Try Omarchy Cocoa touch-scroll patch" \
    "$touch_scroll_patch" "$touch_scroll_patch_sha256"
@@ -313,10 +330,12 @@ index e2a7110..76ed1f5 100755
 +  "$touch_scroll_direction_patch" "$touch_scroll_direction_patch_sha256"
 +verify_file_sha "Linux VM SLIRP host-loopback patch" \
 +  "$host_loopback_patch" "$host_loopback_patch_sha256"
++verify_file_sha "Linux VM SLIRP local-network patch" \
++  "$local_network_patch" "$local_network_patch_sha256"
  verify_file_sha "Try Omarchy Cocoa ISO Section/Grave swap patch" \
    "$iso_swap_patch" "$iso_swap_patch_sha256"
  verify_file_sha "Try Omarchy Cocoa injected-text patch" \
-@@ -573,8 +590,11 @@ patch -d "$source_dir" -p1 -f -i "$main_loop_qos_patch"
+@@ -573,8 +602,12 @@ patch -d "$source_dir" -p1 -f -i "$main_loop_qos_patch"
  patch -d "$source_dir" -p1 -f -i "$notch_patch"
  patch -d "$source_dir" -p1 -f -i "$command_chord_patch"
  patch -d "$source_dir" -p1 -f -i "$touch_scroll_patch"
@@ -325,10 +344,11 @@ index e2a7110..76ed1f5 100755
  patch -d "$source_dir" -p1 -f -i "$pointer_mapping_patch"
 +patch -d "$source_dir" -p1 -f -i "$touch_scroll_direction_patch"
 +patch -d "$source_dir" -p1 -f -i "$host_loopback_patch"
++patch -d "$source_dir" -p1 -f -i "$local_network_patch"
  
  virgl_root="$dependency_root/virglrenderer/$virgl_version"
  angle_root="$dependency_root/angle/$angle_version"
-@@ -694,6 +714,8 @@ verify_file_sha "Native OpenGL browser compatibility patch" "$virgl_native_patch
+@@ -694,6 +727,8 @@ verify_file_sha "Native OpenGL browser compatibility patch" "$virgl_native_patch
  patch -d "$virgl_source" -p1 -f -i "$virgl_native_patch"
  verify_file_sha "Context 0 upload flush patch" "$virgl_upload_flush_patch" "$virgl_upload_flush_patch_sha256"
  patch -d "$virgl_source" -p1 -f -i "$virgl_upload_flush_patch"
@@ -337,7 +357,7 @@ index e2a7110..76ed1f5 100755
  virgl_build="$virgl_source/build"
  meson="$tool_root/$meson_root/meson.py"
  # Optimize the graphics command path while retaining assertions and diagnostics.
-@@ -746,7 +768,7 @@ python3 "$meson" install -C "$slirp_build" --no-rebuild
+@@ -746,7 +781,7 @@ python3 "$meson" install -C "$slirp_build" --no-rebuild
  
  build_dir="$source_dir/build"
  mkdir "$build_dir"
@@ -346,6 +366,489 @@ index e2a7110..76ed1f5 100755
  (
    cd "$build_dir"
    env MACOSX_DEPLOYMENT_TARGET="$macos_deployment_target" \
+diff --git a/macos/patches/libslirp-local-network.patch b/macos/patches/libslirp-local-network.patch
+new file mode 100644
+index 0000000..2a2d316
+--- /dev/null
++++ b/macos/patches/libslirp-local-network.patch
+@@ -0,0 +1,477 @@
++diff --git a/meson.build b/meson.build
++--- a/meson.build
+++++ b/meson.build
++@@ -298,3 +298,10 @@ if host_system != 'windows'
++     dependencies: libslirp_deps)
++   test('udp-translation', udp_translation_test)
++ endif
+++
+++if host_system != 'windows'
+++  local_network_test = executable('localnetworktest', 'test/local-network-test.c',
+++    c_args: cargs,
+++    include_directories: ['src'])
+++  test('local-network', local_network_test)
+++endif
++diff --git a/src/ip6_icmp.c b/src/ip6_icmp.c
++--- a/src/ip6_icmp.c
+++++ b/src/ip6_icmp.c
++@@ -46,6 +46,14 @@ static int icmp6_send(struct socket *so, struct mbuf *m, int hlen)
++ 
++     struct sockaddr_in6 addr;
++ 
+++    memset(&addr, 0, sizeof(addr));
+++    addr.sin6_family = AF_INET6;
+++    addr.sin6_addr = mtod(m, struct ip6 *)->ip_dst;
+++    if (slirp_blocks_local_network(slirp, (struct sockaddr *)&addr)) {
+++        /* The UDP echo fallback refuses it and reports it unreachable. */
+++        return -1;
+++    }
+++
++     /*
++      * The behavior of reading SOCK_DGRAM+IPPROTO_ICMP sockets is inconsistent
++      * between host OSes.  On Linux, only the ICMP header and payload is
++diff --git a/src/ip_icmp.c b/src/ip_icmp.c
++--- a/src/ip_icmp.c
+++++ b/src/ip_icmp.c
++@@ -94,6 +94,13 @@ static int icmp_send(struct socket *so, struct mbuf *m, int hlen)
++ 
++     struct sockaddr_in addr;
++ 
+++    addr.sin_family = AF_INET;
+++    addr.sin_addr = mtod(m, struct ip *)->ip_dst;
+++    if (slirp_blocks_local_network(slirp, (struct sockaddr *)&addr)) {
+++        /* The UDP echo fallback refuses it and reports it unreachable. */
+++        return -1;
+++    }
+++
++     /*
++      * The behavior of reading SOCK_DGRAM+IPPROTO_ICMP sockets is inconsistent
++      * between host OSes.  On Linux, only the ICMP header and payload is
++diff --git a/src/libslirp.h b/src/libslirp.h
++--- a/src/libslirp.h
+++++ b/src/libslirp.h
++@@ -158,7 +158,7 @@ typedef struct SlirpCb {
++ } SlirpCb;
++ 
++ #define SLIRP_CONFIG_VERSION_MIN 1
++-#define SLIRP_CONFIG_VERSION_MAX 6
+++#define SLIRP_CONFIG_VERSION_MAX 7
++ 
++ typedef struct SlirpConfig {
++     /* Version must be provided */
++@@ -246,8 +246,22 @@ typedef struct SlirpConfig {
++      * retrieved through NC-SI.
++      */
++     uint8_t oob_eth_addr[6];
+++
+++    /*
+++     * Fields introduced in SlirpConfig version 7 begin (Linux VM patch)
+++     */
+++    /*
+++     * Refuse guest traffic to the host's local networks: private, shared,
+++     * link-local, multicast and reserved addresses, and the subnets of the
+++     * host's interfaces. DNS through the virtual nameserver and the host
+++     * address (see disable_host_loopback) are unaffected.
+++     */
+++    bool disable_local_network;
++ } SlirpConfig;
++ 
+++/* Linux VM: SlirpConfig has disable_local_network (version 7). */
+++#define SLIRP_CONFIG_HAS_LOCAL_NETWORK 1
+++
++ /* Create a new instance of a slirp stack */
++ SLIRP_EXPORT
++ Slirp *slirp_new(const SlirpConfig *cfg, const SlirpCb *callbacks,
++diff --git a/src/local-network.h b/src/local-network.h
++new file mode 100644
++--- /dev/null
+++++ b/src/local-network.h
++@@ -0,0 +1,149 @@
+++/* SPDX-License-Identifier: BSD-3-Clause */
+++/*
+++ * Linux VM: which destinations count as the host's local network.
+++ *
+++ * With SlirpConfig.disable_local_network, guest traffic may reach the
+++ * Internet but not the networks around the host: private, shared,
+++ * link-local, multicast and reserved addresses, and any subnet the host's
+++ * own interfaces are on (which covers LANs with public IPv4 or global
+++ * IPv6 addresses). Header-only and free of glib so tests can include it.
+++ */
+++
+++#ifndef SLIRP_LOCAL_NETWORK_H
+++#define SLIRP_LOCAL_NETWORK_H
+++
+++#include <netinet/in.h>
+++#include <stdbool.h>
+++#include <stddef.h>
+++#include <stdint.h>
+++#include <string.h>
+++#include <sys/socket.h>
+++
+++struct slirp_local_subnet {
+++    int family;
+++    uint8_t address[16];
+++    uint8_t mask[16];
+++};
+++
+++/* Host subnets shorter than these are ignored, so a tunnel claiming a
+++ * very wide route cannot cut the guest off from the Internet. */
+++#define SLIRP_LOCAL_SUBNET_MIN_PREFIX4 8
+++#define SLIRP_LOCAL_SUBNET_MIN_PREFIX6 32
+++
+++static inline unsigned slirp_local_prefix_length(const uint8_t *mask, size_t length)
+++{
+++    unsigned bits = 0;
+++    for (size_t i = 0; i < length; i++) {
+++        for (int bit = 7; bit >= 0; bit--) {
+++            if (!(mask[i] & (1u << bit))) {
+++                return bits;
+++            }
+++            bits++;
+++        }
+++    }
+++    return bits;
+++}
+++
+++static inline bool slirp_local_masked_equal(const uint8_t *a, const uint8_t *b,
+++                                            const uint8_t *mask, size_t length)
+++{
+++    for (size_t i = 0; i < length; i++) {
+++        if ((a[i] & mask[i]) != (b[i] & mask[i])) {
+++            return false;
+++        }
+++    }
+++    return true;
+++}
+++
+++/* address in host byte order */
+++static inline bool slirp_local_ipv4_reserved(uint32_t address)
+++{
+++    static const struct {
+++        uint32_t network;
+++        unsigned bits;
+++    } ranges[] = {
+++        { 0x00000000, 8 },  /* "this" network */
+++        { 0x0a000000, 8 },  /* private */
+++        { 0x64400000, 10 }, /* shared address space (carrier-grade NAT) */
+++        { 0x7f000000, 8 },  /* loopback */
+++        { 0xa9fe0000, 16 }, /* link-local, including cloud metadata */
+++        { 0xac100000, 12 }, /* private */
+++        { 0xc0000000, 24 }, /* IETF protocol assignments */
+++        { 0xc0a80000, 16 }, /* private */
+++        { 0xc6120000, 15 }, /* benchmarking */
+++        { 0xe0000000, 4 },  /* multicast */
+++        { 0xf0000000, 4 },  /* reserved and limited broadcast */
+++    };
+++    for (size_t i = 0; i < sizeof(ranges) / sizeof(ranges[0]); i++) {
+++        uint32_t mask = ranges[i].bits ? ~0u << (32 - ranges[i].bits) : 0;
+++        if ((address & mask) == ranges[i].network) {
+++            return true;
+++        }
+++    }
+++    return false;
+++}
+++
+++static inline bool slirp_local_ipv6_reserved(const uint8_t *a)
+++{
+++    static const uint8_t nat64[12] = { 0x00, 0x64, 0xff, 0x9b };
+++    static const uint8_t mapped[12] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0xff, 0xff };
+++    static const uint8_t zero[12] = { 0 };
+++
+++    if (!memcmp(a, mapped, 12) || !memcmp(a, nat64, 12)) {
+++        uint32_t v4 = ((uint32_t)a[12] << 24) | ((uint32_t)a[13] << 16) |
+++                      ((uint32_t)a[14] << 8) | a[15];
+++        return slirp_local_ipv4_reserved(v4);
+++    }
+++    return !memcmp(a, zero, 12) ||         /* ::/96: unspecified, loopback, IPv4-compatible */
+++           (a[0] & 0xfe) == 0xfc ||        /* fc00::/7 unique local */
+++           (a[0] == 0xfe && (a[1] & 0xc0) == 0x80) || /* fe80::/10 link-local */
+++           (a[0] == 0xfe && (a[1] & 0xc0) == 0xc0) || /* fec0::/10 site-local */
+++           a[0] == 0xff;                    /* ff00::/8 multicast */
+++}
+++
+++static inline bool slirp_local_address(const struct sockaddr *address,
+++                                       const struct slirp_local_subnet *subnets,
+++                                       size_t count)
+++{
+++    const uint8_t *bytes;
+++    size_t length;
+++
+++    switch (address->sa_family) {
+++    case AF_INET: {
+++        const struct sockaddr_in *sin = (const struct sockaddr_in *)address;
+++        if (slirp_local_ipv4_reserved(ntohl(sin->sin_addr.s_addr))) {
+++            return true;
+++        }
+++        bytes = (const uint8_t *)&sin->sin_addr;
+++        length = 4;
+++        break;
+++    }
+++    case AF_INET6: {
+++        const struct sockaddr_in6 *sin6 = (const struct sockaddr_in6 *)address;
+++        if (slirp_local_ipv6_reserved(sin6->sin6_addr.s6_addr)) {
+++            return true;
+++        }
+++        bytes = sin6->sin6_addr.s6_addr;
+++        length = 16;
+++        break;
+++    }
+++    default:
+++        return true;
+++    }
+++
+++    for (size_t i = 0; i < count; i++) {
+++        const struct slirp_local_subnet *subnet = &subnets[i];
+++        unsigned minimum = length == 4 ? SLIRP_LOCAL_SUBNET_MIN_PREFIX4
+++                                       : SLIRP_LOCAL_SUBNET_MIN_PREFIX6;
+++        if (subnet->family != address->sa_family ||
+++            slirp_local_prefix_length(subnet->mask, length) < minimum) {
+++            continue;
+++        }
+++        if (slirp_local_masked_equal(bytes, subnet->address, subnet->mask, length)) {
+++            return true;
+++        }
+++    }
+++    return false;
+++}
+++
+++#endif
++diff --git a/src/slirp.c b/src/slirp.c
++--- a/src/slirp.c
+++++ b/src/slirp.c
++@@ -686,6 +686,8 @@ Slirp *slirp_new(const SlirpConfig *cfg, const SlirpCb *callbacks, void *opaque)
++     slirp->disable_host_loopback = cfg->disable_host_loopback;
++     slirp->enable_emu = cfg->enable_emu;
++ 
+++    slirp->disable_local_network = cfg->version >= 7 && cfg->disable_local_network;
+++
++     if (cfg->version >= 2) {
++         slirp->outbound_addr = cfg->outbound_addr;
++         slirp->outbound_addr6 = cfg->outbound_addr6;
++diff --git a/src/slirp.h b/src/slirp.h
++--- a/src/slirp.h
+++++ b/src/slirp.h
++@@ -160,6 +160,7 @@ struct Slirp {
++     int if_mru;
++ 
++     bool disable_host_loopback;
+++    bool disable_local_network;
++ 
++     uint32_t mfr_id;
++     uint8_t oob_eth_addr[ETH_ALEN];
++diff --git a/src/socket.c b/src/socket.c
++--- a/src/socket.c
+++++ b/src/socket.c
++@@ -5,6 +5,11 @@
++ 
++ #include "slirp.h"
++ #include "ip_icmp.h"
+++#include "local-network.h"
+++#ifndef _WIN32
+++#include <ifaddrs.h>
+++#include <net/if.h>
+++#endif
++ #ifdef __sun__
++ #include <sys/filio.h>
++ #endif
++@@ -973,6 +978,77 @@ void sofwdrain(struct socket *so)
++         sofcantsendmore(so);
++ }
++ 
+++#define LOCAL_SUBNETS_MAX 64
+++#define LOCAL_SUBNETS_REFRESH_USEC (2 * G_USEC_PER_SEC)
+++
+++/* The host's interface subnets, re-read at most every two seconds so a
+++ * network change is picked up without a getifaddrs() per UDP packet. */
+++static struct slirp_local_subnet local_subnets[LOCAL_SUBNETS_MAX];
+++static size_t local_subnet_count;
+++static gint64 local_subnets_read_at;
+++static bool local_subnets_read;
+++
+++static void local_subnet_bytes(const struct sockaddr *sa, int family, uint8_t *out)
+++{
+++    struct sockaddr_storage copy;
+++    size_t length = sizeof(copy);
+++
+++    memset(&copy, 0, sizeof(copy));
+++#ifdef __APPLE__
+++    /* Darwin trims trailing zero bytes from netmasks. */
+++    length = MIN((size_t)sa->sa_len, sizeof(copy));
+++#endif
+++    memcpy(&copy, sa, length);
+++    if (family == AF_INET) {
+++        memcpy(out, &((struct sockaddr_in *)&copy)->sin_addr, 4);
+++    } else {
+++        memcpy(out, &((struct sockaddr_in6 *)&copy)->sin6_addr, 16);
+++    }
+++}
+++
+++static void refresh_local_subnets(void)
+++{
+++    gint64 now = g_get_monotonic_time();
+++
+++    if (local_subnets_read && now - local_subnets_read_at < LOCAL_SUBNETS_REFRESH_USEC) {
+++        return;
+++    }
+++    local_subnets_read = true;
+++    local_subnets_read_at = now;
+++    local_subnet_count = 0;
+++#ifndef _WIN32
+++    struct ifaddrs *interfaces;
+++    if (getifaddrs(&interfaces) != 0) {
+++        return;
+++    }
+++    for (struct ifaddrs *ifa = interfaces; ifa && local_subnet_count < LOCAL_SUBNETS_MAX;
+++         ifa = ifa->ifa_next) {
+++        if (!ifa->ifa_addr || !ifa->ifa_netmask || !(ifa->ifa_flags & IFF_UP)) {
+++            continue;
+++        }
+++        int family = ifa->ifa_addr->sa_family;
+++        if (family != AF_INET && family != AF_INET6) {
+++            continue;
+++        }
+++        struct slirp_local_subnet *subnet = &local_subnets[local_subnet_count++];
+++        memset(subnet, 0, sizeof(*subnet));
+++        subnet->family = family;
+++        local_subnet_bytes(ifa->ifa_addr, family, subnet->address);
+++        local_subnet_bytes(ifa->ifa_netmask, family, subnet->mask);
+++    }
+++    freeifaddrs(interfaces);
+++#endif
+++}
+++
+++bool slirp_blocks_local_network(Slirp *s, const struct sockaddr *addr)
+++{
+++    if (!s->disable_local_network) {
+++        return false;
+++    }
+++    refresh_local_subnets();
+++    return slirp_local_address(addr, local_subnets, local_subnet_count);
+++}
+++
++ static bool sotranslate_out4(Slirp *s, struct socket *so, struct sockaddr_in *sin)
++ {
++     if (!s->disable_dns && so->so_faddr.s_addr == s->vnameserver_addr.s_addr) {
++@@ -987,9 +1063,10 @@ static bool sotranslate_out4(Slirp *s, struct socket *so, struct sockaddr_in *si
++         }
++ 
++         sin->sin_addr = loopback_addr;
+++        return true;
++     }
++ 
++-    return true;
+++    return !slirp_blocks_local_network(s, (struct sockaddr *)sin);
++ }
++ 
++ static bool sotranslate_out6(Slirp *s, struct socket *so, struct sockaddr_in6 *sin)
++@@ -1011,9 +1088,10 @@ static bool sotranslate_out6(Slirp *s, struct socket *so, struct sockaddr_in6 *s
++         }
++ 
++         sin->sin6_addr = in6addr_loopback;
+++        return true;
++     }
++ 
++-    return true;
+++    return !slirp_blocks_local_network(s, (struct sockaddr *)sin);
++ }
++ 
++ 
++diff --git a/src/socket.h b/src/socket.h
++--- a/src/socket.h
+++++ b/src/socket.h
++@@ -225,6 +225,8 @@ int soreadbuf(struct socket *so, const char *buf, int size);
++ 
++ /* Translate addr into host addr when it is a virtual address, before sending to the Internet */
++ int sotranslate_out(struct socket *, struct sockaddr_storage *);
+++/* Linux VM: whether disable_local_network refuses this destination. */
+++bool slirp_blocks_local_network(Slirp *s, const struct sockaddr *addr);
++ /* Translate addr into virtual address when it is host, before sending to the guest */
++ void sotranslate_in(struct socket *, struct sockaddr_storage *);
++ /* Translate connections from localhost to the real hostname */
++diff --git a/test/local-network-test.c b/test/local-network-test.c
++new file mode 100644
++--- /dev/null
+++++ b/test/local-network-test.c
++@@ -0,0 +1,82 @@
+++/* SPDX-License-Identifier: BSD-3-Clause */
+++/* Linux VM: which destinations disable_local_network refuses. */
+++
+++#include <arpa/inet.h>
+++#include <assert.h>
+++#include <stdio.h>
+++#include <string.h>
+++
+++#include "local-network.h"
+++
+++static struct slirp_local_subnet subnets[4];
+++static size_t subnet_count;
+++
+++static void add_subnet(int family, const char *address, const char *mask)
+++{
+++    struct slirp_local_subnet *subnet = &subnets[subnet_count++];
+++    memset(subnet, 0, sizeof(*subnet));
+++    subnet->family = family;
+++    assert(inet_pton(family, address, subnet->address) == 1);
+++    assert(inet_pton(family, mask, subnet->mask) == 1);
+++}
+++
+++static bool local4(const char *text)
+++{
+++    struct sockaddr_in sin = { .sin_family = AF_INET };
+++    assert(inet_pton(AF_INET, text, &sin.sin_addr) == 1);
+++    return slirp_local_address((struct sockaddr *)&sin, subnets, subnet_count);
+++}
+++
+++static bool local6(const char *text)
+++{
+++    struct sockaddr_in6 sin6 = { .sin6_family = AF_INET6 };
+++    assert(inet_pton(AF_INET6, text, &sin6.sin6_addr) == 1);
+++    return slirp_local_address((struct sockaddr *)&sin6, subnets, subnet_count);
+++}
+++
+++int main(void)
+++{
+++    /* A LAN with public addresses, a global IPv6 prefix, and a tunnel
+++     * claiming everything, which must be ignored. */
+++    add_subnet(AF_INET, "203.0.113.20", "255.255.255.0");
+++    add_subnet(AF_INET6, "2001:db8:42:7::20", "ffff:ffff:ffff:ffff::");
+++    add_subnet(AF_INET, "198.51.100.1", "0.0.0.0");
+++    add_subnet(AF_INET6, "2001:db8:99::1", "ff00::");
+++
+++    const char *refused4[] = {
+++        "10.0.0.1", "10.255.255.254", "172.16.0.1", "172.31.255.255", "192.168.1.1",
+++        "169.254.169.254", "100.64.0.1", "100.127.255.254", "127.0.0.1", "0.0.0.0",
+++        "224.0.0.251", "239.255.255.250", "255.255.255.255", "240.0.0.1", "192.0.0.170",
+++        "198.18.0.1", "203.0.113.1", "203.0.113.254",
+++    };
+++    const char *allowed4[] = {
+++        "8.8.8.8", "1.1.1.1", "142.250.80.46", "172.15.255.255", "172.32.0.1",
+++        "100.63.255.255", "100.128.0.1", "192.169.0.1", "203.0.114.1", "198.51.100.7",
+++    };
+++    const char *refused6[] = {
+++        "::", "::1", "fd00::1", "fc12:3456::1", "fe80::1", "fec0::1", "ff02::fb",
+++        "::ffff:192.168.1.1", "64:ff9b::10.0.0.1", "::10.0.0.1", "2001:db8:42:7::1",
+++        "2001:db8:42:7:ffff:ffff:ffff:ffff",
+++    };
+++    const char *allowed6[] = {
+++        "2606:4700:4700::1111", "2a00:1450:4001:80b::200e", "::ffff:8.8.8.8",
+++        "64:ff9b::8.8.8.8", "2001:db8:42:8::1", "2001:db8:99::2",
+++    };
+++
+++    for (size_t i = 0; i < sizeof(refused4) / sizeof(*refused4); i++) {
+++        if (!local4(refused4[i])) { fprintf(stderr, "allowed %s\n", refused4[i]); return 1; }
+++    }
+++    for (size_t i = 0; i < sizeof(allowed4) / sizeof(*allowed4); i++) {
+++        if (local4(allowed4[i])) { fprintf(stderr, "refused %s\n", allowed4[i]); return 1; }
+++    }
+++    for (size_t i = 0; i < sizeof(refused6) / sizeof(*refused6); i++) {
+++        if (!local6(refused6[i])) { fprintf(stderr, "allowed %s\n", refused6[i]); return 1; }
+++    }
+++    for (size_t i = 0; i < sizeof(allowed6) / sizeof(*allowed6); i++) {
+++        if (local6(allowed6[i])) { fprintf(stderr, "refused %s\n", allowed6[i]); return 1; }
+++    }
+++    struct sockaddr unknown = { .sa_family = AF_UNIX };
+++    assert(slirp_local_address(&unknown, subnets, subnet_count));
+++    puts("local-network: ok");
+++    return 0;
+++}
 diff --git a/macos/patches/qemu-cocoa-touch-scroll-direction.patch b/macos/patches/qemu-cocoa-touch-scroll-direction.patch
 new file mode 100644
 index 0000000..b2bca90
@@ -579,6 +1082,108 @@ index 0000000..b356e27
 ++        reach the host's loopback interface. Default is on. With off,
 ++        the guest cannot reach services listening only on the host's
 ++        loopback; forwarding rules are not affected.
+++
++     ``hostname=name``
++         Specifies the client hostname reported by the built-in DHCP
++         server.
+diff --git a/macos/patches/qemu-slirp-local-network.patch b/macos/patches/qemu-slirp-local-network.patch
+new file mode 100644
+index 0000000..9da0a68
+--- /dev/null
++++ b/macos/patches/qemu-slirp-local-network.patch
+@@ -0,0 +1,96 @@
++diff --git a/net/slirp.c b/net/slirp.c
++--- a/net/slirp.c
+++++ b/net/slirp.c
++@@ -431,7 +431,7 @@ static SaveVMHandlers savevm_slirp_state = {
++ 
++ static int net_slirp_init(NetClientState *peer, const char *model,
++                           const char *name, int restricted,
++-                          bool host_loopback,
+++                          bool host_loopback, bool local_network,
++                           bool ipv4, const char *vnetwork, const char *vhost,
++                           bool ipv6, const char *vprefix6, int vprefix6_len,
++                           const char *vhost6,
++@@ -636,6 +636,14 @@ static int net_slirp_init(NetClientState *peer, const char *model,
++         return -1;
++     }
++ 
+++#ifndef SLIRP_CONFIG_HAS_LOCAL_NETWORK
+++    if (!local_network) {
+++        error_setg(errp, "local-network=off needs libslirp with the Linux VM "
+++                   "local network patch");
+++        return -1;
+++    }
+++#endif
+++
++     nc = qemu_new_net_client(&net_slirp_info, peer, model, name);
++ 
++     qemu_set_info_str(nc, "net=%s,restrict=%s", inet_ntoa(net),
++@@ -648,6 +656,10 @@ static int net_slirp_init(NetClientState *peer, const char *model,
++          SLIRP_CHECK_VERSION(4, 7, 0) ? 4 : 1;
++     cfg.restricted = restricted;
++     cfg.disable_host_loopback = !host_loopback;
+++#ifdef SLIRP_CONFIG_HAS_LOCAL_NETWORK
+++    cfg.version = 7;
+++    cfg.disable_local_network = !local_network;
+++#endif
++     cfg.in_enabled = ipv4;
++     cfg.vnetwork = net;
++     cfg.vnetmask = mask;
++@@ -1308,6 +1320,7 @@ int net_init_slirp(const Netdev *netdev, const char *name,
++ 
++     ret = net_slirp_init(peer, "user", name, user->q_restrict,
++                          user->has_host_loopback ? user->host_loopback : true,
+++                         user->has_local_network ? user->local_network : true,
++                          ipv4, vnet, user->host,
++                          ipv6, user->ipv6_prefix, user->ipv6_prefixlen,
++                          user->ipv6_host, user->hostname, user->tftp,
++diff --git a/qapi/net.json b/qapi/net.json
++--- a/qapi/net.json
+++++ b/qapi/net.json
++@@ -312,6 +312,11 @@
++ # @host-loopback: whether the guest reaches the host's loopback
++ #     interface through the host address, default true (Linux VM)
++ #
+++# @local-network: whether the guest reaches the host's local
+++#     networks: private, shared, link-local, multicast and reserved
+++#     addresses, and the subnets of the host's interfaces, default
+++#     true (Linux VM)
+++#
++ # @ipv4: whether to support IPv4, default true for enabled (since 2.6)
++ #
++ # @ipv6: whether to support IPv6, default true for enabled (since 2.6)
++@@ -370,6 +375,7 @@
++     '*hostname':  'str',
++     '*restrict':  'bool',
++     '*host-loopback': 'bool',
+++    '*local-network': 'bool',
++     '*ipv4':      'bool',
++     '*ipv6':      'bool',
++     '*ip':        'str',
++diff --git a/qemu-options.hx b/qemu-options.hx
++--- a/qemu-options.hx
+++++ b/qemu-options.hx
++@@ -2992,7 +2992,8 @@ DEF("netdev", HAS_ARG, QEMU_OPTION_netdev,
++ #ifdef CONFIG_SLIRP
++     "-netdev user,id=str[,ipv4=on|off][,net=addr[/mask]][,host=addr]\n"
++     "         [,ipv6=on|off][,ipv6-net=addr[/int]][,ipv6-host=addr]\n"
++-    "         [,restrict=on|off][,host-loopback=on|off][,hostname=host][,dhcpstart=addr]\n"
+++    "         [,restrict=on|off][,host-loopback=on|off][,local-network=on|off]\n"
+++    "         [,hostname=host][,dhcpstart=addr]\n"
++     "         [,dns=addr][,ipv6-dns=addr][,dnssearch=domain][,domainname=domain]\n"
++     "         [,tftp=dir][,tftp-server-name=name][,bootfile=f][,hostfwd=rule][,guestfwd=rule]"
++ #ifndef _WIN32
++@@ -3394,6 +3395,13 @@ SRST
++         the guest cannot reach services listening only on the host's
++         loopback; forwarding rules are not affected.
++ 
+++    ``local-network=on|off``
+++        Whether the guest reaches the host's local networks: private,
+++        shared, link-local, multicast and reserved addresses, and the
+++        subnets of the host's interfaces. Default is on. With off, the
+++        guest still reaches the Internet and the built-in DNS server;
+++        forwarding rules are not affected.
 ++
 +     ``hostname=name``
 +         Specifies the client hostname reported by the built-in DHCP

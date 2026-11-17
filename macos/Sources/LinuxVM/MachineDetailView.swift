@@ -218,6 +218,7 @@ struct MachineSettingsForm: View {
 
             Section {
                 Toggle("Linux can reach services on this Mac", isOn: binding(\.isolation.macServices))
+                Toggle("Linux can reach your local network", isOn: binding(\.isolation.localNetwork))
                 Toggle("Share the clipboard", isOn: binding(\.isolation.clipboard))
                 Toggle("Linux can use the microphone", isOn: binding(\.isolation.microphone))
                 Toggle("Linux can change files in the shared folder", isOn: binding(\.isolation.sharedFolderWritable))
@@ -228,8 +229,8 @@ struct MachineSettingsForm: View {
                 Text("Access to the Mac")
             } footer: {
                 FormNote(machine.isolation.isHardened
-                    ? "This VM is hardened: Linux has none of these. Linux still reaches the internet and your local network."
-                    : "Services on this Mac are apps listening only on it, such as development servers and databases; Linux reaches them at 10.0.2.2. The clipboard leaves out copies that password managers mark as private. Harden turns all of these off.")
+                    ? "This VM is hardened: Linux has none of these. It still reaches the internet."
+                    : "Services on this Mac are apps listening only on it, such as development servers and databases; Linux reaches them at 10.0.2.2. Your local network is the devices around this Mac, such as the router, printers, other computers and networks reached over VPN. The clipboard leaves out copies that password managers mark as private. Harden turns all of these off.")
             }
             .disabled(!editable)
 

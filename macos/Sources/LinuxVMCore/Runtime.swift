@@ -72,9 +72,9 @@ public struct Runtime: Sendable {
         let help = (try? ProcessRunner.output(qemu, ["-help"])) ?? ""
         let cocoa = help.contains("-display cocoa") && help.contains("immersive=on|off")
         checks.append(Check(name: "Cocoa display with immersive mode", passed: cocoa, detail: cocoa ? "Available" : "Not built in"))
-        let loopback = help.contains("host-loopback=on|off")
-        checks.append(Check(name: "Network isolation from Mac services", passed: loopback,
-                            detail: loopback ? "Patched" : "Missing the host-loopback patch"))
+        let missingIsolation = ["host-loopback=on|off", "local-network=on|off"].filter { !help.contains($0) }
+        checks.append(Check(name: "Network isolation from Mac services and the local network", passed: missingIsolation.isEmpty,
+                            detail: missingIsolation.isEmpty ? "Patched" : "Missing: \(missingIsolation.joined(separator: ", "))"))
         let sandbox = fileManager.isExecutableFile(atPath: QEMUSandbox.tool.path)
         checks.append(Check(name: "QEMU sandbox", passed: sandbox, detail: QEMUSandbox.tool.path))
 

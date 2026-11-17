@@ -196,7 +196,7 @@ struct ImportDiskSheet: View {
 }
 
 enum HardenedNote {
-    static let text = "Linux can't reach services running on this Mac, share its clipboard, use its microphone or change files in a shared folder. You can turn each of these back on in the VM's settings."
+    static let text = "Linux reaches the internet, but not services running on this Mac or devices on your local network. It can't share the Mac's clipboard, use its microphone or change files in a shared folder. You can turn each of these back on in the VM's settings."
 }
 
 struct RuntimeCheckSheet: View {

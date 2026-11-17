@@ -80,7 +80,7 @@ Each VM's page in the app shows its settings:
 - **Resources:** CPUs and memory. You can also enlarge the disk; afterwards, grow the partition inside Linux (in Ubuntu, with the Disks app).
 - **Installer Disc:** insert or eject an installer image, even while the VM runs.
 - **Sharing:** a Mac folder to share with Linux. With the guest tools, it appears at `/mnt/mac`, with a link in your home folder. The app asks before sharing your home folder or another folder that holds settings.
-- **Access to the Mac:** what Linux may use on the Mac: services running on the Mac, the clipboard, the microphone, and changing files in the shared folder. Harden turns them all off.
+- **Access to the Mac:** what Linux may use on the Mac: services running on the Mac, your local network, the clipboard, the microphone, and changing files in the shared folder. Harden turns them all off.
 - **Display and Trackpad:** scroll speed, whether full screen hides the menu bar and Dock, whether it uses the area beside the camera, and whether to show the Mac pointer.
 - **Sleep:** whether the VM pauses while your Mac sleeps.
 - **Network:** port forwards from your Mac to Linux.
@@ -111,7 +111,7 @@ linuxvmctl set VM [--name N] [--cpus N] [--memory MIB] [--iso PATH|none]
                   [--shared-folder PATH|none] [--scroll-scale X] [--mac-cursor on|off]
                   [--immersive on|off] [--cover-notch on|off] [--forward HOST:GUEST|none]
                   [--grow-disk GIB] [--pause-during-sleep on|off]
-                  [--mac-services on|off] [--clipboard on|off] [--microphone on|off]
+                  [--mac-services on|off] [--local-network on|off] [--clipboard on|off] [--microphone on|off]
                   [--shared-folder-writable on|off] [--hardened]
 linuxvmctl start VM                   start in the background
 linuxvmctl stop VM [--force]          shut down (or stop at once)
@@ -137,11 +137,12 @@ Some ways Linux and the Mac work together also give Linux access to the Mac. Eac
 | Setting | When on | When off |
 | --- | --- | --- |
 | Linux can reach services on this Mac | Linux reaches apps that listen only on the Mac, such as a development server or a database, at `10.0.2.2`. | Linux can't. Port forwards from the Mac to Linux still work. |
+| Linux can reach your local network | Linux reaches the devices around the Mac, as any computer on your network would: the router, printers, other computers, the Mac's own network address, and networks reached over VPN. | Linux reaches only the internet. Private, link-local and multicast addresses and the Mac's own subnets are refused. DNS still works. |
 | Share the clipboard | Copies go both ways. | Nothing crosses. |
 | Linux can use the microphone | Linux can record from the Mac's microphone while the VM runs. | Linux has speakers but no microphone. |
 | Linux can change files in the shared folder | The shared folder is read-write. | It is read-only. |
 
-Linux always reaches the internet and your local network through the Mac, as any computer on your network would. Share a folder made for Linux rather than your home folder.
+Linux always reaches the internet through the Mac. Share a folder made for Linux rather than your home folder.
 
 ## Limitations
 
