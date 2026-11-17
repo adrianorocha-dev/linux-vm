@@ -30,6 +30,45 @@ public struct DisplaySettings: Codable, Equatable, Sendable {
     public init() {}
 }
 
+/// What Linux may reach on the Mac. A VM made with the Hardened option
+/// starts with every one of these closed.
+public struct IsolationSettings: Codable, Equatable, Sendable {
+    /// Linux reaches services listening only on the Mac's loopback (127.0.0.1)
+    /// through the host address, 10.0.2.2.
+    public var macServices = true
+    /// The clipboard is shared both ways.
+    public var clipboard = true
+    /// Linux records from the Mac's microphone.
+    public var microphone = true
+    /// Linux can change files in the shared Mac folder.
+    public var sharedFolderWritable = true
+
+    public init() {}
+
+    public static let hardened: IsolationSettings = {
+        var settings = IsolationSettings()
+        settings.macServices = false
+        settings.clipboard = false
+        settings.microphone = false
+        settings.sharedFolderWritable = false
+        return settings
+    }()
+
+    public var isHardened: Bool { self == .hardened }
+
+    enum CodingKeys: String, CodingKey {
+        case macServices, clipboard, microphone, sharedFolderWritable
+    }
+
+    public init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        macServices = try c.decodeIfPresent(Bool.self, forKey: .macServices) ?? true
+        clipboard = try c.decodeIfPresent(Bool.self, forKey: .clipboard) ?? true
+        microphone = try c.decodeIfPresent(Bool.self, forKey: .microphone) ?? true
+        sharedFolderWritable = try c.decodeIfPresent(Bool.self, forKey: .sharedFolderWritable) ?? true
+    }
+}
+
 public struct VMConfiguration: Codable, Equatable, Identifiable, Sendable {
     public static let currentFormat = 1
     public static let defaultScrollScale = 0.4
@@ -49,6 +88,7 @@ public struct VMConfiguration: Codable, Equatable, Identifiable, Sendable {
     public var scrollScale = VMConfiguration.defaultScrollScale
     public var pauseDuringSleep = true
     public var portForwards: [PortForward] = []
+    public var isolation = IsolationSettings()
     public var createdAt: Date
 
     public init(
@@ -59,6 +99,7 @@ public struct VMConfiguration: Codable, Equatable, Identifiable, Sendable {
         diskFileName: String,
         diskFormat: DiskFormat,
         installMedia: String? = nil,
+        isolation: IsolationSettings = IsolationSettings(),
         createdAt: Date = Date()
     ) {
         self.id = id
@@ -68,12 +109,13 @@ public struct VMConfiguration: Codable, Equatable, Identifiable, Sendable {
         self.diskFileName = diskFileName
         self.diskFormat = diskFormat
         self.installMedia = installMedia
+        self.isolation = isolation
         self.createdAt = createdAt
     }
 
     enum CodingKeys: String, CodingKey {
         case format, id, name, cpuCount, memoryMiB, diskFileName, diskFormat
-        case installMedia, sharedFolder, display, scrollScale, pauseDuringSleep, portForwards, createdAt
+        case installMedia, sharedFolder, display, scrollScale, pauseDuringSleep, portForwards, isolation, createdAt
     }
 
     public init(from decoder: Decoder) throws {
@@ -91,6 +133,7 @@ public struct VMConfiguration: Codable, Equatable, Identifiable, Sendable {
         scrollScale = try c.decode(Double.self, forKey: .scrollScale)
         pauseDuringSleep = try c.decodeIfPresent(Bool.self, forKey: .pauseDuringSleep) ?? true
         portForwards = try c.decode([PortForward].self, forKey: .portForwards)
+        isolation = try c.decodeIfPresent(IsolationSettings.self, forKey: .isolation) ?? IsolationSettings()
         createdAt = try c.decode(Date.self, forKey: .createdAt)
     }
 
@@ -133,6 +176,24 @@ public enum ConfigurationError: LocalizedError, Equatable {
 }
 
 extension VMConfiguration {
+    /// Why sharing this folder gives Linux more than it likely needs, or nil.
+    /// Linux could then change files that macOS runs, such as shell profiles
+    /// and login items.
+    public static func sharedFolderWarning(_ path: String, home: String = NSHomeDirectory()) -> String? {
+        let folder = URL(fileURLWithPath: path).standardizedFileURL.path
+        let home = URL(fileURLWithPath: home).standardizedFileURL.path
+        if folder == "/" || folder == "/Users" || folder == "/System" || folder == "/Applications" {
+            return "This shares a system folder with Linux."
+        }
+        if folder == home {
+            return "This shares your whole home folder with Linux, including its settings and keys."
+        }
+        if folder.hasPrefix(home + "/Library") || folder.hasPrefix(home + "/.") {
+            return "This shares a folder where apps keep their settings and data."
+        }
+        return nil
+    }
+
     public static let minimumMemoryMiB = 2048
     public static let scrollScaleRange = 0.05...4.0
 

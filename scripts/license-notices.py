@@ -311,10 +311,14 @@ def validate_checkout_pins(manifest, checkout, root=ROOT, deps=None):
                         target.parent.mkdir(parents=True, exist_ok=True)
                         target.write_bytes(archive.extractfile(member).read())
             diff = (root / 'runtime/try-omarchy-v1.3.0.diff').read_text()
-            section = diff.split('diff --git a/macos/Sources/OmarchyVMHelper/main.swift ', 1)[1].split('\ndiff --git ', 1)[0]
-            patch = '--- main.swift\n+++ main.swift\n' + section[section.index('@@ '):]
-            target = temp / 'macos/Sources/OmarchyVMHelper/main.swift'
-            subprocess.run(['patch', '--batch', str(target)], input=patch, text=True, capture_output=True, check=True)
+            helper = 'a/macos/Sources/OmarchyVMHelper/'
+            for section in re.split(r'^diff --git ', diff, flags=re.M):
+                if not section.startswith(helper):
+                    continue
+                name = section[len(helper):].split(' ', 1)[0]
+                patch = f'--- {name}\n+++ {name}\n' + section[section.index('@@ '):]
+                target = temp / 'macos/Sources/OmarchyVMHelper' / name
+                subprocess.run(['patch', '--batch', str(target)], input=patch, text=True, capture_output=True, check=True)
             for path in (temp / 'macos/Sources/OmarchyVMHelper').rglob('*'):
                 if path.is_file():
                     require(path.read_bytes() == (checkout / path.relative_to(temp)).read_bytes(),

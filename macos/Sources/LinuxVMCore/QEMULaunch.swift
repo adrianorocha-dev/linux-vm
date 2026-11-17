@@ -35,6 +35,12 @@ public struct QEMULaunch: Sendable {
 
         public var portName: String { "dev.linuxvm.\(rawValue)" }
         var helperFlag: String { "--bridge-native-\(rawValue)" }
+        /// Port numbers stay fixed whichever bridges a VM uses.
+        var portNumber: Int { Self.allCases.firstIndex(of: self)! + 1 }
+
+        public static func enabled(for configuration: VMConfiguration) -> [Bridge] {
+            allCases.filter { $0 != .clipboard || configuration.isolation.clipboard }
+        }
     }
 
     public static func make(
@@ -91,7 +97,11 @@ public struct QEMULaunch: Sendable {
             ]
         }
 
+        let isolation = configuration.isolation
         var netdev = "user,id=net0"
+        if !isolation.macServices {
+            netdev += ",host-loopback=off"
+        }
         for forward in configuration.portForwards {
             netdev += ",hostfwd=tcp:127.0.0.1:\(forward.hostPort)-:\(forward.guestPort)"
         }
@@ -101,7 +111,7 @@ public struct QEMULaunch: Sendable {
             "-device", "virtio-net-pci,netdev=net0,mac=\(configuration.macAddress),romfile=",
             "-audiodev", "sdl,id=audio0,timer-period=1000,out.buffer-count=8,out.frequency=\(frequency),in.frequency=\(frequency)",
             "-device", "intel-hda,id=hda,romfile=",
-            "-device", "hda-micro,bus=hda.0,audiodev=audio0",
+            "-device", "\(isolation.microphone ? "hda-micro" : "hda-output"),bus=hda.0,audiodev=audio0",
             "-device", "virtio-gpu-gl-pci,max_outputs=1,xres=1920,yres=1080,romfile=",
             "-display", "cocoa,gl=on,show-cursor=\(display.showMacCursor ? "on" : "off"),zoom-to-fit=on,full-screen=off,immersive=\(display.immersive ? "on" : "off"),full-grab=off,swap-opt-cmd=off",
             "-device", "virtio-keyboard-pci,romfile=",
@@ -112,10 +122,10 @@ public struct QEMULaunch: Sendable {
             "-device", "virtio-balloon-pci,free-page-reporting=on",
             "-device", "virtio-serial-pci,id=serial0",
         ]
-        for (index, bridge) in Bridge.allCases.enumerated() {
+        for bridge in Bridge.enabled(for: configuration) {
             arguments += [
                 "-chardev", "socket,id=\(bridge.rawValue),path=\(escaped(paths.bridgeSocket(bridge))),server=on,wait=off",
-                "-device", "virtserialport,bus=serial0.0,nr=\(index + 1),chardev=\(bridge.rawValue),name=\(bridge.portName)",
+                "-device", "virtserialport,bus=serial0.0,nr=\(bridge.portNumber),chardev=\(bridge.rawValue),name=\(bridge.portName)",
             ]
         }
         arguments += [
@@ -124,7 +134,8 @@ public struct QEMULaunch: Sendable {
         ]
         if let folder = configuration.sharedFolder {
             arguments += [
-                "-fsdev", "local,id=share,path=\(folder),security_model=none,multidevs=remap,guest_owner_uid=1000,guest_owner_gid=1000",
+                "-fsdev", "local,id=share,path=\(folder),security_model=none,multidevs=remap,guest_owner_uid=1000,guest_owner_gid=1000"
+                    + (isolation.sharedFolderWritable ? "" : ",readonly=on"),
                 "-device", "virtio-9p-pci,fsdev=share,mount_tag=mac,romfile=",
             ]
         }

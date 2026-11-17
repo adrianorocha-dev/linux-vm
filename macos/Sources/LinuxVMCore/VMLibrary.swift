@@ -111,14 +111,15 @@ public struct VMLibrary: Sendable {
 
     // MARK: Creating
 
-    public func create(name: String, installMedia: String?, cpuCount: Int, memoryMiB: Int, diskGiB: Int) throws -> VMConfiguration {
+    public func create(name: String, installMedia: String?, cpuCount: Int, memoryMiB: Int, diskGiB: Int,
+                       isolation: IsolationSettings = IsolationSettings()) throws -> VMConfiguration {
         guard (8...4096).contains(diskGiB) else { throw ConfigurationError.invalid("The disk must be 8 to 4096 GiB.") }
         if let installMedia, !FileManager.default.fileExists(atPath: installMedia) {
             throw ConfigurationError.invalid("The installer image does not exist: \(installMedia)")
         }
         let configuration = VMConfiguration(
             name: name, cpuCount: cpuCount, memoryMiB: memoryMiB,
-            diskFileName: "disk.img", diskFormat: .raw, installMedia: installMedia)
+            diskFileName: "disk.img", diskFormat: .raw, installMedia: installMedia, isolation: isolation)
         try configuration.validate()
         try prepareDirectory(for: configuration) { directory in
             let disk = directory.appending(path: configuration.diskFileName)
@@ -129,14 +130,17 @@ public struct VMLibrary: Sendable {
 
     /// Clones an existing disk (raw or qcow2) and, optionally, its UEFI
     /// variable store. APFS clones cost no space until either copy changes.
-    public func importDisk(name: String, disk source: URL, variables: URL?, cpuCount: Int, memoryMiB: Int) throws -> VMConfiguration {
+    public func importDisk(name: String, disk source: URL, variables: URL?, cpuCount: Int, memoryMiB: Int,
+                           isolation: IsolationSettings = IsolationSettings()) throws -> VMConfiguration {
         let format = try Self.detectFormat(source)
         let configuration = VMConfiguration(
             name: name, cpuCount: cpuCount, memoryMiB: memoryMiB,
-            diskFileName: format == .raw ? "disk.img" : "disk.qcow2", diskFormat: format)
+            diskFileName: format == .raw ? "disk.img" : "disk.qcow2", diskFormat: format, isolation: isolation)
         try configuration.validate()
         try prepareDirectory(for: configuration) { directory in
-            try Self.clone(source, to: directory.appending(path: configuration.diskFileName))
+            let disk = directory.appending(path: configuration.diskFileName)
+            try Self.clone(source, to: disk)
+            try DiskImageCheck.validate(disk, format: format)
             if let variables {
                 try Self.clone(variables, to: directory.appending(path: "efi-vars.fd"))
             }
@@ -248,10 +252,26 @@ public struct VMLibrary: Sendable {
         }
     }
 
+    /// QEMU's sandbox lets it read only the files the VM started with, so
+    /// a disc inserted later reaches QEMU as an open file. The fd set's
+    /// `opaque` keeps the path for the supervisor's drive checks.
     public func insertInstallMedia(id: String, path: String) throws {
-        try control(id: id).execute("blockdev-change-medium", arguments: [
-            "id": "install-cd", "filename": path, "format": "raw", "read-only-mode": "read-only",
-        ])
+        let file = open(path, O_RDONLY | O_CLOEXEC)
+        guard file >= 0 else {
+            throw LibraryError.failed("Cannot open \(path): \(String(cString: strerror(errno)))")
+        }
+        defer { close(file) }
+        let client = try control(id: id)
+        let added = try client.execute("add-fd", arguments: ["opaque": path], passing: file) as? [String: Any]
+        guard let set = added?["fdset-id"] as? Int else { throw LibraryError.failed("QEMU did not accept the installer image.") }
+        do {
+            try client.execute("blockdev-change-medium", arguments: [
+                "id": "install-cd", "filename": "/dev/fdset/\(set)", "format": "raw", "read-only-mode": "read-only",
+            ])
+        } catch {
+            _ = try? client.execute("remove-fd", arguments: ["fdset-id": set])
+            throw error
+        }
     }
 
     public func ejectInstallMedia(id: String) throws {
@@ -261,7 +281,10 @@ public struct VMLibrary: Sendable {
     /// Saves the guest display as PNG. The runtime has no libpng, so QEMU
     /// writes PPM and this converts it.
     public func screenshot(id: String, to path: String) throws {
-        let ppm = URL(fileURLWithPath: NSTemporaryDirectory()).appending(path: "linuxvm-\(UUID().uuidString).ppm")
+        // QEMU's sandbox lets it write in its run directory.
+        let directory = status(id: id).run?.controlSocket.map { URL(fileURLWithPath: $0).deletingLastPathComponent() }
+            ?? URL(fileURLWithPath: NSTemporaryDirectory())
+        let ppm = directory.appending(path: "screenshot-\(UUID().uuidString).ppm")
         defer { try? FileManager.default.removeItem(at: ppm) }
         try control(id: id).execute("screendump", arguments: ["filename": ppm.path])
         try Self.convertPPMToPNG(ppm, to: URL(fileURLWithPath: path))

@@ -67,6 +67,7 @@ struct MachineDetailView: View {
 
     private var summary: String {
         "\(state.label) · \(machine.cpuCount) CPUs · \(formatMemory(machine.memoryMiB))"
+            + (machine.isolation.isHardened ? " · Hardened" : "")
     }
 
     @ViewBuilder
@@ -116,6 +117,13 @@ struct MachineSettingsForm: View {
     @State private var growing = false
     @State private var newHostPort = ""
     @State private var newGuestPort = ""
+    @State private var broadFolder: BroadFolder?
+
+    struct BroadFolder: Identifiable {
+        let path: String
+        let warning: String
+        var id: String { path }
+    }
 
     private var running: Bool { model.state(of: machine.id) != .stopped }
 
@@ -149,7 +157,7 @@ struct MachineSettingsForm: View {
                 Text("Resources")
             } footer: {
                 if running {
-                    FormNote("Shut down the VM to change its resources, sharing and network.")
+                    FormNote("Shut down the VM to change its resources, sharing, access to the Mac and network.")
                 }
             }
             .disabled(!editable)
@@ -176,7 +184,7 @@ struct MachineSettingsForm: View {
                 if case .success(let url) = result { model.insertMedia(machine.id, path: url.path) }
             }
 
-            GuestToolsSection(report: model.reports[machine.id], disc: model.discGuestTools)
+            GuestToolsSection(report: model.reports[machine.id], disc: model.discGuestTools, clipboardEnabled: machine.isolation.clipboard)
 
             Section("Sharing") {
                 LabeledContent("Mac folder") {
@@ -193,8 +201,37 @@ struct MachineSettingsForm: View {
                 .disabled(!editable)
             }
             .fileImporter(isPresented: $choosingFolder, allowedContentTypes: [.folder]) { result in
-                if case .success(let url) = result { model.update(machine.id) { $0.sharedFolder = url.path } }
+                guard case .success(let url) = result else { return }
+                if let warning = VMConfiguration.sharedFolderWarning(url.path) {
+                    broadFolder = BroadFolder(path: url.path, warning: warning)
+                } else {
+                    model.update(machine.id) { $0.sharedFolder = url.path }
+                }
             }
+            .alert(item: $broadFolder) { folder in
+                Alert(
+                    title: Text("Share “\(URL(fileURLWithPath: folder.path).lastPathComponent)” with Linux?"),
+                    message: Text("\(folder.warning) Malware in Linux could read it\(machine.isolation.sharedFolderWritable ? ", and change files that macOS runs" : ""). Sharing a folder made for Linux is safer."),
+                    primaryButton: .destructive(Text("Share")) { model.update(machine.id) { $0.sharedFolder = folder.path } },
+                    secondaryButton: .cancel())
+            }
+
+            Section {
+                Toggle("Linux can reach services on this Mac", isOn: binding(\.isolation.macServices))
+                Toggle("Share the clipboard", isOn: binding(\.isolation.clipboard))
+                Toggle("Linux can use the microphone", isOn: binding(\.isolation.microphone))
+                Toggle("Linux can change files in the shared folder", isOn: binding(\.isolation.sharedFolderWritable))
+                if !machine.isolation.isHardened {
+                    Button("Harden") { model.update(machine.id) { $0.isolation = .hardened } }
+                }
+            } header: {
+                Text("Access to the Mac")
+            } footer: {
+                FormNote(machine.isolation.isHardened
+                    ? "This VM is hardened: Linux has none of these. Linux still reaches the internet and your local network."
+                    : "Services on this Mac are apps listening only on it, such as development servers and databases; Linux reaches them at 10.0.2.2. The clipboard leaves out copies that password managers mark as private. Harden turns all of these off.")
+            }
+            .disabled(!editable)
 
             Section {
                 LabeledContent("Scroll speed") {
@@ -314,6 +351,7 @@ struct MachineSettingsForm: View {
 struct GuestToolsSection: View {
     let report: GuestReport?
     let disc: String?
+    var clipboardEnabled = true
 
     private static let howToInstall = "open the LINUXVM-TOOLS disc in Linux's file manager, run sh install.sh in a terminal there, then log out and back in."
 
@@ -357,6 +395,7 @@ struct GuestToolsSection: View {
     }
 
     private var clipboard: (text: String, symbol: String, color: Color) {
+        guard clipboardEnabled else { return ("Off for this VM", "lock", .secondary) }
         let gnome = report?.isGNOME ?? false
         let product = report?.desktopName == "KDE" ? "Plasma" : (report?.desktopName ?? "desktop")
         switch report?.clipboardState ?? .unknown {
@@ -378,6 +417,9 @@ struct GuestToolsSection: View {
             return "Version \(disc) is on the Guest Tools disc. To update, \(Self.howToInstall)"
         }
         let reported = "Reported \(report.receivedAt.formatted(.relative(presentation: .named)))."
+        guard clipboardEnabled else {
+            return "The clipboard isn't shared with this VM; Access to the Mac turns it on. \(reported)"
+        }
         let stillWork = "Audio, time zone and folder sharing still work."
         switch report.clipboardState {
         case .active, .unknown:

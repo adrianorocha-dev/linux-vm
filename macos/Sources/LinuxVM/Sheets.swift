@@ -13,6 +13,7 @@ struct NewMachineSheet: View {
     @State private var memoryMiB = 4096
     @State private var diskGiB = 64
     @State private var startAfterwards = true
+    @State private var hardened = false
     @State private var choosingInstaller = false
 
     var body: some View {
@@ -56,6 +57,11 @@ struct NewMachineSheet: View {
                     }
                 }
                 Section {
+                    Toggle("Hardened", isOn: $hardened)
+                } footer: {
+                    FormNote(HardenedNote.text)
+                }
+                Section {
                     Toggle("Start the installer now", isOn: $startAfterwards)
                 } footer: {
                     FormNote("The disk uses space on the Mac only as Linux writes to it.")
@@ -78,7 +84,8 @@ struct NewMachineSheet: View {
                 Button("Create") {
                     guard let installer else { return }
                     model.create(name: name.trimmingCharacters(in: .whitespacesAndNewlines), installMedia: installer.path,
-                                 cpuCount: cpuCount, memoryMiB: memoryMiB, diskGiB: diskGiB, startAfterwards: startAfterwards)
+                                 cpuCount: cpuCount, memoryMiB: memoryMiB, diskGiB: diskGiB,
+                                 isolation: hardened ? .hardened : IsolationSettings(), startAfterwards: startAfterwards)
                     dismiss()
                 }
                 .keyboardShortcut(.defaultAction)
@@ -86,7 +93,7 @@ struct NewMachineSheet: View {
             }
             .padding(16)
         }
-        .frame(width: 480, height: 510)
+        .frame(width: 480, height: 580)
         .navigationTitle("New Virtual Machine")
         .onAppear {
             cpuCount = model.host.defaultCPUs
@@ -104,6 +111,7 @@ struct ImportDiskSheet: View {
     @State private var variables: URL?
     @State private var cpuCount = 4
     @State private var memoryMiB = 4096
+    @State private var hardened = false
     @State private var choosing: Choice?
 
     enum Choice { case disk, variables }
@@ -132,7 +140,7 @@ struct ImportDiskSheet: View {
                         }
                     }
                 } footer: {
-                    FormNote("Raw and QCOW2 ARM64 disks work. The app keeps its own copy; on APFS the copy takes no space until either changes. Never import the disk of a VM that another app is running.")
+                    FormNote("Raw and QCOW2 ARM64 disks work, except QCOW2 disks that refer to other files. The app keeps its own copy; on APFS the copy takes no space until either changes. Never import the disk of a VM that another app is running.")
                 }
                 Section("Resources") {
                     Picker("CPUs", selection: $cpuCount) {
@@ -141,6 +149,11 @@ struct ImportDiskSheet: View {
                     Picker("Memory", selection: $memoryMiB) {
                         ForEach(model.memoryChoices, id: \.self) { Text(formatMemory($0)).tag($0) }
                     }
+                }
+                Section {
+                    Toggle("Hardened", isOn: $hardened)
+                } footer: {
+                    FormNote(HardenedNote.text)
                 }
             }
             .formStyle(.grouped)
@@ -165,7 +178,8 @@ struct ImportDiskSheet: View {
                 Button("Import") {
                     guard let disk else { return }
                     model.importDisk(name: name.trimmingCharacters(in: .whitespacesAndNewlines), disk: disk,
-                                     variables: variables, cpuCount: cpuCount, memoryMiB: memoryMiB)
+                                     variables: variables, cpuCount: cpuCount, memoryMiB: memoryMiB,
+                                     isolation: hardened ? .hardened : IsolationSettings())
                     dismiss()
                 }
                 .keyboardShortcut(.defaultAction)
@@ -173,12 +187,16 @@ struct ImportDiskSheet: View {
             }
             .padding(16)
         }
-        .frame(width: 480, height: 460)
+        .frame(width: 480, height: 530)
         .onAppear {
             cpuCount = model.host.defaultCPUs
             memoryMiB = model.host.defaultMemoryMiB
         }
     }
+}
+
+enum HardenedNote {
+    static let text = "Linux can't reach services running on this Mac, share its clipboard, use its microphone or change files in a shared folder. You can turn each of these back on in the VM's settings."
 }
 
 struct RuntimeCheckSheet: View {

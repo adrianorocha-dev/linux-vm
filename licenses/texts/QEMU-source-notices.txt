@@ -83610,6 +83610,15 @@ this code that are retained.
  * THE SOFTWARE.
  */
 
+==> tests/qtest/bcm2835-ic-test.c <==
+/*
+ * QTest testcase for the BCM2835 Interrupt Controller
+ *
+ * Copyright (c) 2026 Bin Guo <guobin@linux.alibaba.com>
+ *
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
+
 ==> tests/qtest/bios-tables-test.c <==
 /*
  * Boot order test cases.
@@ -88004,11 +88013,37 @@ this code that are retained.
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
+==> tests/tcg/aarch64/system/ttbr-baddr.c <==
+/*
+ * TTBR base address with a 52-bit layout and a small initial lookup table
+ *
+ * With a 52-bit OA, walk a two-entry level 0 table through an IPA with
+ * bit 50 set, which stage 2 maps back onto the table, so the walk
+ * succeeds only if TTBR[4] is cleared from bit 4 of the base address.
+ * With TCR.DS or VTCR.DS and a 48-bit OA, check that setting TTBR[5:2]
+ * is a level 0 Address size fault.
+ *
+ * Copyright (c) 2026 Google LLC
+ * Author: Fuad Tabba <fuad.tabba@linux.dev>
+ *
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
+
 ==> tests/tcg/aarch64/system/vtimer.c <==
 /*
  * Simple Virtual Timer Test
  *
  * Copyright (c) 2020 Linaro Ltd
+ *
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
+
+==> tests/tcg/aarch64/system/wfxt.c <==
+/*
+ * WFIT/WFET timeout test
+ *
+ * Copyright (c) 2026 Google LLC
+ * Author: Fuad Tabba <fuad.tabba@linux.dev>
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
@@ -88060,6 +88095,9 @@ this code that are retained.
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
+==> tests/tcg/arm/issue4448.c <==
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+
 ==> tests/tcg/arm/semicall.h <==
 /*
  * Semihosting Tests - ARM Helper
@@ -88101,6 +88139,10 @@ this code that are retained.
  * Failures can be debugged with -d in_asm,int,exec,cpu and the
  * gdbstub (-S -s).
  */
+
+==> tests/tcg/arm/test-arm-opt-ror.c <==
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+/* Regression test for tcg optimize vs sign bit repetitions after rotate. */
 
 ==> tests/tcg/hexagon/atomics.c <==
 /*
@@ -88916,6 +88958,10 @@ this code that are retained.
  *  You should have received a copy of the GNU General Public License
  *  along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
+
+==> tests/tcg/i386/test-i386-opt-rol.c <==
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+/* Regression test for tcg optimize vs sign bit repetitions after rotate. */
 
 ==> tests/tcg/i386/test-i386-opt-shr.c <==
 /* SPDX-License-Identifier: GPL-2.0-or-later */
@@ -96549,6 +96595,9 @@ this code that are retained.
 ==> tests/tcg/riscv64/test-minstret-ecall.S <==
 /* SPDX-License-Identifier: GPL-2.0-or-later */
 
+==> tests/tcg/riscv64/test-minstret-wfi.S <==
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+
 ==> tests/tcg/s390x/add-logical-with-carry.c <==
 /*
  * Test ADD LOGICAL WITH CARRY instructions.
@@ -96696,6 +96745,9 @@ this code that are retained.
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
+
+==> tests/tcg/s390x/issue4449.c <==
+/* SPDX-License-Identifier: GPL-2.0-or-later */
 
 ==> tests/tcg/s390x/laalg.c <==
 /*
@@ -96991,6 +97043,12 @@ this code that are retained.
  * Test some fused multiply add corner cases.
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
+ */
+
+==> tests/tcg/x86_64/fxsave.c <==
+/*
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ * See https://gitlab.com/qemu-project/qemu/-/issues/3522
  */
 
 ==> tests/tcg/x86_64/segment-prefixes.c <==
@@ -98434,6 +98492,15 @@ this code that are retained.
  * <http://www.gnu.org/licenses/>.
  *
  * Author: Daniel P. Berrange <berrange@redhat.com>
+ */
+
+==> tests/unit/test-io-channel-websock.c <==
+/*
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ *
+ * QEMU I/O channel websock test
+ *
+ * Copyright (c) 2026 Virtuozzo International GmbH
  */
 
 ==> tests/unit/test-io-task.c <==

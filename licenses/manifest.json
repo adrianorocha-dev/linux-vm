@@ -3,11 +3,11 @@
   "offer_contact": "https://github.com/adrianorocha-dev/linux-vm/issues",
   "inputs": {
     "qemu": {
-      "archive": "qemu-c3d48b7d1e89604920e5b81b91140c2ad39a1943.tar.gz",
+      "archive": "qemu-005c61c0ef6f6ae615283440b4bb7be51b2c6ddd.tar.gz",
       "url": "https://github.com/qemu/qemu.git",
       "pin": "qemu",
       "pin_file": "build-qemu-gpu-runtime.sh",
-      "commit": "c3d48b7d1e89604920e5b81b91140c2ad39a1943",
+      "commit": "005c61c0ef6f6ae615283440b4bb7be51b2c6ddd",
       "format": "git archive from fsck-verified commit; archive compression is not an identity pin",
       "scope": "distributed code or build headers/patches for distributed code",
       "component": "qemu"
@@ -424,19 +424,19 @@
   "license_texts": {
     "QEMU-LICENSE.txt": {
       "input": "qemu",
-      "member": "qemu-c3d48b7d1e89604920e5b81b91140c2ad39a1943/LICENSE",
+      "member": "qemu-005c61c0ef6f6ae615283440b4bb7be51b2c6ddd/LICENSE",
       "mode": "full",
       "sha256": "139c64b7a9ae62858ff969aae622ecfcf4f1519655bd92d2e70a1a2fb615690e"
     },
     "GPL-2.0.txt": {
       "input": "qemu",
-      "member": "qemu-c3d48b7d1e89604920e5b81b91140c2ad39a1943/COPYING",
+      "member": "qemu-005c61c0ef6f6ae615283440b4bb7be51b2c6ddd/COPYING",
       "mode": "full",
       "sha256": "dd3ce02338c3a48abb6ba59b48809f7108a8bd242cb0cc8be90daafa30707c28"
     },
     "LGPL-2.1.txt": {
       "input": "qemu",
-      "member": "qemu-c3d48b7d1e89604920e5b81b91140c2ad39a1943/COPYING.LIB",
+      "member": "qemu-005c61c0ef6f6ae615283440b4bb7be51b2c6ddd/COPYING.LIB",
       "mode": "full",
       "sha256": "31c90ce76b6f5aab90a205851e71d5c27e31c0aa3d7017a4383b98a6fe3f1faa"
     },
@@ -444,7 +444,7 @@
       "input": "qemu",
       "mode": "source-notices",
       "subdir": "",
-      "sha256": "c946718635e852a99490eaae8e4aa35c756eaf087bcb2edbab01d01f17db0cc5"
+      "sha256": "89b73d06ee352e306630d54e13ca3f2a9600bc2a00d4823c54129ce4ce61d75d"
     },
     "virglrenderer-source-notices.txt": {
       "input": "virgl",
@@ -610,7 +610,7 @@
     },
     "edk2-licenses.txt": {
       "input": "qemu",
-      "member": "qemu-c3d48b7d1e89604920e5b81b91140c2ad39a1943/pc-bios/edk2-licenses.txt",
+      "member": "qemu-005c61c0ef6f6ae615283440b4bb7be51b2c6ddd/pc-bios/edk2-licenses.txt",
       "mode": "full",
       "sha256": "1ddeaed2e7d2e9ecb960bdfc1b8ee45387aff70d056d985d145949af3951657c"
     },
@@ -1017,13 +1017,13 @@
       ],
       "source": {
         "path": "runtime/try-omarchy-v1.3.0.diff",
-        "sha256": "76b4e4684f5a50776ef1ad4d903f3f611ab4d0fe313040a8f048aae531e769cb"
+        "sha256": "1e42593bd9e69638a4ee5de40334b381110b6f5bb3adbbf4cdf1a29a340f5633"
       }
     },
     {
       "id": "qemu",
       "name": "QEMU",
-      "version": "11.1.1",
+      "version": "11.1.3",
       "license": "GPL-2.0-only",
       "bundle_files": [
         "Contents/Resources/runtime/bin/qemu-system-aarch64"
@@ -1039,8 +1039,8 @@
       ],
       "version_evidence": {
         "input": "qemu",
-        "member": "qemu-c3d48b7d1e89604920e5b81b91140c2ad39a1943/VERSION",
-        "contains": "11.1.1"
+        "member": "qemu-005c61c0ef6f6ae615283440b4bb7be51b2c6ddd/VERSION",
+        "contains": "11.1.3"
       },
       "notes": "QEMU as a whole is GPLv2. Individual files have compatible licenses and exceptions preserved in QEMU-source-notices.txt. TCG is disabled. Includes static libfdt and generated keycodemapdb tables."
     },
@@ -1627,7 +1627,7 @@
       ],
       "version_evidence": {
         "input": "qemu",
-        "member": "qemu-c3d48b7d1e89604920e5b81b91140c2ad39a1943/roms/edk2-version",
+        "member": "qemu-005c61c0ef6f6ae615283440b4bb7be51b2c6ddd/roms/edk2-version",
         "contains": "edk2-stable202408"
       },
       "notes": "Aggregate firmware license expression; the complete upstream composite notice is authoritative and includes historical notices. Composite notice includes Berkeley SoftFloat Release 3e and OpenSSL; the embedded OpenSSL version is not recorded."

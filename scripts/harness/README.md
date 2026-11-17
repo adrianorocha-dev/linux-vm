@@ -1,7 +1,7 @@
 # VM harness
 
 Host requirements: macOS/Apple Silicon, `/opt/homebrew/bin/python3.14`, OpenSSH,
-`/opt/homebrew/bin/openssl`, and the installed Linux VM app. Host Python uses only
+Homebrew OpenSSL (`/opt/homebrew/bin/openssl`, or a keg-only `openssl@N`), and the installed Linux VM app. Host Python uses only
 the standard library. These tools never rebuild or replace the app.
 
 ## Fresh install

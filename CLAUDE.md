@@ -23,6 +23,8 @@ Read `README.md` for what the app does and `docs/development.md` for the layout,
   - A made-up VM looks running while another process holds its `lock` file with `flock` and its `run.json` has `"phase": "running"`.
   - For quick tries, run `macos/.build/debug/LinuxVM` with `LINUXVM_CONTENTS` set to the built app's `Contents`.
 - **Mac sleep without sleeping:** start the supervisor with `LINUXVM_DEBUG_SLEEP_SIGNALS=1`; then SIGUSR1 simulates the Mac going to sleep and SIGUSR2 its wake.
+- **QEMU's sandbox:** the supervisor runs QEMU under `sandbox-exec`. To rule it out while investigating, set `LINUXVM_DEBUG_NO_QEMU_SANDBOX=1` on `linuxvmctl start`. Denials appear in `log show --last 10m --predicate 'sender == "Sandbox"'`.
+- **Test VMs reach the host's loopback:** the harness serves Ubuntu's seed on loopback through `10.0.2.2`, so its VMs keep "Linux can reach services on this Mac" on. A hardened VM can't reach it.
 - **Other QEMU accelerator options:** `LINUXVM_DEBUG_QEMU_ACCEL=hvf,kernel-irqchip=off` on `linuxvmctl start` replaces `-accel hvf`, for example to compare QEMU's own interrupt controller with the macOS one.
 - **Presentation timing:** measure with the VM window in front and the Mac awake. Another app in front can change the result, and with the display off it is always bad. Turn off the guest's screen blanking first (`gsettings set org.gnome.desktop.session idle-delay 0`), or runs after five idle minutes record nothing.
 - **Typing into a VM:** use `scripts/qmp-type.py`.

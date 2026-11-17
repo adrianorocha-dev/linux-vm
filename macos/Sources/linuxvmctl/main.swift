@@ -6,13 +6,15 @@ Usage: linuxvmctl <command> [arguments]
 
   list                                   VMs and their state
   check                                  runtime capability report
-  create --name N [--iso PATH] [--cpus N] [--memory MIB] [--disk GIB]
-  import --name N --disk PATH [--efi-vars PATH] [--cpus N] [--memory MIB]
+  create --name N [--iso PATH] [--cpus N] [--memory MIB] [--disk GIB] [--hardened]
+  import --name N --disk PATH [--efi-vars PATH] [--cpus N] [--memory MIB] [--hardened]
   show VM                                configuration as JSON
   set VM [--name N] [--cpus N] [--memory MIB] [--iso PATH|none]
          [--shared-folder PATH|none] [--scroll-scale X] [--mac-cursor on|off]
          [--immersive on|off] [--cover-notch on|off] [--forward HOST:GUEST|none]
          [--grow-disk GIB] [--pause-during-sleep on|off]
+         [--mac-services on|off] [--clipboard on|off] [--microphone on|off]
+         [--shared-folder-writable on|off] [--hardened]
   start VM                               start in the background
   run VM                                 supervise in the foreground
   stop VM [--force]                      shut down (or stop QEMU at once)
@@ -22,6 +24,8 @@ Usage: linuxvmctl <command> [arguments]
   delete VM                              move a stopped VM to the Trash
 
 VM is a name, an identifier, or a unique identifier prefix.
+--hardened closes what Linux may reach on the Mac: services on its loopback,
+the clipboard, the microphone, and writing to the shared folder.
 """
 
 struct UsageError: Error {}
@@ -31,14 +35,25 @@ func fail(_ message: String) -> Never {
     exit(1)
 }
 
-func options(_ arguments: ArraySlice<String>, allowed: Set<String>) throws -> [String: String] {
+/// Options with values, and `flags` that stand alone (their value is "on").
+func options(_ arguments: ArraySlice<String>, allowed: Set<String>, flags: Set<String> = []) throws -> [String: String] {
     var result: [String: String] = [:]
     var iterator = arguments.makeIterator()
     while let key = iterator.next() {
+        if flags.contains(key) {
+            result[key] = "on"
+            continue
+        }
         guard key.hasPrefix("--"), allowed.contains(key), let value = iterator.next() else { throw UsageError() }
         result[key] = value
     }
     return result
+}
+
+func warnAboutSharedFolder(_ path: String?) {
+    if let path, let warning = VMConfiguration.sharedFolderWarning(path) {
+        FileHandle.standardError.write(Data("linuxvmctl: warning: \(warning)\n".utf8))
+    }
 }
 
 func integer(_ value: String?, _ name: String) throws -> Int? {
@@ -86,24 +101,26 @@ do {
         }
         exit(passed ? 0 : 1)
     case "create":
-        let values = try options(rest, allowed: ["--name", "--iso", "--cpus", "--memory", "--disk"])
+        let values = try options(rest, allowed: ["--name", "--iso", "--cpus", "--memory", "--disk"], flags: ["--hardened"])
         guard let name = values["--name"] else { throw UsageError() }
         let machine = try library.create(
             name: name,
             installMedia: values["--iso"].map(absolutePath),
             cpuCount: try integer(values["--cpus"], "CPUs") ?? host.defaultCPUs,
             memoryMiB: try integer(values["--memory"], "Memory") ?? host.defaultMemoryMiB,
-            diskGiB: try integer(values["--disk"], "Disk size") ?? 64)
+            diskGiB: try integer(values["--disk"], "Disk size") ?? 64,
+            isolation: values["--hardened"] == nil ? IsolationSettings() : .hardened)
         print(machine.id)
     case "import":
-        let values = try options(rest, allowed: ["--name", "--disk", "--efi-vars", "--cpus", "--memory"])
+        let values = try options(rest, allowed: ["--name", "--disk", "--efi-vars", "--cpus", "--memory"], flags: ["--hardened"])
         guard let name = values["--name"], let disk = values["--disk"] else { throw UsageError() }
         let machine = try library.importDisk(
             name: name,
             disk: URL(fileURLWithPath: absolutePath(disk)),
             variables: values["--efi-vars"].map { URL(fileURLWithPath: absolutePath($0)) },
             cpuCount: try integer(values["--cpus"], "CPUs") ?? host.defaultCPUs,
-            memoryMiB: try integer(values["--memory"], "Memory") ?? host.defaultMemoryMiB)
+            memoryMiB: try integer(values["--memory"], "Memory") ?? host.defaultMemoryMiB,
+            isolation: values["--hardened"] == nil ? IsolationSettings() : .hardened)
         print(machine.id)
     case "show":
         guard rest.count == 1 else { throw UsageError() }
@@ -118,7 +135,8 @@ do {
         let values = try options(rest.dropFirst(), allowed: [
             "--name", "--cpus", "--memory", "--iso", "--shared-folder", "--scroll-scale",
             "--mac-cursor", "--immersive", "--cover-notch", "--forward", "--grow-disk", "--pause-during-sleep",
-        ])
+            "--mac-services", "--clipboard", "--microphone", "--shared-folder-writable",
+        ], flags: ["--hardened"])
         let running = library.status(id: machine.id).state != .stopped
         let liveKeys: Set<String> = ["--scroll-scale", "--name", "--pause-during-sleep"]
         if running, !Set(values.keys).isSubset(of: liveKeys) {
@@ -129,7 +147,15 @@ do {
         if let cpus = try integer(values["--cpus"], "CPUs") { machine.cpuCount = cpus }
         if let memory = try integer(values["--memory"], "Memory") { machine.memoryMiB = memory }
         if let iso = values["--iso"] { machine.installMedia = iso == "none" ? nil : absolutePath(iso) }
-        if let folder = values["--shared-folder"] { machine.sharedFolder = folder == "none" ? nil : absolutePath(folder) }
+        if let folder = values["--shared-folder"] {
+            machine.sharedFolder = folder == "none" ? nil : absolutePath(folder)
+            warnAboutSharedFolder(machine.sharedFolder)
+        }
+        if values["--hardened"] != nil { machine.isolation = .hardened }
+        if let value = try boolean(values["--mac-services"]) { machine.isolation.macServices = value }
+        if let value = try boolean(values["--clipboard"]) { machine.isolation.clipboard = value }
+        if let value = try boolean(values["--microphone"]) { machine.isolation.microphone = value }
+        if let value = try boolean(values["--shared-folder-writable"]) { machine.isolation.sharedFolderWritable = value }
         if let scale = values["--scroll-scale"] {
             guard let number = Double(scale) else { throw ConfigurationError.invalid("The scroll scale must be a number.") }
             machine.scrollScale = number
@@ -174,12 +200,18 @@ do {
         let machine = try library.find(rest.first!)
         let status = library.status(id: machine.id)
         print(status.state.rawValue)
+        let isolation = machine.isolation
+        func allowed(_ on: Bool) -> String { on ? "allowed" : "blocked" }
+        print("Mac services \(allowed(isolation.macServices)), clipboard \(allowed(isolation.clipboard)), "
+            + "microphone \(allowed(isolation.microphone)), shared folder \(isolation.sharedFolderWritable ? "read-write" : "read-only")"
+            + (isolation.isHardened ? " (hardened)" : ""))
         if let run = status.run {
             print("since \(run.startedAt), supervisor \(run.supervisorPID), QEMU \(run.qemuPID.map(String.init) ?? "-")")
         }
         if let report = library.guestReport(id: machine.id) {
             let desktop = report.desktopLabel.map { ", \($0)" } ?? ""
-            print("guest tools \(report.package)\(desktop), clipboard \(report.clipboardState.rawValue), received \(report.receivedAt)")
+            let clipboard = machine.isolation.clipboard ? report.clipboardState.rawValue : "off for this VM"
+            print("guest tools \(report.package)\(desktop), clipboard \(clipboard), received \(report.receivedAt)")
             if let bundled = runtime.guestToolsVersion,
                GuestToolsVersion.compare(report.package, bundled) == .orderedAscending {
                 print("Guest tools are older than the bundled disc (\(bundled)).")

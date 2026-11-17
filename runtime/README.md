@@ -4,10 +4,13 @@ The app bundles Try Omarchy's patched QEMU runtime with our changes on top. `try
 
 - **`macos/patches/qemu-cocoa-touch-scroll-scale.patch`:** scales the touch-scroll contacts' travel. The scale is read from `TRYOMARCHY_TOUCH_SCROLL_SCALE_FILE` at every landing, so it can be tuned while a VM runs.
 - **`macos/patches/qemu-cocoa-touch-scroll-direction.patch`:** the touch-scroll contacts follow the fingers. AppKit's deltas already include the Mac's natural scrolling (`isDirectionInvertedFromDevice`), and Try Omarchy's contacts moved in that direction for a guest with natural scrolling off. GNOME applies its own natural scrolling, so its touchpad setting worked backwards. The patch undoes the Mac's inversion, and the guest's setting picks the direction. The wheel path keeps the Mac's direction.
+- **`macos/patches/qemu-slirp-host-loopback.patch`:** adds `host-loopback=on|off` to `-netdev user`. With `off`, libslirp's `disable_host_loopback` stops the guest from reaching the Mac's loopback interface through `10.0.2.2`. The app uses it for VMs that may not reach services on the Mac.
 - **`macos/Sources/OmarchyVMHelper/main.swift`:** the clipboard and audio bridges' startup log lines say "the VM" instead of "Omarchy".
+- **`macos/Sources/OmarchyVMHelper/NativeClipboardBridge.swift`:** the clipboard bridge doesn't send Mac copies marked private (`org.nspasteboard.ConcealedType` or `TransientType`), as password managers mark passwords.
 - **`macos/patches/virgl-core-instance-id.patch`:** virglrenderer no longer writes `#extension GL_ARB_draw_instanced : require` into shaders for GLSL 1.40 and later, where `gl_InstanceID` is built in. macOS's GLSL 4.10 compiler rejected the directive, so any guest shader reading `gl_InstanceID` failed on the Mac and its draws were lost.
 - **`macos/build-qemu-gpu-runtime.sh`:**
-  - applies those three patches;
+  - applies those four patches;
+  - builds QEMU 11.1.3 (`005c61c0ef6f6ae615283440b4bb7be51b2c6ddd`) instead of 11.1.1, for the fixes to CVE-2026-93834 (9p shared folders) and CVE-2026-17588 (xHCI);
   - fetches QEMU and keycodemapdb from their GitHub mirrors at pinned commits. It verifies the Git objects and creates fresh archives from them. Other downloads keep their SHA-256 pins.
 
 ## Building

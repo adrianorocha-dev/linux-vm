@@ -24,6 +24,12 @@ from terminal import screen, editor_linux_line
 from common import CTL, ROOT, VM_ROOT, PROTECTED, Guest, SESSION_CHECK, ENVIRONMENT_REPORT, free_port, run, wait_for, write_json
 
 
+def homebrew_openssl():
+    """Homebrew's OpenSSL, linked or keg-only (macOS's LibreSSL lacks passwd -6)."""
+    candidates = [Path('/opt/homebrew/bin/openssl'), *sorted(Path('/opt/homebrew/opt').glob('openssl@*/bin/openssl'), reverse=True)]
+    return next((str(path) for path in candidates if path.exists()), str(candidates[0]))
+
+
 PLASMA_INSTALL = r'''set -eu
 sudo apt-get update -q
 echo "debconf shared/default-x-display-manager select gdm3" | sudo debconf-set-selections
@@ -206,7 +212,7 @@ def main():
     try:
         with phase('seed'):
             run(['ssh-keygen', '-q', '-t', 'ed25519', '-N', '', '-C', '', '-f', directory / 'id_ed25519'])
-            password_hash = run(['/opt/homebrew/bin/openssl', 'passwd', '-6', '-stdin'], input=secrets.token_urlsafe(32) + '\n').stdout.strip()
+            password_hash = run([homebrew_openssl(), 'passwd', '-6', '-stdin'], input=secrets.token_urlsafe(32) + '\n').stdout.strip()
             if profile == 'fedora':
                 (directory / 'ks.cfg').write_text(fedora.kickstart((directory / 'id_ed25519.pub').read_text(), password_hash))
             else:

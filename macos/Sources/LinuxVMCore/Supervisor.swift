@@ -30,6 +30,7 @@ public final class Supervisor: @unchecked Sendable {
     public func run() throws -> Int32 {
         var configuration = try library.load(id: id)
         try configuration.validate()
+        try DiskImageCheck.validate(library.diskURL(for: configuration), format: configuration.diskFormat)
         for (name, url) in [("QEMU", runtime.qemu), ("firmware", runtime.firmware), ("bridge helper", runtime.helper)]
         where !FileManager.default.fileExists(atPath: url.path) {
             throw LibraryError.failed("The \(name) is missing: \(url.path)")
@@ -81,8 +82,20 @@ public final class Supervisor: @unchecked Sendable {
 
         let launch = QEMULaunch.make(configuration: configuration, library: library, runtime: runtime, paths: paths, host: host)
         let qemu = Process()
-        qemu.executableURL = runtime.qemu
-        qemu.arguments = launch.arguments
+        if ProcessInfo.processInfo.environment["LINUXVM_DEBUG_NO_QEMU_SANDBOX"] == "1" {
+            say("Development aid: QEMU runs without its sandbox")
+            qemu.executableURL = runtime.qemu
+            qemu.arguments = launch.arguments
+        } else {
+            guard FileManager.default.isExecutableFile(atPath: QEMUSandbox.tool.path) else {
+                throw LibraryError.failed("macOS has no \(QEMUSandbox.tool.path), so Linux VM cannot confine QEMU.")
+            }
+            let sandbox = QEMUSandbox(paths: QEMUSandbox.paths(configuration: configuration, library: library,
+                                                              runtime: runtime, runDirectory: runDirectory))
+            let command = sandbox.command(qemu: runtime.qemu, arguments: launch.arguments)
+            qemu.executableURL = command.executable
+            qemu.arguments = command.arguments
+        }
         qemu.environment = launch.environment
         qemu.standardInput = FileHandle.nullDevice
         let qemuLog = try Self.appendHandle(logs.appending(path: "qemu.log"))
@@ -152,7 +165,8 @@ public final class Supervisor: @unchecked Sendable {
                 say("Cannot start the \(bridge.rawValue) bridge: \(error.localizedDescription)")
             }
         }
-        QEMULaunch.Bridge.allCases.forEach(startBridge)
+        let enabledBridges = QEMULaunch.Bridge.enabled(for: configuration)
+        enabledBridges.forEach(startBridge)
 
         var shutdownRequestedAt: TimeInterval?
         while qemu.isRunning {
@@ -183,7 +197,7 @@ public final class Supervisor: @unchecked Sendable {
                 qemu.terminate()
                 shutdownRequestedAt = .infinity
             }
-            for bridge in QEMULaunch.Bridge.allCases {
+            for bridge in enabledBridges {
                 if let process = bridges[bridge], !process.isRunning {
                     bridges[bridge] = nil
                     bridgeRetryAfter[bridge] = ProcessInfo.processInfo.systemUptime + 0.5

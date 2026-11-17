@@ -63,7 +63,7 @@ These are fully supported. Everything on this page has been tested with them, an
 ## Getting started
 
 1. **Install the app.** Download `LinuxVM-<version>.dmg` from [Releases](https://github.com/adrianorocha-dev/linux-vm/releases/latest), open it, and drag Linux VM to Applications. The app is signed and notarized by Apple, so it opens like any other app. On its second launch, it asks whether to check for updates automatically.
-2. **Create a VM.** Choose File → New Virtual Machine…, then pick the installer image, the number of CPUs, the memory and the disk size. Leave "Start the installer now" on and click Create.
+2. **Create a VM.** Choose File → New Virtual Machine…, then pick the installer image, the number of CPUs, the memory and the disk size. Turn on Hardened if you'll run software you don't trust in it ([Security](#security)). Leave "Start the installer now" on and click Create.
 3. **Install Linux.** Linux opens in its own window. Install it as you would on a PC.
 4. **Eject the installer.** When the installer restarts the VM, click Eject under Installer Disc on the VM's page in the app, so the VM starts from its own disk. Ubuntu asks for this: when it says to remove the installation medium, click Eject, then press Return in the VM.
 5. **Install the guest tools.** Open the `LINUXVM-TOOLS` disc in Linux's file manager: Files in GNOME, or Dolphin in KDE Plasma, where you click the disc to open it. Open a terminal in that folder and run `sh install.sh`. It asks for your password. Then log out and back in.
@@ -71,7 +71,7 @@ These are fully supported. Everything on this page has been tested with them, an
 
 ### Already have a Linux VM?
 
-File → Import Disk… brings in an existing ARM64 Linux disk, in raw or QCOW2 format, such as one made with another VM app. You can also add its UEFI variables file. The app works on its own copy. On APFS, that copy takes no extra space until one of them changes. Don't import a disk while another app is running it.
+File → Import Disk… brings in an existing ARM64 Linux disk, in raw or QCOW2 format, such as one made with another VM app. You can also add its UEFI variables file. The app works on its own copy. It refuses a QCOW2 disk that refers to other files, such as a backing file, because Linux could then read or change them. On APFS, that copy takes no extra space until one of them changes. Don't import a disk while another app is running it.
 
 ## Using it
 
@@ -79,12 +79,13 @@ Each VM's page in the app shows its settings:
 
 - **Resources:** CPUs and memory. You can also enlarge the disk; afterwards, grow the partition inside Linux (in Ubuntu, with the Disks app).
 - **Installer Disc:** insert or eject an installer image, even while the VM runs.
-- **Sharing:** a Mac folder to share with Linux. With the guest tools, it appears at `/mnt/mac`, with a link in your home folder.
+- **Sharing:** a Mac folder to share with Linux. With the guest tools, it appears at `/mnt/mac`, with a link in your home folder. The app asks before sharing your home folder or another folder that holds settings.
+- **Access to the Mac:** what Linux may use on the Mac: services running on the Mac, the clipboard, the microphone, and changing files in the shared folder. Harden turns them all off.
 - **Display and Trackpad:** scroll speed, whether full screen hides the menu bar and Dock, whether it uses the area beside the camera, and whether to show the Mac pointer.
 - **Sleep:** whether the VM pauses while your Mac sleeps.
 - **Network:** port forwards from your Mac to Linux.
 
-Shut down the VM to change its resources, sharing or network. The Logs tab shows what the VM and its helpers have reported.
+Shut down the VM to change its resources, sharing, access to the Mac or network. The Logs tab shows what the VM and its helpers have reported.
 
 **Quick actions.** Right-click a VM in the list to start or shut it down, rename it, show it in Finder, or delete it.
 
@@ -103,13 +104,15 @@ The app includes `linuxvmctl`, at `/Applications/Linux VM.app/Contents/Helpers/l
 ```
 linuxvmctl list                       VMs and their state
 linuxvmctl check                      runtime capability report
-linuxvmctl create --name N [--iso PATH] [--cpus N] [--memory MIB] [--disk GIB]
-linuxvmctl import --name N --disk PATH [--efi-vars PATH] [--cpus N] [--memory MIB]
+linuxvmctl create --name N [--iso PATH] [--cpus N] [--memory MIB] [--disk GIB] [--hardened]
+linuxvmctl import --name N --disk PATH [--efi-vars PATH] [--cpus N] [--memory MIB] [--hardened]
 linuxvmctl show VM                    configuration as JSON
 linuxvmctl set VM [--name N] [--cpus N] [--memory MIB] [--iso PATH|none]
                   [--shared-folder PATH|none] [--scroll-scale X] [--mac-cursor on|off]
                   [--immersive on|off] [--cover-notch on|off] [--forward HOST:GUEST|none]
                   [--grow-disk GIB] [--pause-during-sleep on|off]
+                  [--mac-services on|off] [--clipboard on|off] [--microphone on|off]
+                  [--shared-folder-writable on|off] [--hardened]
 linuxvmctl start VM                   start in the background
 linuxvmctl stop VM [--force]          shut down (or stop at once)
 linuxvmctl status VM                  state, and the guest tools version
@@ -119,6 +122,26 @@ linuxvmctl delete VM                  move a stopped VM to the Trash
 ```
 
 `VM` is a name, an identifier, or a unique prefix of an identifier.
+
+## Security
+
+A VM keeps Linux apart from the Mac, so that software you run in Linux, even malware, can't reach your files on the Mac. These protections are always on:
+
+- **QEMU runs in a macOS sandbox.** Even if a program in Linux broke out of QEMU, it could change only the VM's own files, and read only those and the files the VM uses. It couldn't read the rest of your home folder, change anything outside the VM or start programs.
+- **A current QEMU.** The runtime is QEMU 11.1.3, with the fixes for CVE-2026-93834 (shared folders) and CVE-2026-17588 (USB).
+- **Imported disks can't name other files.** See [Already have a Linux VM?](#already-have-a-linux-vm).
+- **Private copies stay on the Mac.** The shared clipboard leaves out what password managers mark as private.
+
+Some ways Linux and the Mac work together also give Linux access to the Mac. Each VM's Access to the Mac settings turn them off one by one. A VM made with Hardened starts with all of them off:
+
+| Setting | When on | When off |
+| --- | --- | --- |
+| Linux can reach services on this Mac | Linux reaches apps that listen only on the Mac, such as a development server or a database, at `10.0.2.2`. | Linux can't. Port forwards from the Mac to Linux still work. |
+| Share the clipboard | Copies go both ways. | Nothing crosses. |
+| Linux can use the microphone | Linux can record from the Mac's microphone while the VM runs. | Linux has speakers but no microphone. |
+| Linux can change files in the shared folder | The shared folder is read-write. | It is read-only. |
+
+Linux always reaches the internet and your local network through the Mac, as any computer on your network would. Share a folder made for Linux rather than your home folder.
 
 ## Limitations
 

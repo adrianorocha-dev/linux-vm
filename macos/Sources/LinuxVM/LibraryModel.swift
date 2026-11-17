@@ -106,13 +106,14 @@ final class LibraryModel {
         perform(id) { library, _ in try library.growDisk(of: configuration, toGiB: gib) }
     }
 
-    func create(name: String, installMedia: String, cpuCount: Int, memoryMiB: Int, diskGiB: Int, startAfterwards: Bool) {
+    func create(name: String, installMedia: String, cpuCount: Int, memoryMiB: Int, diskGiB: Int,
+                isolation: IsolationSettings, startAfterwards: Bool) {
         let library = library
         Task {
             do {
                 let configuration = try await Task.detached {
                     try library.create(name: name, installMedia: installMedia, cpuCount: cpuCount,
-                                       memoryMiB: memoryMiB, diskGiB: diskGiB)
+                                       memoryMiB: memoryMiB, diskGiB: diskGiB, isolation: isolation)
                 }.value
                 reload()
                 selection = configuration.id
@@ -123,12 +124,13 @@ final class LibraryModel {
         }
     }
 
-    func importDisk(name: String, disk: URL, variables: URL?, cpuCount: Int, memoryMiB: Int) {
+    func importDisk(name: String, disk: URL, variables: URL?, cpuCount: Int, memoryMiB: Int, isolation: IsolationSettings) {
         let library = library
         Task {
             do {
                 let configuration = try await Task.detached {
-                    try library.importDisk(name: name, disk: disk, variables: variables, cpuCount: cpuCount, memoryMiB: memoryMiB)
+                    try library.importDisk(name: name, disk: disk, variables: variables, cpuCount: cpuCount,
+                                           memoryMiB: memoryMiB, isolation: isolation)
                 }.value
                 reload()
                 selection = configuration.id

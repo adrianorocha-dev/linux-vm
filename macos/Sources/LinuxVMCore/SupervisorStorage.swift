@@ -76,9 +76,14 @@ final class SupervisorStorage: @unchecked Sendable {
     @discardableResult
     private func refreshDisc(removedVolume: StorageVolume? = nil) -> Bool {
         do {
-            let blocks = try monitor.withClient(timeout: 0.5) { try $0.execute("query-block") as? [[String: Any]] ?? [] }
+            let file = try monitor.withClient(timeout: 0.5) { client -> String? in
+                let blocks = try client.execute("query-block") as? [[String: Any]] ?? []
+                guard let file = StoragePolicy.installerFile(in: blocks) else { return nil }
+                guard file.hasPrefix("/dev/fdset/") else { return file }
+                let fdsets = try client.execute("query-fdsets") as? [[String: Any]] ?? []
+                return StoragePolicy.installerPath(file, fdsets: fdsets)
+            }
             discQueryFailing = false
-            let file = StoragePolicy.installerFile(in: blocks)
             if file == policy.discFile { return true }
             let path = file.map(canonicalStoragePath)
             let resolved = file.flatMap { file in

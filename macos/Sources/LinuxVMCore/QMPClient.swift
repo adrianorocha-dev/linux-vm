@@ -59,14 +59,19 @@ public final class QMPClient {
         close(descriptor)
     }
 
+    /// Runs a command. `passing` sends an open file with it, for `add-fd`
+    /// and `getfd`.
     @discardableResult
-    public func execute(_ command: String, arguments: [String: Any]? = nil) throws -> Any {
+    public func execute(_ command: String, arguments: [String: Any]? = nil, passing file: Int32? = nil) throws -> Any {
         var request: [String: Any] = ["execute": command]
         if let arguments { request["arguments"] = arguments }
         var data = try JSONSerialization.data(withJSONObject: request)
         data.append(0x0A)
         try data.withUnsafeBytes { raw in
             var offset = 0
+            if let file {
+                offset = try send(raw, file: file)
+            }
             while offset < raw.count {
                 let written = write(descriptor, raw.baseAddress! + offset, raw.count - offset)
                 guard written > 0 else { throw Failure(message: "QMP write failed") }
@@ -80,6 +85,31 @@ public final class QMPClient {
                 throw Failure(message: "\(command): \(error["desc"] as? String ?? "QEMU error")")
             }
         }
+    }
+
+    /// CMSG_LEN and CMSG_SPACE for one descriptor; Darwin aligns control data to 4 bytes.
+    private static let controlLength = MemoryLayout<cmsghdr>.size + MemoryLayout<Int32>.size
+    private static let controlSpace = (controlLength + 3) & ~3
+
+    /// Sends the start of a request with `file` attached (SCM_RIGHTS).
+    private func send(_ bytes: UnsafeRawBufferPointer, file: Int32) throws -> Int {
+        var control = [UInt8](repeating: 0, count: Self.controlSpace)
+        var iov = iovec(iov_base: UnsafeMutableRawPointer(mutating: bytes.baseAddress), iov_len: bytes.count)
+        let written = control.withUnsafeMutableBytes { controlBytes -> Int in
+            let header = controlBytes.baseAddress!.assumingMemoryBound(to: cmsghdr.self)
+            header.pointee.cmsg_len = socklen_t(Self.controlLength)
+            header.pointee.cmsg_level = SOL_SOCKET
+            header.pointee.cmsg_type = SCM_RIGHTS
+            controlBytes.storeBytes(of: file, toByteOffset: MemoryLayout<cmsghdr>.size, as: Int32.self)
+            return withUnsafeMutablePointer(to: &iov) { iovPointer in
+                var message = msghdr(msg_name: nil, msg_namelen: 0, msg_iov: iovPointer, msg_iovlen: 1,
+                                     msg_control: controlBytes.baseAddress,
+                                     msg_controllen: socklen_t(Self.controlSpace), msg_flags: 0)
+                return sendmsg(descriptor, &message, 0)
+            }
+        }
+        guard written > 0 else { throw Failure(message: "QMP write failed: \(String(cString: strerror(errno)))") }
+        return written
     }
 
     private func readMessage() throws -> [String: Any] {

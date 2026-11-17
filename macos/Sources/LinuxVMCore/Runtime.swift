@@ -40,7 +40,7 @@ public struct Runtime: Sendable {
         "virtio-gpu-gl-pci", "virtio-pinch-pci", "virtio-tablet-pci", "virtio-keyboard-pci",
         "virtio-blk-pci", "virtio-net-pci", "virtio-serial-pci", "virtserialport", "virtio-9p-pci",
         "virtio-balloon-pci", "virtio-rng-pci", "qemu-xhci", "usb-kbd", "usb-bot", "scsi-cd",
-        "intel-hda", "hda-micro",
+        "intel-hda", "hda-micro", "hda-output",
     ]
 
     /// Verifies capabilities rather than inferring them from a version.
@@ -60,7 +60,7 @@ public struct Runtime: Sendable {
         guard fileManager.isExecutableFile(atPath: qemu.path) else { return checks }
         let version = (try? ProcessRunner.output(qemu, ["--version"]))?
             .split(separator: "\n").first.map(String.init) ?? "unavailable"
-        checks.append(Check(name: "QEMU version", passed: version.contains("11.1"), detail: version))
+        checks.append(Check(name: "QEMU version", passed: Self.hasSecurityFixes(version: version), detail: version))
 
         let devices = (try? ProcessRunner.output(qemu, ["-machine", "virt", "-device", "help"])) ?? ""
         let missing = Self.requiredDevices.filter { !devices.contains("name \"\($0)\"") }
@@ -72,6 +72,11 @@ public struct Runtime: Sendable {
         let help = (try? ProcessRunner.output(qemu, ["-help"])) ?? ""
         let cocoa = help.contains("-display cocoa") && help.contains("immersive=on|off")
         checks.append(Check(name: "Cocoa display with immersive mode", passed: cocoa, detail: cocoa ? "Available" : "Not built in"))
+        let loopback = help.contains("host-loopback=on|off")
+        checks.append(Check(name: "Network isolation from Mac services", passed: loopback,
+                            detail: loopback ? "Patched" : "Missing the host-loopback patch"))
+        let sandbox = fileManager.isExecutableFile(atPath: QEMUSandbox.tool.path)
+        checks.append(Check(name: "QEMU sandbox", passed: sandbox, detail: QEMUSandbox.tool.path))
 
         let binary = (try? Data(contentsOf: qemu, options: .alwaysMapped)) ?? Data()
         let scroll = binary.range(of: Data("TRYOMARCHY_TOUCH_SCROLL_SCALE_FILE".utf8)) != nil
@@ -80,6 +85,13 @@ public struct Runtime: Sendable {
         let accelerator = (try? ProcessRunner.output(qemu, ["-accel", "help"])) ?? ""
         checks.append(Check(name: "Hypervisor (HVF)", passed: accelerator.contains("hvf"), detail: accelerator.contains("hvf") ? "Available" : "Missing"))
         return checks
+    }
+
+    /// QEMU 11.1.2 fixed CVE-2026-93834 (shared folders) and CVE-2026-17588 (USB).
+    static func hasSecurityFixes(version: String) -> Bool {
+        guard let match = version.firstMatch(of: /version (\d+)\.(\d+)\.(\d+)/),
+              let major = Int(match.1), let minor = Int(match.2), let micro = Int(match.3) else { return false }
+        return (major, minor, micro) >= (11, 1, 2)
     }
 }
 

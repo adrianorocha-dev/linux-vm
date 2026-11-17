@@ -22,7 +22,7 @@ How this was checked:
 - **Pointer.** Linux's own cursor shapes appear, such as the text cursor and resize arrows, with no second Mac arrow.
 - **Trackpad gestures.** Two-finger scrolling, pinch to zoom, and two-finger swipes back and forward in browsers all work. The app's scroll speed setting works too, because the Mac applies it. Some Linux touchpad settings start differently; see [Touchpad defaults](#touchpad-defaults).
 - **Mouse and keyboard.** Typing, clicks and mouse-wheel scrolling all work.
-- **Sound.** Linux plays sound on the Mac's current output device and records from the Mac's current microphone. macOS asks once for permission to use the microphone.
+- **Sound.** Linux plays sound on the Mac's current output device and records from the Mac's current microphone. macOS asks once for permission to use the microphone. A VM's Access to the Mac settings can turn the microphone off.
 - **Network.** Linux reaches the internet through the Mac, and the app's port forwards work.
 - **Power.**
   - **GNOME:** the app's Shut Down asks Linux to shut down, like pressing a power button.
@@ -49,6 +49,8 @@ How this was checked:
 The clipboard, the Mac sound devices, the home-folder link and the report to the app start when someone logs in to the desktop. The time zone, the clock and the `/mnt/mac` mount work from startup.
 
 On a GNOME version the guest tools don't support yet, the clipboard is off and the app says so. Everything else in the table still works.
+
+A VM's Access to the Mac settings decide whether its clipboard is shared at all, and whether Linux may change files in the shared folder. A hardened VM shares no clipboard, and its shared folder is read-only.
 
 ## Touchpad defaults
 
